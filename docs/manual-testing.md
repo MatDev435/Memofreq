@@ -1,0 +1,71 @@
+# Checklist de testes manuais
+
+Um item só pode ser marcado como executado após observação real. Registre data, ambiente, passos, resultado e limitações. Testes automatizados não marcam este checklist automaticamente.
+
+## Fundação
+
+- [ ] Abrir o projeto em navegador e inspecionar a página visualmente.
+- [ ] Conferir apresentação em viewport estreito, desktop e zoom de 200%.
+- [ ] Usar Tab e Enter para alcançar “Ir para o conteúdo”.
+- [ ] Conferir foco visível, contraste e legibilidade.
+- [ ] Inspecionar a página com um leitor de tela real, sem inferir o resultado a partir do axe.
+
+## Áudio — após implementação da engine
+
+- [ ] Habilitar som por ação explícita, inclusive em Safari/iOS.
+- [ ] Testar volume inicial confortável e controle de volume.
+- [ ] Ouvir tons em diferentes posições da faixa, com fones.
+- [ ] Avaliar envelopes e ausência de estalos na entrada, saída e movimento rápido.
+- [ ] Verificar que mover o slider não reinicia o tom.
+- [ ] Verificar que a confirmação encerra o som suavemente.
+- [ ] Ouvir sequência Extreme e pausas, sem sobreposição de tons.
+- [ ] Encerrar e reiniciar repetidamente; nenhum som permanece ou duplica.
+- [ ] Testar suspensão pelo sistema, bloqueio da tela e restauração do contexto.
+
+## Regras e interrupções — após experiência jogável
+
+- [ ] Completar cinco rounds do Normal e Hard.
+- [ ] Completar cinco rounds do Extreme com duas e três referências.
+- [ ] Confirmar rapidamente várias vezes; apenas uma resposta é aceita.
+- [ ] Verificar ausência de replay e impossibilidade de alterar resposta anterior.
+- [ ] Ocultar página na contagem: aguardar ação explícita e recomeçar três segundos, sem ter tocado referência.
+- [ ] Ocultar página durante referência: interromper a partida sem replay.
+- [ ] Ocultar página durante tentativa: interromper a partida e parar tom.
+- [ ] Ocultar página nos resultados da tentativa e do round: preservar dados e permitir continuar.
+- [ ] Ocultar página no resultado final: preservar dados.
+- [ ] Apenas desfocar a janela sem ocultar a página: não invalidar automaticamente.
+- [ ] Voltar de resultado com contexto suspenso: habilitar por interação antes de avançar, sem repetir referência.
+- [ ] Conferir totais e médias sem arredondamento intermediário, exibidos com duas casas em pt-BR.
+
+## Acessibilidade auditiva — fases jogáveis
+
+- [ ] Nome estável “Ajustar tom” em todos os modos.
+- [ ] Setas, Home/End e ajustes maiores funcionam conforme instruções.
+- [ ] Botões alternativos ajustam o mesmo tom sem mudar foco ou nome.
+- [ ] Nenhum Hz é anunciado automaticamente durante ajuste no Normal, Hard ou Extreme.
+- [ ] Nenhuma região de altura é narrada durante movimento.
+- [ ] Registrar anúncios nativos persistentes do slider e testar a alternativa por botões.
+- [ ] Hz aparece visualmente apenas no Normal durante a tentativa.
+- [ ] Resultados não anunciam alvo/resposta automaticamente e permitem consulta intencional.
+- [ ] Não há mensagem disparada pela aplicação sobre os tons de referência ou tentativa.
+- [ ] Round, tentativa e ações disponíveis são compreensíveis por leitor de tela.
+- [ ] Gráfico tem dados equivalentes em texto.
+
+Use a matriz detalhada de `accessibility.md`, com versões de NVDA/VoiceOver/TalkBack e navegadores. Não declarar compatibilidade universal a partir de uma única combinação.
+
+## Compatibilidade
+
+- [ ] Chrome desktop.
+- [ ] Firefox desktop.
+- [ ] Safari macOS.
+- [ ] Safari iOS em dispositivo físico.
+- [ ] Chrome Android em dispositivo físico.
+- [ ] Mouse, toque e teclado.
+
+## Registro de execução
+
+Nenhum teste manual de áudio ou leitor de tela foi executado nesta fundação. A ausência desses controles na Fase 1 é intencional. O relatório da fase deve identificar separadamente os smoke tests automatizados de teclado e axe, sem apresentá-los como testes manuais.
+
+| Data | Ambiente e versões | Caso | Resultado observado             | Pendência                    |
+| ---- | ------------------ | ---- | ------------------------------- | ---------------------------- |
+| —    | —                  | —    | Ainda não executado manualmente | A preencher em execução real |
