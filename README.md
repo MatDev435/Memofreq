@@ -60,13 +60,14 @@ Sem backend, contas, persistência remota ou dependências de áudio. Não há i
 - [Acessibilidade auditiva](docs/accessibility.md): política de anúncios e validação com leitores de tela.
 - [Plano de implementação](docs/implementation-plan.md): fases, dependências e critérios de aceitação.
 - [Testes manuais](docs/manual-testing.md): roteiro e registro explícito das verificações.
+- [Relatório da Fase 1](docs/phase-1-report.md): entregas, inventário e verificações executadas.
 - [Instruções para agentes](AGENTS.md): regras permanentes para futuras sessões.
 
 Consulte o plano para identificar o estágio atual antes de modificar o projeto. Não avance fases sem autorização do usuário.
 
 ## Git e GitHub
 
-Repositório previsto: [MatDev435/Memofreq](https://github.com/MatDev435/Memofreq), privado, branch principal `main`.
+Repositório criado: [MatDev435/Memofreq](https://github.com/MatDev435/Memofreq), privado. Branch principal: `main`, com acompanhamento de `origin/main`.
 
 Commits pequenos e coerentes seguem preferencialmente Conventional Commits. Antes de cada commit, execute as verificações relevantes. Não versione dependências instaladas, builds, resultados temporários ou segredos; não faça push forçado.
 
