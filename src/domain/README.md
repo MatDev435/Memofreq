@@ -24,4 +24,4 @@ Código TypeScript puro, sem React, DOM, Web Audio API, timers ou persistência.
 - O sinal `referenceStarted` é uma observação da futura engine/relógio do áudio. Se verdadeiro ao interromper a contagem, a partida é invalidada; o domínio não tenta inferi-lo por timers.
 - `showFrequencyVisually` controla somente a futura apresentação visual. Não autoriza anúncios de Hz por leitores de tela em modo algum.
 
-Os eventos com nomes de áudio representam confirmações lógicas; não há implementação sonora nesta fase. O controlador futuro deve encerrar efeitos cancelados quando o contexto de execução deixar de ser vigente.
+Os eventos com nomes de áudio representam confirmações lógicas; o domínio não reproduz sons. A engine da Fase 3 está em `src/audio`. O controlador da Fase 4 deverá associá-la aos eventos e encerrar efeitos cancelados quando o contexto de execução deixar de ser vigente.

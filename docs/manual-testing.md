@@ -12,6 +12,8 @@ Um item só pode ser marcado como executado após observação real. Registre da
 
 ## Áudio — após implementação da engine
 
+Roteiro isolado para a Fase 3: [engine de áudio](audio-engine.md#roteiro-de-escuta-manual). A disponibilidade de testes nativos e renderização PCM automatizada não marca estes itens como escuta humana.
+
 - [ ] Habilitar som por ação explícita, inclusive em Safari/iOS.
 - [ ] Testar volume inicial confortável e controle de volume.
 - [ ] Ouvir tons em diferentes posições da faixa, com fones.

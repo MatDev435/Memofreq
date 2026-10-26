@@ -4,7 +4,7 @@
 
 Monólito frontend modular: uma SPA, uma aplicação e um build estático. React cuida da apresentação; TypeScript estrito torna explícitos modelos e contratos. Não há backend nesta etapa.
 
-A fundação contém o ponto de entrada, tela estática e ferramentas. A Fase 2 implementa `src/domain` com configuração, geração, pontuação, modelos e reducer puro. Aplicação e áudio continuam reservados para integração posterior; a UI ainda não consome o domínio.
+A fundação contém o ponto de entrada, tela estática e ferramentas. A Fase 2 implementa `src/domain` com configuração, geração, pontuação, modelos e reducer puro. A Fase 3 implementa `src/audio/WebAudioEngine.ts` e o contrato `src/application/audioPort.ts`. O controlador e a integração da UI continuam previstos para a Fase 4.
 
 ## Limites e dependências
 
@@ -96,7 +96,7 @@ Invariantes:
 
 ## Política de interrupções por estado
 
-O reducer aplica a política por estado a eventos abstratos. O controlador futuro observará `document.visibilityState` para ocultação e `AudioContext.state` para suspensão efetiva, enviará os eventos e cancelará os efeitos correspondentes. A Fase 2 não instala listeners ou executa as ações físicas de áudio descritas na tabela. Perda de foco isolada não equivale a ocultação.
+O reducer aplica a política por estado a eventos abstratos. A engine da Fase 3 observa o estado do AudioContext e notifica interrupções após limpar suas vozes. O controlador futuro observará `document.visibilityState`, associará as notificações ao contexto do domínio e cancelará os efeitos correspondentes. A integração desses eventos com a partida ainda não está implementada. Perda de foco isolada não equivale a ocultação.
 
 | Estado                 | Página oculta                                                 | Suspensão/falha do áudio                                   | Retorno                                                                     |
 | ---------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
@@ -119,9 +119,13 @@ Na corrida entre confirmação e interrupção, o primeiro evento válido define
 
 Fechar/recarregar a página perde o progresso: não há persistência nesta versão. Sair explicitamente da partida cancela todos os recursos. Não invalidar uma partida apenas por retornar de uma tela de resultados com o contexto suspenso.
 
-## Engine de áudio planejada
+## Engine de áudio implementada
 
-Contrato pequeno, definido quando houver consumidor real, para habilitar áudio, reproduzir sequência, iniciar tom contínuo, atualizar frequência/volume, cancelar e descartar.
+O contrato `AudioPort` é implementado por `WebAudioEngine`: habilitar áudio, reproduzir referências ou sequências, iniciar tom contínuo, atualizar frequência/volume, cancelar e descartar. A engine recebe a faixa de frequências e não importa regras, modos ou estados do jogo.
+
+Cada reprodução fornece handle com ID e promessa de término. Os resultados `completed`, `stopped`, `cancelled` e `interrupted` distinguem referência concluída de cancelamento. O controlador futuro só aceitará uma conclusão normal com o contexto de execução ainda vigente. Handles antigos não afetam novas reproduções.
+
+Os testes unitários usam um contexto controlado; Playwright verifica AudioContext real e amostras de OfflineAudioContext. O [guia da engine](audio-engine.md) detalha grafos, parâmetros, concorrência, fallback de automação e limites da validação.
 
 - Um contexto reutilizado durante a vida da engine.
 - Ativação ou `resume()` em interação do usuário, com confirmação de estado ativo antes de avançar.

@@ -2,7 +2,7 @@
 
 Jogo web de percepção e memória auditiva: ouça frequências de referência e tente reproduzi-las ajustando um tom contínuo.
 
-**Estado atual: Fase 2 — Domínio e estados concluída.** Configuração, sorteios, pontuação, modelos e máquina de estados estão implementados e testados isoladamente. A aplicação ainda apresenta a tela estática da fundação; áudio, slider e integração jogável serão implementados nas próximas fases. A Fase 3 depende de nova autorização.
+**Estado atual: Fase 3 — Engine de áudio concluída.** O domínio e a engine estão implementados e testados isoladamente. A aplicação ainda apresenta a tela estática da fundação; a integração jogável, slider e controles serão implementados na Fase 4, mediante nova autorização.
 
 ## Requisitos
 
@@ -39,17 +39,17 @@ Em uma máquina Linux sem as bibliotecas necessárias, a instalação documentad
 | `npm run format:check` | Verificar formatação                                      |
 | `npm run format`       | Aplicar formatação                                        |
 | `npm test`             | Vitest em modo de observação                              |
-| `npm run test:run`     | Testes do domínio e componentes, execução única           |
+| `npm run test:run`     | Testes do domínio, engine e componentes, execução única   |
 | `npm run build`        | Verificar tipos e gerar `dist/`                           |
 | `npm run preview`      | Servir o build localmente                                 |
-| `npm run test:e2e`     | Smoke tests do build em Chromium desktop e viewport móvel |
+| `npm run test:e2e`     | Smoke tests e Web Audio nativa em Chromium desktop/móvel  |
 | `npm run check`        | Lint, formatação, testes de componentes, tipos e build    |
 
 O E2E requer um build anterior. Seu servidor de preview é iniciado e encerrado pelo Playwright. A emulação móvel não equivale a um teste em aparelho físico ou com leitor de tela.
 
 ## Stack e limites
 
-React, TypeScript estrito, Vite e CSS convencional. Somente React e React DOM são dependências de produção. A Web Audio API nativa será integrada em fase posterior.
+React, TypeScript estrito, Vite, CSS convencional e engine com Web Audio API nativa. Somente React e React DOM são dependências de produção. A engine ainda não está integrada à interface.
 
 Sem backend, contas, persistência remota ou dependências de áudio. Não há implantação de site configurada nesta fase. `base: './'` permite servir o build estático em uma subpasta; se futuramente houver rotas, a estratégia de navegação e o fallback do host precisarão ser revistos.
 
@@ -58,10 +58,12 @@ Sem backend, contas, persistência remota ou dependências de áudio. Não há i
 - [Especificação funcional](docs/functional-spec.md): fonte de verdade das mecânicas aprovadas.
 - [Arquitetura](docs/architecture.md): limites dos módulos, áudio e interrupções.
 - [Acessibilidade auditiva](docs/accessibility.md): política de anúncios e validação com leitores de tela.
+- [Engine de áudio](docs/audio-engine.md): contrato, ciclo de vida e roteiro de escuta manual.
 - [Plano de implementação](docs/implementation-plan.md): fases, dependências e critérios de aceitação.
 - [Testes manuais](docs/manual-testing.md): roteiro e registro explícito das verificações.
 - [Relatório da Fase 1](docs/phase-1-report.md): entregas, inventário e verificações executadas.
 - [Relatório da Fase 2](docs/phase-2-report.md): domínio, transições e validação das regras.
+- [Relatório da Fase 3](docs/phase-3-report.md): engine e testes de áudio executados.
 - [Instruções para agentes](AGENTS.md): regras permanentes para futuras sessões.
 
 Consulte o plano para identificar o estágio atual antes de modificar o projeto. Não avance fases sem autorização do usuário.
