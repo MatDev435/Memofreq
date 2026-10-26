@@ -89,3 +89,7 @@ Capturas reais de testes automatizados, preservadas sem edição. Os valores e n
 Repositório privado [MatDev435/Memofreq](https://github.com/MatDev435/Memofreq), branch `main`. Autenticação e identidade do remoto conferidas. Implementação: `502033b` — `fix: keep Extreme guesses continuous until round results`. Este relatório, as especificações atualizadas e as quatro capturas são versionados em um commit documental separado; o estado do envio é informado no resumo da entrega.
 
 A prévia local foi confirmada por HTTP em [http://localhost:5173/](http://localhost:5173/). Recarregue a página e inicie uma nova partida para testar a versão corrigida. Os próximos testes manuais com NVDA e a escuta humana permanecem a cargo do usuário. A próxima fase de implementação continua exigindo autorização explícita.
+
+## Validação posterior informada pelo usuário
+
+Após testar esta correção, o usuário relatou em 26/10/2026 que o fluxo agora está correto e autorizou a Fase 6. Navegador, versões e quantidade de referências não foram discriminados. Esse relato confirma a avaliação do fluxo pelo usuário, sem atribuir ao agente teste manual ou nova avaliação do NVDA.

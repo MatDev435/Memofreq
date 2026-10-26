@@ -11,7 +11,7 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 | 3 — Engine de áudio        | Concluída                | Autorizada em 26/10/2026 |
 | 4 — Normal jogável         | Concluída                | Autorizada em 26/10/2026 |
 | 5 — Hard e Extreme         | Concluída                | Autorizada em 26/10/2026 |
-| 6 — Integração e qualidade | Não iniciada             | Aguardando autorização   |
+| 6 — Integração e qualidade | Concluída                | Autorizada em 26/10/2026 |
 
 ## Fase 1 — Fundação
 
@@ -66,7 +66,7 @@ Correção autorizada em 26/10/2026 após teste do usuário: palpites do Extreme
 
 ## Fase 6 — Integração e qualidade
 
-**Dependência:** três modos completos e autorização da fase.
+**Dependência:** três modos completos e autorização da fase. O usuário testou e aprovou o Extreme corrigido antes de autorizar a Fase 6 em 26/10/2026.
 
 **Entregas:** gráfico de cinco barras com eixo 0–10 e tabela equivalente, revisão conjunta, compatibilidade, responsividade e correções funcionais. Sem projeto visual definitivo.
 

@@ -4,7 +4,7 @@
 
 Monólito frontend modular: uma SPA, uma aplicação e um build estático. React cuida da apresentação; TypeScript estrito torna explícitos modelos e contratos. Não há backend nesta etapa.
 
-A fundação contém o ponto de entrada e ferramentas. A Fase 2 implementa o domínio puro; a Fase 3 implementa a engine e seu contrato. A Fase 4 conecta ambos por `GameController`, com adaptador React e uma interface inicial para o Normal Mode. A Fase 5 estende a coordenação e a apresentação para Hard e Extreme, preservando o domínio e a engine existentes. O visual definitivo permanece uma etapa posterior.
+A fundação contém o ponto de entrada e ferramentas. A Fase 2 implementa o domínio puro; a Fase 3 implementa a engine e seu contrato. A Fase 4 conecta ambos por `GameController`, com adaptador React e uma interface inicial para o Normal Mode. A Fase 5 estende a coordenação e a apresentação para Hard e Extreme, preservando o domínio e a engine existentes. A Fase 6 acrescenta a apresentação final em SVG e tabela, testes entre navegadores e validação estática em subpasta. O visual definitivo permanece uma etapa posterior.
 
 ## Limites e dependências
 
@@ -30,7 +30,7 @@ A confirmação é aceita sincronamente, impedindo duplicações e alterações 
 
 O hook observa visibilidade e pagehide, cancela operações na desativação e posterga o descarte definitivo por uma microtask para suportar a reconexão do StrictMode. Engines fechadas recebem outra instância no próximo gesto; uma versão da engine impede notificações antigas de afetarem a nova.
 
-Componentes separados apresentam volume/teste de áudio, ajuste do tom e resultados. A formatação pt-BR com duas casas fica em `src/ui/format.ts`, sem arredondar os dados do domínio. O resultado final desta fase é textual, com uma tabela de cinco rounds; o gráfico pertence à Fase 6.
+Componentes separados apresentam volume/teste de áudio, ajuste do tom e resultados. A formatação pt-BR com duas casas fica em `src/ui/format.ts`, sem arredondar os dados do domínio. O resultado final desta fase é textual, com uma tabela de cinco rounds; a Fase 6 acrescenta o gráfico sem alterar os dados do resultado.
 
 ## Integração da Fase 5
 
@@ -44,6 +44,14 @@ Somente a última confirmação entra em `attempt-result`, uma etapa interna de 
 
 `ToneControl` recebe a política de exibição do domínio e omite o elemento de leitura de Hz no Hard e Extreme; seu valor nativo continua normalizado e seu nome e `aria-valuetext` permanecem estáveis. Resultados numéricos são revelados fora de regiões vivas após a cauda. `RoundSummary` apresenta alvo, palpite, diferença e pontuação de cada frequência, além da média armazenada pelo domínio, sem recálculo ou arredondamento intermediário na UI.
 
+## Integração da Fase 6
+
+`RoundScores` recebe os resultados imutáveis dos cinco rounds e apresenta gráfico SVG e tabela a partir da mesma lista. A escala fixa é 0–10, inclusive para notas baixas ou zero; a altura usa a pontuação original e a formatação pt-BR só afeta os rótulos. O gráfico tem título e descrição acessíveis e a tabela fornece os valores para consulta. Nenhum recebe foco automático ou região viva.
+
+As verificações de navegador comparam barras, tabela e total nas quatro modalidades, preservam o resultado após ocultação e verificam reflow a 320 px com texto a 200%. A ampliação de texto a 200% expôs overflow no título e no volume: texto pode quebrar e o volume passa a duas linhas em telas estreitas. Resultados podem quebrar por campo, mantendo os números da tabela juntos. Espaçamentos internos usam limites proporcionais à viewport em telas estreitas, preservando mais área útil com texto ampliado.
+
+O Playwright usa dois workers com Chromium desktop, Pixel 7 emulado, Firefox e WebKit Linux. São engines automatizadas, sem equivalência a testes em aparelhos físicos ou Safari Apple. Dois servidores de teste independentes entregam o mesmo build: Vite preview e um servidor de arquivos Node em `/memofreq/`, sem transformação ou fallback. O guia de hospedagem registra como publicar o artefato estático quando solicitado.
+
 ## Ferramentas e decisões
 
 - React e React DOM são as únicas dependências de produção.
@@ -52,7 +60,7 @@ Somente a última confirmação entra em `attempt-result`, uma etapa interna de 
 - ESLint usa análise de tipos e regras de React. Prettier e EditorConfig padronizam arquivos.
 - Vitest, jsdom, React Testing Library e user-event verificam componentes. Playwright exercita o build real e axe-core faz avaliação automatizada de acessibilidade no navegador.
 - Acessibilidade não depende apenas de lint ou axe. Evitamos instalar um plugin JSX de acessibilidade cujo peer dependency exigia uma linha já descontinuada do ESLint; a CI mantém a linha suportada e a verificação axe no navegador.
-- Sem roteador, biblioteca de áudio, gráficos ou estilos na fundação. SVG e tabela serão suficientes para as cinco barras quando o resultado final for implementado.
+- Sem roteador, biblioteca de áudio, gráficos ou estilos na fundação. SVG e tabela apresentam as cinco barras sem dependência de gráficos.
 
 As dependências ficam fixadas no `package.json` e no lockfile. Node 24 e npm 11 são a linha de execução aprovada. Não atualizar majors durante uma fase sem conferir compatibilidade e executar os checks.
 
@@ -104,7 +112,7 @@ Uma configuração é rejeitada quando a distância mínima supera metade da ext
 
 Referências distintas são sorteadas em ordem. Para não travar com uma fonte defeituosa que repete sempre o mesmo valor, há um limite de 32 sorteios por referência solicitada; ao excedê-lo, a geração falha explicitamente, sem introduzir alvos determinísticos de substituição.
 
-`scoring.ts` usa a diferença de logaritmos para calcular cents, matematicamente equivalente ao logaritmo da razão e sem overflow/underflow da divisão. A função matemática aceita frequências positivas e finitas; os limites específicos da partida são validados pela definição e pelo reducer. Médias e somas não arredondam parcelas. A formatação pt-BR permanece uma responsabilidade futura da apresentação.
+`scoring.ts` usa a diferença de logaritmos para calcular cents, matematicamente equivalente ao logaritmo da razão e sem overflow/underflow da divisão. A função matemática aceita frequências positivas e finitas; os limites específicos da partida são validados pela definição e pelo reducer. Médias e somas não arredondam parcelas. A formatação pt-BR fica na apresentação, sem alterar os dados do domínio.
 
 Todos os testes do domínio rodam em ambiente Node, sem depender de DOM ou AudioContext. O guia `src/domain/README.md` descreve os arquivos e os contratos de integração.
 
@@ -112,7 +120,7 @@ Invariantes:
 
 - Confirmar só é permitido em `tentativa`.
 - Uma resposta confirmada é imutável; o primeiro evento aceito encerra a possibilidade de nova confirmação.
-- Avançar exige resultado da tentativa atual. No Extreme, o índice avança exatamente uma posição.
+- No Extreme, confirmar registra o palpite e avança exatamente uma posição, sem resultado intermediário. Somente o round completo oferece avanço explícito.
 - Avançar o round exige todas as respostas e nunca ultrapassa cinco rounds.
 - Não existe ação de replay nem retorno de tentativa para referências já iniciadas.
 - Som de tentativa só existe durante uma tentativa ativa.
@@ -122,18 +130,18 @@ Invariantes:
 
 O reducer aplica a política por estado a eventos abstratos. A engine observa o estado do AudioContext e notifica interrupções após limpar suas vozes. O controlador observa `document.visibilityState`, associa as notificações ao contexto vigente e cancela os efeitos correspondentes. Perda de foco isolada não equivale a ocultação. `pagehide` encerra a execução ao navegar para fora; não equivale ao evento de simples troca de aba.
 
-| Estado                 | Página oculta                                                 | Suspensão/falha do áudio                                   | Retorno                                                                     |
-| ---------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Inicial                | Parar teste de áudio, se houver                               | Informar apenas se necessário                              | Permanecer na inicial; novo teste é explícito                               |
-| Preparando áudio       | Cancelar intenção pendente; nenhum início em segundo plano    | Não avançar; permitir nova interação                       | Preservar seleção ou progresso de resultado; retomar por ação explícita     |
-| Contagem               | Cancelar contagem e áudio futuro; ir para aguardando retomada | Mesmo tratamento, se nenhuma referência começou            | Ação explícita recomeça três segundos                                       |
-| Aguardando retomada    | Permanecer sem áudio                                          | Manter aguardando                                          | Aguardar ação; não avançar automaticamente                                  |
-| Referências            | Invalidar partida e cancelar tudo                             | Invalidar partida e cancelar tudo                          | Mostrar motivo e oferecer nova partida; sem replay                          |
-| Tentativa              | Invalidar partida e cancelar tudo                             | Invalidar partida e cancelar tudo                          | Mostrar motivo; respostas não viram resultado final válido                  |
-| Resultado da tentativa | Preservar partida                                             | Preservar partida; engine ficará indisponível até retomada | Continuar mediante ação do usuário; habilitar áudio antes de nova tentativa |
-| Resultado do round     | Preservar partida                                             | Preservar partida                                          | Ação explícita inicia preparação da próxima contagem                        |
-| Resultado final        | Preservar resultado                                           | Sem efeito sobre os dados                                  | Sem áudio ou avanço automático                                              |
-| Interrompida           | Manter encerrada                                              | Cancelamento idempotente                                   | Nova partida ou inicial                                                     |
+| Estado                 | Página oculta                                                 | Suspensão/falha do áudio                                   | Retorno                                                                        |
+| ---------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Inicial                | Parar teste de áudio, se houver                               | Informar apenas se necessário                              | Permanecer na inicial; novo teste é explícito                                  |
+| Preparando áudio       | Cancelar intenção pendente; nenhum início em segundo plano    | Não avançar; permitir nova interação                       | Preservar seleção ou progresso de resultado; retomar por ação explícita        |
+| Contagem               | Cancelar contagem e áudio futuro; ir para aguardando retomada | Mesmo tratamento, se nenhuma referência começou            | Ação explícita recomeça três segundos                                          |
+| Aguardando retomada    | Permanecer sem áudio                                          | Manter aguardando                                          | Aguardar ação; não avançar automaticamente                                     |
+| Referências            | Invalidar partida e cancelar tudo                             | Invalidar partida e cancelar tudo                          | Mostrar motivo e oferecer nova partida; sem replay                             |
+| Tentativa              | Invalidar partida e cancelar tudo                             | Invalidar partida e cancelar tudo                          | Mostrar motivo; respostas não viram resultado final válido                     |
+| Resultado da tentativa | Preservar partida                                             | Preservar partida; engine ficará indisponível até retomada | Etapa interna da cauda após a última resposta; consolidar o round sem novo som |
+| Resultado do round     | Preservar partida                                             | Preservar partida                                          | Ação explícita inicia preparação da próxima contagem                           |
+| Resultado final        | Preservar resultado                                           | Sem efeito sobre os dados                                  | Sem áudio ou avanço automático                                                 |
+| Interrompida           | Manter encerrada                                              | Cancelamento idempotente                                   | Nova partida ou inicial                                                        |
 
 Não avançar contagem ou iniciar tentativas enquanto a página estiver oculta. Ao chegar qualquer evento de término, conferir novamente visibilidade e execução vigente.
 

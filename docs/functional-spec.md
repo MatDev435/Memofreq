@@ -1,6 +1,6 @@
 # Especificação funcional do Memofreq
 
-Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. As Fases 4 e 5 integram domínio, engine e interface para Normal, Hard e Extreme com duas ou três referências. O gráfico aguarda autorização da Fase 6; a identidade visual definitiva será refinada posteriormente.
+Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. As Fases 4 e 5 integram domínio, engine e interface para Normal, Hard e Extreme com duas ou três referências. A Fase 6 acrescenta o gráfico e a tabela de notas e revisa a integração; a identidade visual definitiva será refinada posteriormente.
 
 ## 1. Produto e escopo
 
@@ -100,7 +100,7 @@ Após cinco rounds, apresentar:
 - Número de frequências por round no Extreme.
 - Total de zero a cinquenta.
 - Pontuação dos cinco rounds.
-- Gráfico de barras com eixo de zero a dez.
+- Gráfico de cinco barras com eixo fixo de zero a dez, sem reescalar o eixo conforme a maior nota. Barras usam a precisão armazenada; rótulos usam duas casas decimais.
 - Dados equivalentes em texto acessível.
 - Ações de jogar novamente e retornar à tela inicial.
 

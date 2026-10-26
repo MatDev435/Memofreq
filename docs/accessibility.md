@@ -28,7 +28,7 @@ Não usar `role="application"`, valores ARIA falsos, supressão global de teclad
 - **Normal:** Hz pode ser exibido visualmente em um elemento comum, sem `aria-live`, sem papel `status` e sem associação dinâmica ao nome ou à descrição do slider. Não usar `output` com comportamento implícito de status para atualizações de frequência. O texto pode ser consultado intencionalmente, mas nunca recebe foco automático.
 - **Hard/Extreme:** não apresentar Hz na tentativa, inclusive em descrições, tooltips e rótulos acessíveis.
 - **Resultados:** usar texto semântico comum, por exemplo uma lista de descrição ou tabela, com alvo, resposta, diferença e pontuação. Nenhum desses números fará parte de uma mensagem viva.
-- **Gráfico:** acompanhar as barras por tabela com cinco rounds e respectivas notas, consultável sob demanda.
+- **Gráfico:** SVG com título e descrição estáveis, sem foco ou região viva. A escala visual permanece 0–10. A tabela adjacente apresenta os cinco rounds e suas notas, consultáveis sob demanda; ambos vêm da mesma lista de resultados. As alturas mantêm precisão; somente os textos usam duas casas.
 
 Não colocar `aria-hidden` em botões ou no slider. Não publicar informações numéricas escondidas em nomes acessíveis para compensar a interface visual.
 
@@ -61,7 +61,7 @@ Registrar sistema operacional, navegador, leitor e versões, método de entrada,
 | macOS/iOS + VoiceOver + Safari  | Teclado/gestos | Pendente; não executado                                                                               |
 | Android + TalkBack + Chrome     | Gestos         | Pendente; não executado                                                                               |
 
-Casos para as fases 4 e 5:
+Casos para a versão jogável, incluindo a Fase 6:
 
 Na entrega da Fase 4, o NVDA foi encontrado instalado, mas o controle Windows falhou antes de qualquer ação com `sandboxCwd is not a local file URI: file:///home/mat/www/memofreq`. Reiniciar a sessão da ferramenta e repetir a inicialização não resolveu. O agente não observou fala nessa sessão. Depois da entrega, o usuário testou manualmente e relatou funcionamento com NVDA. Esse relato não especificou todos os passos abaixo nem valida outros leitores ou modalidades. Os próximos casos serão executados pelo usuário diretamente na interface; não repetir tentativas de automação do leitor. DOM e axe continuam como verificações complementares.
 
@@ -73,6 +73,8 @@ Na entrega da Fase 4, o NVDA foi encontrado instalado, mas o controle Windows fa
 6. Ouvir a referência completa sem mensagens da aplicação sobrepostas.
 7. Verificar início automático da tentativa e ausência de anúncios programáticos nesse intervalo.
 8. Repetir no Normal, Hard e Extreme com duas e três frequências.
+9. Consultar a descrição do gráfico e a tabela final, sem anúncio automático de notas ou frequências.
+10. Verificar a navegação com texto ampliado; testes automatizados cobrem 320 px e texto a 200%, sem substituir zoom e gestos reais.
 
 Testes de DOM, axe e teclado automatizado verificam parte da estrutura; não validam o que o leitor efetivamente fala.
 

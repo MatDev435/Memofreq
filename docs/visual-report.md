@@ -2,6 +2,8 @@
 
 Para as novidades posteriores, consulte o [relatório da Fase 5](phase-5-report.md), que registra Hard, Extreme e novas capturas. O ajuste posterior está em [correção do fluxo Extreme](extreme-flow-fix.md).
 
+A entrega mais recente está no [relatório da Fase 6](phase-6-report.md), com gráfico e capturas atualizadas.
+
 Data: 26/10/2026. Abrange as Fases 1 a 4, até o commit `07b05c7`. A interface está funcional para jogar Normal e testar o áudio; o acabamento visual definitivo permanece para uma etapa posterior. A Fase 5 não foi iniciada.
 
 ## O que foi construído

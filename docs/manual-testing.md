@@ -54,7 +54,8 @@ Use diretamente Testar áudio, Volume e as partidas Normal, Hard ou Extreme. Os 
 - [ ] Resultados não anunciam alvo/resposta automaticamente e permitem consulta intencional.
 - [ ] Não há mensagem disparada pela aplicação sobre os tons de referência ou tentativa.
 - [ ] Round, tentativa e ações disponíveis são compreensíveis por leitor de tela.
-- [ ] Gráfico tem dados equivalentes em texto.
+- [ ] Consultar gráfico e tabela final com cinco notas equivalentes, sem foco ou anúncio automático dos valores.
+- [ ] Conferir inicial, tentativa e resultados com zoom real de 200% e texto ampliado, em desktop e aparelho físico.
 
 Use a matriz detalhada de `accessibility.md`, com versões de NVDA/VoiceOver/TalkBack e navegadores. Não declarar compatibilidade universal a partir de uma única combinação.
 
@@ -73,7 +74,8 @@ Até a entrega da Fase 4, o agente não havia realizado escuta humana ou observa
 
 Foram inspecionadas visualmente capturas do Chromium desktop e Pixel 7 emulado. Testes automatizados verificaram teclado, foco, axe e partidas completas. As transições de visibilidade no E2E foram provocadas por eventos controlados; isso não equivale a uma validação manual de troca de aba em todos os sistemas. Após a entrega, o usuário relatou teste geral bem-sucedido da interface Normal, inclusive com NVDA, em 26/10/2026. Navegador, versões e casos específicos não foram informados; por isso, esse relato é registrado sem marcar individualmente os itens acima. Os próximos testes manuais de áudio e leitores de tela ficam com o usuário, inclusive Hard e Extreme; o agente não tentará operar o NVDA.
 
-| Data       | Ambiente e versões                                            | Caso                                          | Resultado observado                                            | Pendência                                                                               |
-| ---------- | ------------------------------------------------------------- | --------------------------------------------- | -------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| 26/10/2026 | Chromium / Pixel 7 emulado, capturas Playwright               | Inspeção visual                               | Conteúdo legível e controles sem corte horizontal nas capturas | Escuta humana, aparelhos físicos e leitores de tela reais                               |
-| 26/10/2026 | Ambiente do usuário; NVDA; navegador e versões não informados | Teste geral da interface Normal após a Fase 4 | Usuário relatou funcionamento, inclusive com NVDA              | Casos específicos não discriminados; novos modos ainda aguardam teste manual do usuário |
+| Data       | Ambiente e versões                                            | Caso                                          | Resultado observado                                                 | Pendência                                                                                                |
+| ---------- | ------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| 26/10/2026 | Chromium / Pixel 7 emulado, capturas Playwright               | Inspeção visual                               | Conteúdo legível e controles sem corte horizontal nas capturas      | Escuta humana, aparelhos físicos e leitores de tela reais                                                |
+| 26/10/2026 | Ambiente do usuário; NVDA; navegador e versões não informados | Teste geral da interface Normal após a Fase 4 | Usuário relatou funcionamento, inclusive com NVDA                   | Casos específicos não discriminados; novos modos ainda aguardam teste manual do usuário                  |
+| 26/10/2026 | Ambiente do usuário; navegador e versões não informados       | Fluxo Extreme após a correção                 | Usuário relatou que testou e agora está correto; autorizou a Fase 6 | Quantidade de referências e casos de acessibilidade não discriminados; gráfico novo aguarda teste manual |
