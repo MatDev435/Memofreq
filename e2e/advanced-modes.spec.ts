@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { expectFinalScores } from './results-checks';
 import { formatHz } from '../src/ui/format';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
@@ -317,6 +318,7 @@ for (const { mode, count } of [
       page.getByRole('heading', { name: 'Resultado da partida', exact: true }),
     ).toBeFocused();
     await expect(page.locator('table tbody tr')).toHaveCount(5);
+    await expectFinalScores(page);
     await expect(page.getByText(new RegExp(`^Modo ${mode}`))).toBeVisible();
     expect(
       await page.evaluate(() => window.phaseFiveAudio.contexts.length),

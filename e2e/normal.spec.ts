@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { expectFinalScores, expectReflow } from './results-checks';
 import { expect, test } from '@playwright/test';
 
 declare global {
@@ -115,6 +116,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
     page.getByRole('heading', { name: 'Resultado da partida', exact: true }),
   ).toBeFocused();
   await expect(page.locator('table tbody tr')).toHaveCount(5);
+  await expectFinalScores(page);
   expect(await page.evaluate(() => window.gameAudioMetrics.contexts)).toBe(1);
   expect(await page.evaluate(() => window.gameAudioMetrics.sources)).toBe(11);
   const violations = await new AxeBuilder({ page })
@@ -125,6 +127,21 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
     path: testInfo.outputPath('results.png'),
     fullPage: true,
   });
+  const viewport = page.viewportSize();
+  if (!viewport) throw new Error('Viewport ausente.');
+  await page.setViewportSize({ width: 320, height: 740 });
+  const textSize = await page.addStyleTag({
+    content: 'html { font-size: 200%; }',
+  });
+  await page.screenshot({
+    path: testInfo.outputPath('results-320-text-200.png'),
+    fullPage: true,
+  });
+  await expectReflow(page);
+  await textSize.evaluate((element) => {
+    element.parentNode?.removeChild(element);
+  });
+  await page.setViewportSize(viewport);
   await page
     .getByRole('button', { name: 'Jogar novamente', exact: true })
     .click();
