@@ -1,10 +1,13 @@
-import type { KeyboardEvent } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 import { frequencyToPosition } from '../../domain/frequencies';
 import type { FrequencyRange } from '../../domain/config';
 import { formatHz } from '../format';
+import { Icon } from './Icon';
+import { KeyboardHints } from './KeyboardHints';
 
 interface ToneControlProps {
   readonly enabled: boolean;
+  readonly confirm?: ReactNode;
   readonly frequencyHz: number | null;
   readonly showFrequency: boolean;
   readonly range: FrequencyRange;
@@ -14,6 +17,7 @@ interface ToneControlProps {
 
 export function ToneControl({
   enabled,
+  confirm,
   frequencyHz,
   showFrequency,
   range,
@@ -53,7 +57,11 @@ export function ToneControl({
 
   return (
     <section className="tone-control" aria-labelledby="tone-title">
-      <label className="control-label" id="tone-title" htmlFor="tone">
+      <h3>Ajuste o tom</h3>
+      <p className="tone-instruction">
+        Use sua audição para encontrar o tom que você memorizou.
+      </p>
+      <label className="sr-only" id="tone-title" htmlFor="tone">
         Ajustar tom
       </label>
       {showFrequency && (
@@ -71,6 +79,9 @@ export function ToneControl({
         value={
           frequencyHz === null ? 0.5 : frequencyToPosition(frequencyHz, range)
         }
+        style={{
+          backgroundImage: `linear-gradient(90deg, #983cff 0%, #25e6f8 ${String((frequencyHz === null ? 0.5 : frequencyToPosition(frequencyHz, range)) * 100)}%, #071624 ${String((frequencyHz === null ? 0.5 : frequencyToPosition(frequencyHz, range)) * 100)}%, #071624 100%)`,
+        }}
         disabled={!enabled}
         aria-valuetext="Ajuste pelo som"
         onChange={(event) => {
@@ -78,6 +89,21 @@ export function ToneControl({
         }}
         onKeyDown={onKey}
       />
+      <div className="slider-ruler" aria-hidden="true">
+        {Array.from({ length: 21 }, (_, i) => (
+          <span key={i} />
+        ))}
+      </div>
+      <div className="slider-extents" aria-hidden="true">
+        <span>
+          <Icon name="back" />
+          Mais grave
+        </span>
+        <span>
+          Mais agudo
+          <Icon name="arrow" />
+        </span>
+      </div>
       <div className="button-row tone-buttons">
         <button
           type="button"
@@ -87,7 +113,13 @@ export function ToneControl({
             onAdjust(-0.001);
           }}
         >
-          Diminuir tom
+          <span className="adjust-symbol">
+            <Icon name="minus" />
+          </span>
+          <span>
+            <strong>Diminuir tom</strong>
+            <small aria-hidden="true">Seta para a esquerda</small>
+          </span>
         </button>
         <button
           type="button"
@@ -97,13 +129,17 @@ export function ToneControl({
             onAdjust(0.001);
           }}
         >
-          Aumentar tom
+          <span className="adjust-symbol">
+            <Icon name="plus" />
+          </span>
+          <span>
+            <strong>Aumentar tom</strong>
+            <small aria-hidden="true">Seta para a direita</small>
+          </span>
         </button>
       </div>
-      <p className="muted control-help">
-        Use as setas ou os botões para ajustar. Page Up e Page Down fazem
-        ajustes maiores; Home e End vão aos extremos.
-      </p>
+      <KeyboardHints compact />
+      {confirm}
     </section>
   );
 }

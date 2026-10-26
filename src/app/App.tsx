@@ -13,6 +13,8 @@ import { WaveArt } from '../ui/components/WaveArt';
 import { RoundSummary } from '../ui/components/RoundSummary';
 import { RoundScores } from '../ui/components/RoundScores';
 import { formatNumber } from '../ui/format';
+import { SessionHeader } from '../ui/components/SessionHeader';
+import { PlayingScreen } from '../ui/screens/PlayingScreen';
 import { createBrowserGameController } from './createGameController';
 
 export function App({
@@ -75,16 +77,35 @@ export function App({
       : showingResult && result
         ? result.playerHz
         : null;
-  const phaseText = busy
-    ? 'Preparando…'
-    : game.phase === 'countdown'
-      ? 'Prepare-se para ouvir'
-      : game.phase === 'references'
-        ? 'Ouça e memorize'
-        : game.phase === 'attempt'
-          ? 'Encontre o tom que você memorizou'
-          : 'Sua resposta';
-
+  const audio = (
+    <AudioControls
+      volume={snapshot.volume}
+      home={home}
+      busy={busy}
+      sample={snapshot.sample}
+      onVolume={controller.setVolume}
+      onTest={controller.testAudio}
+      onStop={controller.stopSample}
+    />
+  );
+  const confirm = (
+    <button
+      type="button"
+      className="primary confirm-button"
+      disabled={game.phase !== 'attempt' || busy}
+      onClick={(event) => {
+        if (event.detail <= 1) controller.confirm(game.executionId);
+      }}
+      onKeyDown={(event) => {
+        if (event.repeat && (event.key === 'Enter' || event.key === ' '))
+          event.preventDefault();
+      }}
+    >
+      <Icon name="ear" />
+      Confirmar tentativa
+      <Icon name="arrow" className="button-arrow" />
+    </button>
+  );
   return (
     <div
       className={`app-shell ${home ? 'is-home' : 'is-game'}`}
@@ -96,46 +117,44 @@ export function App({
       <a className="skip-link" href="#conteudo">
         Ir para o conteúdo
       </a>
-      <header className="site-header">
-        <Brand />
-        <div className="header-end">
-          <span className="project-stage">
-            Um desafio para os seus ouvidos.
-          </span>
-          <button
-            type="button"
-            className="motion-toggle"
-            aria-label="Animações visuais"
-            aria-pressed={!motionPaused}
-            title={motionPaused ? 'Ativar animações' : 'Pausar animações'}
-            onClick={() => {
-              setMotionPaused(!motionPaused);
-            }}
-          >
-            <Icon name="motion" />
-          </button>
-        </div>
-      </header>
+      {home && (
+        <header className="site-header">
+          <Brand />
+          <div className="header-end">
+            <span className="project-stage">
+              Um desafio para os seus ouvidos.
+            </span>
+            <button
+              type="button"
+              className="motion-toggle"
+              aria-label="Animações visuais"
+              aria-pressed={!motionPaused}
+              title={motionPaused ? 'Ativar animações' : 'Pausar animações'}
+              onClick={() => {
+                setMotionPaused(!motionPaused);
+              }}
+            >
+              <Icon name="motion" />
+            </button>
+          </div>
+        </header>
+      )}
       <main
         id="conteudo"
         tabIndex={-1}
         className={home ? 'home-main' : 'session-main'}
       >
         {!home && (
-          <div className="page-title">
-            <p className="eyebrow">Percepção e memória auditiva</p>
-            <h1 id="titulo">Memofreq</h1>
-          </div>
-        )}
-        {!home && (
-          <AudioControls
-            volume={snapshot.volume}
-            home={home}
-            busy={busy}
-            sample={snapshot.sample}
-            onVolume={controller.setVolume}
-            onTest={controller.testAudio}
-            onStop={controller.stopSample}
+          <SessionHeader
+            modeLabel={modeLabel}
+            audio={audio}
+            final={game.phase === 'final-result'}
+            onLeave={controller.leave}
+            exitRef={exit}
+            motionPaused={motionPaused}
+            onMotion={() => {
+              setMotionPaused(!motionPaused);
+            }}
           />
         )}
         {snapshot.error && <p className="error-message">{snapshot.error}</p>}
@@ -147,20 +166,9 @@ export function App({
         >
           {snapshot.announcement}
         </p>
-
         {home ? (
           <HomeScreen
-            audio={
-              <AudioControls
-                volume={snapshot.volume}
-                home
-                busy={busy}
-                sample={snapshot.sample}
-                onVolume={controller.setVolume}
-                onTest={controller.testAudio}
-                onStop={controller.stopSample}
-              />
-            }
+            audio={audio}
             mode={mode}
             frequencyCount={frequencyCount}
             onMode={setMode}
@@ -175,7 +183,7 @@ export function App({
           />
         ) : game.phase === 'final-result' ? (
           <section className="panel final-result" aria-labelledby="final-title">
-            <p className="eyebrow">Modo {modeLabel} · 5 rounds concluídos</p>
+            <p className="eyebrow">5 rounds concluídos</p>
             <h2 ref={finalTitle} tabIndex={-1} id="final-title">
               Resultado da partida
             </h2>
@@ -206,7 +214,13 @@ export function App({
             </div>
           </section>
         ) : game.phase === 'interrupted' ? (
-          <section className="panel" aria-labelledby="interrupted-title">
+          <section
+            className="interrupted-panel screen-enter"
+            aria-labelledby="interrupted-title"
+          >
+            <span className="icon-tile">
+              <Icon name="volume" />
+            </span>
             <h2 id="interrupted-title">Partida interrompida</h2>
             <p>
               A referência ou o tom da tentativa foi interrompido. Comece uma
@@ -221,6 +235,7 @@ export function App({
                 disabled={busy}
                 onClick={controller.restart}
               >
+                <Icon name="restart" />
                 Nova partida
               </button>
               <button
@@ -229,40 +244,60 @@ export function App({
                 disabled={busy}
                 onClick={controller.leave}
               >
+                <Icon name="home" />
                 Voltar ao início
               </button>
             </div>
           </section>
+        ) : showingResult && result ? (
+          <div className="round-result-screen screen-enter">
+            <p className="round-label">
+              Round {game.session.roundIndex + 1} de {ROUND_COUNT}
+            </p>
+            {completedRound && settings && settings.referencesPerRound > 1 ? (
+              <RoundSummary round={completedRound} />
+            ) : (
+              <AttemptResult result={result} />
+            )}
+            <button
+              ref={next}
+              type="button"
+              className="primary next-round-button"
+              onClick={() => {
+                exit.current?.focus();
+                controller.advance();
+              }}
+            >
+              {game.session.roundIndex === ROUND_COUNT - 1
+                ? 'Ver resultado final'
+                : 'Próximo round'}
+              <Icon name="arrow" />
+            </button>
+          </div>
         ) : (
-          <section className="panel game-panel" aria-labelledby="game-title">
-            <div className="round-header">
-              <div>
-                <h2 id="game-title">Modo {modeLabel}</h2>
-                <p className="round-label">
-                  Round {game.session.roundIndex + 1} de {ROUND_COUNT}
-                </p>
-                {settings &&
-                  settings.referencesPerRound > 1 &&
-                  (game.phase === 'attempt' ||
-                    showingResult ||
-                    game.phase === 'attempt-result') && (
-                    <p className="round-label">
-                      Frequência {game.session.attemptIndex + 1} de{' '}
-                      {settings.referencesPerRound}
-                    </p>
-                  )}
-              </div>
-              <button
-                ref={exit}
-                type="button"
-                className="quiet-button"
-                onClick={controller.leave}
-              >
-                Encerrar partida
-              </button>
-            </div>
-            {game.phase === 'awaiting-resume' ? (
-              <section className="paused-card">
+          <PlayingScreen
+            phase={game.phase}
+            countdown={snapshot.countdown}
+            roundIndex={game.session.roundIndex}
+            attemptIndex={game.session.attemptIndex}
+            count={settings?.referencesPerRound ?? 1}
+            busy={busy}
+            controls={
+              <ToneControl
+                enabled={game.phase === 'attempt' && !busy}
+                frequencyHz={frequencyHz}
+                showFrequency={settings?.showFrequencyVisually ?? false}
+                range={game.session.definition.rules.range}
+                onPosition={controller.setPosition}
+                onAdjust={controller.adjustPosition}
+                confirm={confirm}
+              />
+            }
+            paused={
+              <section className="paused-card screen-enter">
+                <span className="icon-tile">
+                  <Icon name="clock" />
+                </span>
                 <h3>Contagem pausada</h3>
                 <p>
                   Volte quando estiver pronto. A contagem recomeça do início
@@ -275,89 +310,12 @@ export function App({
                   disabled={busy || !game.pageVisible}
                   onClick={controller.resume}
                 >
+                  <Icon name="play" />
                   Retomar contagem
                 </button>
               </section>
-            ) : (
-              <>
-                {!showingResult && (
-                  <div className="stage-message">
-                    <h3>{phaseText}</h3>
-                    {game.phase === 'countdown' && (
-                      <p className="countdown" aria-hidden="true">
-                        {snapshot.countdown ?? 3}
-                      </p>
-                    )}
-                    {game.phase === 'references' && (
-                      <p>
-                        {settings && settings.referencesPerRound > 1
-                          ? 'Memorize a sequência inteira e a ordem dos sons. Ela não será repetida.'
-                          : 'Guarde este som na memória. Ele não será repetido.'}
-                      </p>
-                    )}
-                    {game.phase === 'attempt' && (
-                      <p>
-                        O tom está tocando continuamente. Ajuste e confirme sua
-                        tentativa.
-                      </p>
-                    )}
-                  </div>
-                )}
-                {showingResult && result ? (
-                  completedRound &&
-                  settings &&
-                  settings.referencesPerRound > 1 ? (
-                    <RoundSummary round={completedRound} />
-                  ) : (
-                    <AttemptResult result={result} />
-                  )
-                ) : (
-                  <ToneControl
-                    enabled={game.phase === 'attempt' && !busy}
-                    frequencyHz={frequencyHz}
-                    showFrequency={settings?.showFrequencyVisually ?? false}
-                    range={game.session.definition.rules.range}
-                    onPosition={controller.setPosition}
-                    onAdjust={controller.adjustPosition}
-                  />
-                )}
-                {showingResult ? (
-                  <button
-                    ref={next}
-                    type="button"
-                    className="primary"
-                    onClick={() => {
-                      exit.current?.focus();
-                      controller.advance();
-                    }}
-                  >
-                    {game.session.roundIndex === ROUND_COUNT - 1
-                      ? 'Ver resultado final'
-                      : 'Próximo round'}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="primary confirm-button"
-                    disabled={game.phase !== 'attempt' || busy}
-                    onClick={(event) => {
-                      if (event.detail <= 1)
-                        controller.confirm(game.executionId);
-                    }}
-                    onKeyDown={(event) => {
-                      if (
-                        event.repeat &&
-                        (event.key === 'Enter' || event.key === ' ')
-                      )
-                        event.preventDefault();
-                    }}
-                  >
-                    Confirmar tentativa
-                  </button>
-                )}
-              </>
-            )}
-          </section>
+            }
+          />
         )}
       </main>
       <footer>Um desafio para os seus ouvidos.</footer>

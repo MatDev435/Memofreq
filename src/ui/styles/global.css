@@ -851,6 +851,8 @@ footer {
   border: 0 !important;
 }
 .skip-link {
+  opacity: 0;
+  pointer-events: none;
   position: fixed;
   z-index: 100;
   top: 10px;
@@ -862,6 +864,8 @@ footer {
   border-radius: 8px;
 }
 .skip-link:focus {
+  opacity: 1;
+  pointer-events: auto;
   transform: translateY(0);
 }
 :focus-visible {
