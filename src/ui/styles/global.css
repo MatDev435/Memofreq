@@ -204,9 +204,11 @@ fieldset {
   display: block;
   color: #4d6052;
 }
-.future-modes {
+.mode-selection label + label {
   margin-top: 0.75rem;
-  margin-bottom: 0;
+}
+.mode-selection > p {
+  margin-top: 0.75rem;
 }
 .home-panel > .primary {
   width: 100%;

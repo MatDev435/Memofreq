@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import type { GameController } from '../application/GameController';
 import { useGameController } from '../application/useGameController';
-import { ROUND_COUNT } from '../domain/config';
+import { getModeSettings, ROUND_COUNT } from '../domain/config';
+import type { ModeSelection } from '../domain/config';
 import { AudioControls } from '../ui/components/AudioControls';
 import { AttemptResult } from '../ui/components/AttemptResult';
 import { ToneControl } from '../ui/components/ToneControl';
+import { ModeSelector } from '../ui/components/ModeSelector';
+import { RoundSummary } from '../ui/components/RoundSummary';
 import { formatNumber } from '../ui/format';
 import { createBrowserGameController } from './createGameController';
 
@@ -14,9 +17,24 @@ export function App({
   readonly createController?: () => GameController;
 }) {
   const [controller] = useState(() => createController());
+  const [mode, setMode] = useState<ModeSelection['mode']>('normal');
+  const [frequencyCount, setFrequencyCount] = useState<2 | 3>(2);
   const snapshot = useGameController(controller);
   const { game, busy } = snapshot;
   const home = game.phase === 'home';
+  const settings = home
+    ? null
+    : getModeSettings(
+        game.session.definition.selection,
+        game.session.definition.rules,
+      );
+  const modeLabel = home
+    ? ''
+    : game.session.definition.selection.mode === 'extreme'
+      ? `Extreme · ${String(settings?.referencesPerRound)} frequências`
+      : game.session.definition.selection.mode === 'hard'
+        ? 'Hard'
+        : 'Normal';
   const start = useRef<HTMLButtonElement>(null);
   const exit = useRef<HTMLButtonElement>(null);
   const next = useRef<HTMLButtonElement>(null);
@@ -44,6 +62,10 @@ export function App({
     : undefined;
   const showingResult =
     (game.phase === 'attempt-result' || game.phase === 'round-result') && !busy;
+  const completedRound =
+    game.phase === 'round-result'
+      ? game.session.completedRounds[game.session.roundIndex]
+      : undefined;
   const frequencyHz =
     game.phase === 'attempt'
       ? game.frequencyHz
@@ -103,40 +125,31 @@ export function App({
             <section className="panel home-panel" aria-labelledby="como-jogar">
               <h2 id="como-jogar">Escute uma vez. Encontre de memória.</h2>
               <p>
-                A referência toca uma única vez. Depois, outro tom começa
-                automaticamente: ajuste-o pelo slider ou pelos botões e confirme
-                quando estiver satisfeito.
+                As referências tocam uma única vez. Depois, outro tom começa
+                automaticamente: ajuste-o pelo slider ou pelos botões e
+                confirme. No Extreme, memorize a sequência inteira e responda na
+                mesma ordem, avançando após cada resultado. A frequência fica
+                oculta durante as tentativas no Hard e Extreme.
               </p>
-              <fieldset className="mode-selection">
-                <legend>Modo de jogo</legend>
-                <label>
-                  <input
-                    type="radio"
-                    name="mode"
-                    checked
-                    readOnly
-                    value="normal"
-                  />{' '}
-                  <span>
-                    <strong>Normal</strong>
-                    <small>
-                      5 rounds · uma frequência por round · até 50 pontos
-                    </small>
-                  </span>
-                </label>
-              </fieldset>
+              <ModeSelector
+                mode={mode}
+                frequencyCount={frequencyCount}
+                onMode={setMode}
+                onFrequencyCount={setFrequencyCount}
+              />
               <button
                 ref={start}
                 type="button"
                 className="primary"
                 disabled={busy}
-                onClick={controller.startNormal}
+                onClick={() => {
+                  controller.start(
+                    mode === 'extreme' ? { mode, frequencyCount } : { mode },
+                  );
+                }}
               >
                 Iniciar partida
               </button>
-              <p className="muted future-modes">
-                Hard e Extreme serão disponibilizados na próxima etapa.
-              </p>
             </section>
             <aside className="listening-note" aria-labelledby="fones">
               <h2 id="fones">Coloque seus fones de ouvido!</h2>
@@ -152,7 +165,7 @@ export function App({
           </>
         ) : game.phase === 'final-result' ? (
           <section className="panel final-result" aria-labelledby="final-title">
-            <p className="eyebrow">Modo Normal · 5 rounds concluídos</p>
+            <p className="eyebrow">Modo {modeLabel} · 5 rounds concluídos</p>
             <h2 ref={finalTitle} tabIndex={-1} id="final-title">
               Resultado da partida
             </h2>
@@ -184,7 +197,7 @@ export function App({
                 type="button"
                 className="primary"
                 disabled={busy}
-                onClick={controller.startNormal}
+                onClick={controller.restart}
               >
                 Jogar novamente
               </button>
@@ -212,7 +225,7 @@ export function App({
                 className="primary"
                 type="button"
                 disabled={busy}
-                onClick={controller.startNormal}
+                onClick={controller.restart}
               >
                 Nova partida
               </button>
@@ -230,10 +243,22 @@ export function App({
           <section className="panel game-panel" aria-labelledby="game-title">
             <div className="round-header">
               <div>
-                <h2 id="game-title">Modo Normal</h2>
+                <h2 id="game-title">Modo {modeLabel}</h2>
                 <p className="round-label">
                   Round {game.session.roundIndex + 1} de {ROUND_COUNT}
                 </p>
+                {settings &&
+                  settings.referencesPerRound > 1 &&
+                  (game.phase === 'attempt' ||
+                    showingResult ||
+                    ((game.phase === 'preparing-audio' ||
+                      game.phase === 'awaiting-resume') &&
+                      game.preparation.destination === 'attempt')) && (
+                    <p className="round-label">
+                      Frequência {game.session.attemptIndex + 1} de{' '}
+                      {settings.referencesPerRound}
+                    </p>
+                  )}
               </div>
               <button
                 ref={exit}
@@ -246,10 +271,15 @@ export function App({
             </div>
             {game.phase === 'awaiting-resume' ? (
               <section className="paused-card">
-                <h3>Contagem pausada</h3>
+                <h3>
+                  {game.preparation.destination === 'countdown'
+                    ? 'Contagem pausada'
+                    : 'Tentativa pausada'}
+                </h3>
                 <p>
-                  Volte quando estiver pronto. A contagem recomeça do início
-                  antes de qualquer som de referência.
+                  {game.preparation.destination === 'countdown'
+                    ? 'Volte quando estiver pronto. A contagem recomeça do início antes de qualquer som de referência.'
+                    : 'Habilite o áudio para a próxima tentativa. As referências anteriores não serão repetidas.'}
                 </p>
                 <button
                   ref={resume}
@@ -258,7 +288,9 @@ export function App({
                   disabled={busy || !game.pageVisible}
                   onClick={controller.resume}
                 >
-                  Retomar contagem
+                  {game.preparation.destination === 'countdown'
+                    ? 'Retomar contagem'
+                    : 'Retomar tentativa'}
                 </button>
               </section>
             ) : (
@@ -272,7 +304,11 @@ export function App({
                       </p>
                     )}
                     {game.phase === 'references' && (
-                      <p>Guarde este som na memória. Ele não será repetido.</p>
+                      <p>
+                        {settings && settings.referencesPerRound > 1
+                          ? 'Memorize a sequência inteira e a ordem dos sons. Ela não será repetida.'
+                          : 'Guarde este som na memória. Ele não será repetido.'}
+                      </p>
                     )}
                     {game.phase === 'attempt' && (
                       <p>
@@ -283,11 +319,23 @@ export function App({
                   </div>
                 )}
                 {showingResult && result ? (
-                  <AttemptResult result={result} />
+                  <>
+                    <AttemptResult
+                      result={result}
+                      multiple={(settings?.referencesPerRound ?? 1) > 1}
+                      roundComplete={game.phase === 'round-result'}
+                    />
+                    {completedRound &&
+                      settings &&
+                      settings.referencesPerRound > 1 && (
+                        <RoundSummary round={completedRound} />
+                      )}
+                  </>
                 ) : (
                   <ToneControl
                     enabled={game.phase === 'attempt' && !busy}
                     frequencyHz={frequencyHz}
+                    showFrequency={settings?.showFrequencyVisually ?? false}
                     range={game.session.definition.rules.range}
                     onPosition={controller.setPosition}
                     onAdjust={controller.adjustPosition}
@@ -298,11 +346,16 @@ export function App({
                     ref={next}
                     type="button"
                     className="primary"
-                    onClick={controller.advance}
+                    onClick={() => {
+                      exit.current?.focus();
+                      controller.advance();
+                    }}
                   >
-                    {game.session.roundIndex === ROUND_COUNT - 1
-                      ? 'Ver resultado final'
-                      : 'Próximo round'}
+                    {game.phase === 'attempt-result'
+                      ? 'Próxima tentativa'
+                      : game.session.roundIndex === ROUND_COUNT - 1
+                        ? 'Ver resultado final'
+                        : 'Próximo round'}
                   </button>
                 ) : (
                   <button

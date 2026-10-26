@@ -6,6 +6,7 @@ import { formatHz } from '../format';
 interface ToneControlProps {
   readonly enabled: boolean;
   readonly frequencyHz: number | null;
+  readonly showFrequency: boolean;
   readonly range: FrequencyRange;
   readonly onPosition: (position: number) => void;
   readonly onAdjust: (delta: number) => void;
@@ -14,6 +15,7 @@ interface ToneControlProps {
 export function ToneControl({
   enabled,
   frequencyHz,
+  showFrequency,
   range,
   onPosition,
   onAdjust,
@@ -54,10 +56,12 @@ export function ToneControl({
       <label className="control-label" id="tone-title" htmlFor="tone">
         Ajustar tom
       </label>
-      <p className="frequency-readout" aria-live="off">
-        <span>Tom atual</span>
-        <strong>{frequencyHz === null ? '—' : formatHz(frequencyHz)}</strong>
-      </p>
+      {showFrequency && (
+        <p className="frequency-readout" aria-live="off">
+          <span>Tom atual</span>
+          <strong>{frequencyHz === null ? '—' : formatHz(frequencyHz)}</strong>
+        </p>
+      )}
       <input
         id="tone"
         type="range"

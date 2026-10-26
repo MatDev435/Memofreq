@@ -4,7 +4,7 @@ import {
   ROUND_COUNT,
   snapshotRules,
 } from '../domain/config';
-import type { GameRules } from '../domain/config';
+import type { GameRules, ModeSelection } from '../domain/config';
 import {
   frequencyToPosition,
   generateInitialFrequency,
@@ -110,7 +110,7 @@ export class GameController {
     this.listeners.clear();
   }
 
-  readonly startNormal = (): void => {
+  readonly start = (selection: ModeSelection): void => {
     const phase = this.snapshot.game.phase;
     if (
       !this.canAct() ||
@@ -121,7 +121,7 @@ export class GameController {
     try {
       const definition = createGameDefinition(
         this.options.createId(),
-        { mode: 'normal' },
+        selection,
         this.options.random,
         this.rules,
       );
@@ -148,6 +148,12 @@ export class GameController {
     } catch {
       this.failCurrent();
     }
+  };
+
+  readonly restart = (): void => {
+    const game = this.snapshot.game;
+    if (game.phase === 'final-result' || game.phase === 'interrupted')
+      this.start(game.session.definition.selection);
   };
 
   readonly testAudio = (): void => {
@@ -283,6 +289,33 @@ export class GameController {
 
   readonly advance = (): void => {
     if (!this.canAct()) return;
+    const current = this.snapshot.game;
+    if (current.phase === 'attempt-result') {
+      const nextTarget =
+        current.session.definition.rounds[current.session.roundIndex]
+          ?.references[current.session.attemptIndex + 1];
+      if (nextTarget !== undefined) {
+        try {
+          const initialHz = generateInitialFrequency(
+            nextTarget,
+            this.options.random,
+            this.rules,
+          );
+          const enabled = this.enableAudio();
+          this.update({ busy: true, announcement: '', error: null });
+          this.send({ type: 'NEXT_ATTEMPT', initialHz });
+          this.finishPreparation(
+            enabled,
+            this.silence,
+            getEventContext(this.snapshot.game),
+            this.operation,
+          );
+        } catch {
+          this.failCurrent();
+        }
+        return;
+      }
+    }
     if (this.snapshot.game.phase === 'attempt-result')
       this.send({ type: 'COMPLETE_ROUND' });
     const game = this.snapshot.game;
@@ -370,6 +403,7 @@ export class GameController {
         this.update({ busy: false });
         this.send({ type: 'AUDIO_READY' }, context);
         if (this.snapshot.game.phase === 'countdown') this.beginCountdown();
+        else if (this.snapshot.game.phase === 'attempt') this.beginAttempt();
       })
       .catch(() => {
         if (this.matches(context)) this.failCurrent();
@@ -409,10 +443,17 @@ export class GameController {
         game.session.definition.selection,
         game.session.definition.rules,
       );
-      const handle = audio.playReference({
-        frequencyHz: getCurrentTarget(game.session),
+      const tones = game.session.definition.rounds[
+        game.session.roundIndex
+      ]?.references.map((frequencyHz) => ({
+        frequencyHz,
         durationSeconds: settings.referenceSeconds,
-      });
+      }));
+      if (!tones?.[0]) throw new Error('Referência ausente.');
+      const handle =
+        settings.referencesPerRound === 1
+          ? audio.playReference(tones[0])
+          : audio.playSequence(tones, this.rules.sequenceGapSeconds);
       this.playback = { handle, kind: 'reference' };
       void handle.finished
         .then((result) => {
@@ -427,17 +468,27 @@ export class GameController {
             this.options.random,
             this.rules,
           );
-          const tone = audio.startContinuous(initialHz);
           this.send({ type: 'REFERENCES_FINISHED', initialHz }, context);
-          this.playback = { handle: tone, kind: 'attempt' };
-          const attemptContext = getEventContext(this.snapshot.game);
-          void tone.finished.then(() => {
-            if (this.matches(attemptContext)) this.failCurrent();
-          });
+          this.beginAttempt();
         })
         .catch(() => {
           if (this.matches(context)) this.failCurrent();
         });
+    } catch {
+      this.failCurrent();
+    }
+  }
+
+  private beginAttempt(): void {
+    const game = this.snapshot.game;
+    if (game.phase !== 'attempt') return;
+    const context = getEventContext(game);
+    try {
+      const handle = this.getAudio().startContinuous(game.frequencyHz);
+      this.playback = { handle, kind: 'attempt' };
+      void handle.finished.then(() => {
+        if (this.matches(context)) this.failCurrent();
+      });
     } catch {
       this.failCurrent();
     }

@@ -1,10 +1,20 @@
 import type { AttemptResult as AttemptData } from '../../domain/models';
 import { formatHz, formatNumber } from '../format';
 
-export function AttemptResult({ result }: { readonly result: AttemptData }) {
+export function AttemptResult({
+  result,
+  multiple,
+  roundComplete,
+}: {
+  readonly result: AttemptData;
+  readonly multiple: boolean;
+  readonly roundComplete: boolean;
+}) {
   return (
     <section className="result-card" aria-labelledby="result-title">
-      <h2 id="result-title">Resultado do round</h2>
+      <h2 id="result-title">
+        {roundComplete ? 'Resultado do round' : 'Resultado da tentativa'}
+      </h2>
       <dl className="result-details">
         <div>
           <dt>Frequência alvo</dt>
@@ -19,7 +29,7 @@ export function AttemptResult({ result }: { readonly result: AttemptData }) {
           <dd>{formatHz(result.differenceHz)}</dd>
         </div>
         <div className="score-row">
-          <dt>Pontuação do round</dt>
+          <dt>{multiple ? 'Pontuação da tentativa' : 'Pontuação do round'}</dt>
           <dd>
             {formatNumber(result.score)} <span>/ 10</span>
           </dd>
