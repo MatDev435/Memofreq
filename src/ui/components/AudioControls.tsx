@@ -40,6 +40,7 @@ export function AudioControls({
         </label>
         <input
           id="volume"
+          aria-label="Volume"
           type="range"
           min="0"
           max="100"

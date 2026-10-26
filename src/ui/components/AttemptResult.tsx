@@ -1,5 +1,7 @@
 import type { AttemptResult as AttemptData } from '../../domain/models';
 import { formatHz, formatNumber } from '../format';
+import { ScoreRing } from './ScoreRing';
+import { WaveArt } from './WaveArt';
 
 export function AttemptDetails({
   result,
@@ -20,26 +22,41 @@ export function AttemptDetails({
       </div>
       <div>
         <dt>Diferença</dt>
-        <dd>{formatHz(result.differenceHz)}</dd>
+        <dd>
+          {formatHz(result.differenceHz)}
+          <small>({formatNumber(result.distanceCents)} cents)</small>
+        </dd>
       </div>
       <div className="score-row">
         <dt>{multiple ? 'Pontuação da tentativa' : 'Pontuação do round'}</dt>
         <dd>
-          {formatNumber(result.score)} <span>/ 10</span>
+          <ScoreRing value={result.score} />
         </dd>
       </div>
     </dl>
   );
 }
 
-export function AttemptResult({ result }: { readonly result: AttemptData }) {
+export function AttemptResult({
+  result,
+  count = 1,
+}: {
+  readonly result: AttemptData;
+  readonly count?: number;
+}) {
   return (
-    <section className="result-card" aria-labelledby="result-title">
-      <h2 id="result-title">Resultado do round</h2>
-      <AttemptDetails result={result} />
-      <p className="muted">
-        Tentativa registrada. A resposta não pode ser alterada.
-      </p>
+    <section
+      className={`round-attempt attempt-color-${String(result.attemptIndex)}`}
+      aria-labelledby={`attempt-result-${String(result.attemptIndex)}`}
+    >
+      <h3 id={`attempt-result-${String(result.attemptIndex)}`}>
+        <span className="attempt-badge" aria-hidden="true">
+          {result.attemptIndex + 1}
+        </span>
+        Frequência {result.attemptIndex + 1} de {count}
+      </h3>
+      <AttemptDetails result={result} multiple={count > 1} />
+      <WaveArt variant="mini" />
     </section>
   );
 }

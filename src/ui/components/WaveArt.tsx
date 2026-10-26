@@ -44,7 +44,14 @@ export const WaveArt = memo(function WaveArt({
       preserveAspectRatio="none"
     >
       <defs>
-        <linearGradient id={`${id}-ink`}>
+        <linearGradient
+          id={`${id}-ink`}
+          gradientUnits="userSpaceOnUse"
+          x1="0"
+          x2="1000"
+          y1="0"
+          y2="0"
+        >
           <stop stopColor="#7b35fa" />
           <stop offset=".42" stopColor="#ad68ff" />
           <stop offset=".65" stopColor="#36baff" />

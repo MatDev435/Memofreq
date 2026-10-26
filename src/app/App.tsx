@@ -4,7 +4,6 @@ import { useGameController } from '../application/useGameController';
 import { getModeSettings, ROUND_COUNT } from '../domain/config';
 import type { ModeSelection } from '../domain/config';
 import { AudioControls } from '../ui/components/AudioControls';
-import { AttemptResult } from '../ui/components/AttemptResult';
 import { ToneControl } from '../ui/components/ToneControl';
 import { HomeScreen } from '../ui/screens/HomeScreen';
 import { Brand } from '../ui/components/Brand';
@@ -249,31 +248,26 @@ export function App({
               </button>
             </div>
           </section>
-        ) : showingResult && result ? (
-          <div className="round-result-screen screen-enter">
-            <p className="round-label">
-              Round {game.session.roundIndex + 1} de {ROUND_COUNT}
-            </p>
-            {completedRound && settings && settings.referencesPerRound > 1 ? (
-              <RoundSummary round={completedRound} />
-            ) : (
-              <AttemptResult result={result} />
-            )}
-            <button
-              ref={next}
-              type="button"
-              className="primary next-round-button"
-              onClick={() => {
-                exit.current?.focus();
-                controller.advance();
-              }}
-            >
-              {game.session.roundIndex === ROUND_COUNT - 1
-                ? 'Ver resultado final'
-                : 'Próximo round'}
-              <Icon name="arrow" />
-            </button>
-          </div>
+        ) : showingResult && completedRound ? (
+          <RoundSummary
+            round={completedRound}
+            next={
+              <button
+                ref={next}
+                type="button"
+                className="primary next-round-button"
+                onClick={() => {
+                  exit.current?.focus();
+                  controller.advance();
+                }}
+              >
+                {game.session.roundIndex === ROUND_COUNT - 1
+                  ? 'Ver resultado final'
+                  : 'Próximo round'}
+                <Icon name="arrow" />
+              </button>
+            }
+          />
         ) : (
           <PlayingScreen
             phase={game.phase}
