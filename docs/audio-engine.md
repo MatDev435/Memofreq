@@ -4,7 +4,7 @@
 
 `WebAudioEngine` é independente do React e das regras do jogo. Implementa `AudioPort`, recebe uma faixa de frequências na construção e não sorteia alvos nem calcula resultados. A aplicação futura injeta `DEFAULT_RULES.range` e os tempos da modalidade.
 
-A interface da aplicação continua estática. Testes de áudio não acrescentam controles ou um fluxo jogável à tela inicial.
+A Fase 4 integra a engine à interface do Normal Mode. A engine permanece independente dessa apresentação e pode ser testada isoladamente.
 
 ## Contrato
 
@@ -86,6 +86,12 @@ Essas verificações não equivalem a escuta humana, teste de fones, validação
 
 ## Roteiro de escuta manual
 
+Na interface da Fase 4, abra a URL impressa por `npm run dev` e use **Testar áudio** e **Volume**. Inicie uma partida Normal, ouça a referência e ajuste o tom contínuo pelo slider ou pelos botões. Confirme para verificar o fade e avance pelos cinco rounds. Encerrar partida deve silenciar o áudio; resultados devem permitir consulta sem replay.
+
+Registre qualidade sonora, estalos, continuidade do ajuste e comportamento com fones no checklist manual somente após ouvir de fato. Os testes automatizados de PCM e API não substituem essa escuta.
+
+### Diagnóstico isolado para desenvolvimento
+
 Inicie `npm run dev`. No console do navegador, prepare uma verificação isolada:
 
 ```js
@@ -117,7 +123,7 @@ button.onclick = () => {
 };
 ```
 
-Após pressioná-lo, experimente `audio.setFrequency(300)`, `audio.setFrequency(500)` e `audio.setVolume(0.2)` pelo console. Encerre com `await tone.stop()`. Verifique continuidade e fade, sem considerar essa operação um teste do slider, que ainda não está implementado.
+Após pressioná-lo, experimente `audio.setFrequency(300)`, `audio.setFrequency(500)` e `audio.setVolume(0.2)` pelo console. Encerre com `await tone.stop()`. Verifique continuidade e fade; esse diagnóstico direto da engine é separado do teste do slider da aplicação.
 
 Finalize a bancada temporária com `await audio.dispose(); button.remove();`. Registre os resultados no checklist manual somente após ouvir de fato. Esses controles temporários de inspeção não pertencem à interface do produto.
 

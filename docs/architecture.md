@@ -4,7 +4,7 @@
 
 Monólito frontend modular: uma SPA, uma aplicação e um build estático. React cuida da apresentação; TypeScript estrito torna explícitos modelos e contratos. Não há backend nesta etapa.
 
-A fundação contém o ponto de entrada, tela estática e ferramentas. A Fase 2 implementa `src/domain` com configuração, geração, pontuação, modelos e reducer puro. A Fase 3 implementa `src/audio/WebAudioEngine.ts` e o contrato `src/application/audioPort.ts`. O controlador e a integração da UI continuam previstos para a Fase 4.
+A fundação contém o ponto de entrada e ferramentas. A Fase 2 implementa o domínio puro; a Fase 3 implementa a engine e seu contrato. A Fase 4 conecta ambos por `GameController`, com adaptador React e uma interface inicial para o Normal Mode. O visual definitivo permanece uma etapa posterior.
 
 ## Limites e dependências
 
@@ -18,7 +18,19 @@ A fundação contém o ponto de entrada, tela estática e ferramentas. A Fase 2 
 
 O domínio nunca importa React, DOM ou Web Audio API. A engine não recebe um “modo” ou “round”: recebe frequências, durações e comandos sonoros. Componentes não calculam pontuação nem decidem se uma transição é válida.
 
-A aplicação será a única coordenadora dos efeitos da partida. O reducer será puro e não criará osciladores, timers ou sorteios escondidos em renderizações. Não adicionar container de injeção, event bus, bibliotecas de estado ou repositórios vazios.
+A aplicação é a coordenadora dos efeitos da partida. O reducer é puro e não cria osciladores, timers ou sorteios escondidos em renderizações. Não adicionar container de injeção, event bus, bibliotecas de estado ou repositórios vazios.
+
+## Integração da Fase 4
+
+`src/app/createGameController.ts` compõe a engine concreta, a configuração central e a aleatoriedade com `crypto.getRandomValues`. O controlador conserva o estado mais recente fora das closures do React e publica snapshots imutáveis por `useSyncExternalStore`; regras e resultados permanecem no reducer.
+
+Os comandos de iniciar/retomar habilitam áudio dentro do gesto, antes de aguardar qualquer operação. Timers da contagem usam prazo monotônico e são cancelados na mudança de execução. Apenas o resultado `completed` da referência vigente inicia automaticamente a tentativa, com uma posição válida sorteada externamente.
+
+A confirmação é aceita sincronamente, impedindo duplicações e alterações durante o fade. A UI aguarda a saída sonora para revelar valores e mover foco. Se houver ocultação nesse intervalo, a resposta já registrada permanece válida; o avanço continua explícito.
+
+O hook observa visibilidade e pagehide, cancela operações na desativação e posterga o descarte definitivo por uma microtask para suportar a reconexão do StrictMode. Engines fechadas recebem outra instância no próximo gesto; uma versão da engine impede notificações antigas de afetarem a nova.
+
+Componentes separados apresentam volume/teste de áudio, ajuste do tom e resultados. A formatação pt-BR com duas casas fica em `src/ui/format.ts`, sem arredondar os dados do domínio. O resultado final desta fase é textual, com uma tabela de cinco rounds; o gráfico pertence à Fase 6.
 
 ## Ferramentas e decisões
 
@@ -96,7 +108,7 @@ Invariantes:
 
 ## Política de interrupções por estado
 
-O reducer aplica a política por estado a eventos abstratos. A engine da Fase 3 observa o estado do AudioContext e notifica interrupções após limpar suas vozes. O controlador futuro observará `document.visibilityState`, associará as notificações ao contexto do domínio e cancelará os efeitos correspondentes. A integração desses eventos com a partida ainda não está implementada. Perda de foco isolada não equivale a ocultação.
+O reducer aplica a política por estado a eventos abstratos. A engine observa o estado do AudioContext e notifica interrupções após limpar suas vozes. O controlador observa `document.visibilityState`, associa as notificações ao contexto vigente e cancela os efeitos correspondentes. Perda de foco isolada não equivale a ocultação. `pagehide` encerra a execução ao navegar para fora; não equivale ao evento de simples troca de aba.
 
 | Estado                 | Página oculta                                                 | Suspensão/falha do áudio                                   | Retorno                                                                     |
 | ---------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |

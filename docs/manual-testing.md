@@ -12,7 +12,7 @@ Um item só pode ser marcado como executado após observação real. Registre da
 
 ## Áudio — após implementação da engine
 
-Roteiro isolado para a Fase 3: [engine de áudio](audio-engine.md#roteiro-de-escuta-manual). A disponibilidade de testes nativos e renderização PCM automatizada não marca estes itens como escuta humana.
+Na Fase 4, use diretamente Testar áudio, Volume e a partida Normal. Roteiro: [engine de áudio](audio-engine.md#roteiro-de-escuta-manual). A disponibilidade de testes nativos e renderização PCM automatizada não marca estes itens como escuta humana.
 
 - [ ] Habilitar som por ação explícita, inclusive em Safari/iOS.
 - [ ] Testar volume inicial confortável e controle de volume.
@@ -66,8 +66,10 @@ Use a matriz detalhada de `accessibility.md`, com versões de NVDA/VoiceOver/Tal
 
 ## Registro de execução
 
-Nenhum teste manual de áudio ou leitor de tela foi executado nesta fundação. A ausência desses controles na Fase 1 é intencional. O relatório da fase deve identificar separadamente os smoke tests automatizados de teclado e axe, sem apresentá-los como testes manuais.
+Não houve escuta humana ou observação de fala de leitor de tela até a entrega da Fase 4. Os controles agora existem. O NVDA foi localizado, mas a ferramenta Windows falhou na inicialização por incompatibilidade do caminho Linux/Windows; detalhes em `accessibility.md`.
 
-| Data | Ambiente e versões | Caso | Resultado observado             | Pendência                    |
-| ---- | ------------------ | ---- | ------------------------------- | ---------------------------- |
-| —    | —                  | —    | Ainda não executado manualmente | A preencher em execução real |
+Foram inspecionadas visualmente capturas do Chromium desktop e Pixel 7 emulado. Testes automatizados verificaram teclado, foco, axe e partidas completas. As transições de visibilidade no E2E foram provocadas por eventos controlados; isso não equivale a uma validação manual de troca de aba em todos os sistemas. Os itens manuais acima permanecem pendentes até sua execução real.
+
+| Data       | Ambiente e versões                              | Caso            | Resultado observado                                            | Pendência                                                 |
+| ---------- | ----------------------------------------------- | --------------- | -------------------------------------------------------------- | --------------------------------------------------------- |
+| 26/10/2026 | Chromium / Pixel 7 emulado, capturas Playwright | Inspeção visual | Conteúdo legível e controles sem corte horizontal nas capturas | Escuta humana, aparelhos físicos e leitores de tela reais |

@@ -1,6 +1,6 @@
 # Especificação funcional do Memofreq
 
-Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. O domínio da Fase 2 e a engine da Fase 3 são implementados e testados isoladamente; a interface ainda é estática, sem integração sonora ou controles jogáveis. Descrever uma regra aqui não significa que a experiência correspondente já esteja integrada.
+Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. A Fase 4 integra domínio, engine e interface para o Normal Mode jogável. Hard, Extreme e gráfico ainda aguardam suas fases autorizadas; a identidade visual definitiva será refinada posteriormente.
 
 ## 1. Produto e escopo
 
