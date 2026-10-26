@@ -10,7 +10,7 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 | 2 — Domínio e estados      | Concluída                | Autorizada em 26/10/2026 |
 | 3 — Engine de áudio        | Concluída                | Autorizada em 26/10/2026 |
 | 4 — Normal jogável         | Concluída                | Autorizada em 26/10/2026 |
-| 5 — Hard e Extreme         | Não iniciada             | Aguardando autorização   |
+| 5 — Hard e Extreme         | Concluída                | Autorizada em 26/10/2026 |
 | 6 — Integração e qualidade | Não iniciada             | Aguardando autorização   |
 
 ## Fase 1 — Fundação
@@ -52,7 +52,7 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 
 **Entregas:** tela inicial mínima funcional, volume/teste, cinco rounds do Normal, slider logarítmico, confirmação, resultados individuais e total textual. Implementar política de interrupção e acessibilidade de controle.
 
-**Aceitação:** completar partida, reiniciar e voltar à inicial sem som remanescente; alvos nunca podem ser repetidos; inicialização com distância mínima; teclado completo; Hz visual sem região viva; dados do resultado consultáveis sob demanda. Testes integrados e E2E. Executar e registrar testes reais do slider com leitor de tela disponível; documentar incompatibilidades e alternativas.
+**Aceitação:** completar partida, reiniciar e voltar à inicial sem som remanescente; alvos nunca podem ser repetidos; inicialização com distância mínima; teclado completo; Hz visual sem região viva; dados do resultado consultáveis sob demanda. Testes integrados e E2E. Registrar testes reais do slider com leitor de tela; documentar incompatibilidades e alternativas. O usuário relatou funcionamento com NVDA e assumiu as próximas verificações manuais em 26/10/2026.
 
 ## Fase 5 — Hard e Extreme
 
@@ -60,7 +60,7 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 
 **Entregas:** Hard com referência de 1,5 s, Extreme de duas ou três referências, pausas de 300 ms, tentativas sequenciais, valores ocultos e médias.
 
-**Aceitação:** cinco rounds em cada modalidade; quantidade fixa durante a partida; valores ocultos também nos metadados acessíveis durante tentativas; respostas em ordem; posição inicial por tentativa; resultados imutáveis; médias sem arredondamento prévio. Cobrir teclado, leitores de tela e interrupções durante sequências e entre resultados.
+**Aceitação:** cinco rounds em cada modalidade; quantidade fixa durante a partida; valores ocultos também nos metadados acessíveis durante tentativas; respostas em ordem; posição inicial por tentativa; resultados imutáveis; médias sem arredondamento prévio. Cobrir teclado, estrutura acessível e interrupções durante sequências e entre resultados. Os testes manuais com leitores de tela serão realizados pelo usuário, conforme sua orientação em 26/10/2026; não tentar operar NVDA automaticamente.
 
 ## Fase 6 — Integração e qualidade
 

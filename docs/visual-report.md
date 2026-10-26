@@ -1,5 +1,7 @@
 # Memofreq — Relatório consolidado com capturas da interface
 
+Para as novidades posteriores, consulte o [relatório da Fase 5](phase-5-report.md), que registra Hard, Extreme e novas capturas.
+
 Data: 26/10/2026. Abrange as Fases 1 a 4, até o commit `07b05c7`. A interface está funcional para jogar Normal e testar o áudio; o acabamento visual definitivo permanece para uma etapa posterior. A Fase 5 não foi iniciada.
 
 ## O que foi construído
@@ -117,7 +119,9 @@ As contagens são retratos da suíte em cada entrega; não devem ser somadas. A 
 
 O repositório [MatDev435/Memofreq](https://github.com/MatDev435/Memofreq) é privado, com branch principal `main`. O [histórico no GitHub](https://github.com/MatDev435/Memofreq/commits/main/) inclui também as entregas documentais posteriores a esta versão da interface.
 
-## Pendências e limites
+## Pendências e limites na entrega da Fase 4
+
+Atualização posterior: o usuário relatou funcionamento da interface Normal com NVDA e assumiu os próximos testes manuais em 26/10/2026. Navegador, versões e casos específicos não foram informados; os itens abaixo retratam a situação original da entrega.
 
 - Escuta humana com fones e avaliação perceptual do áudio ainda não executadas.
 - Teste real com NVDA, VoiceOver e TalkBack pendente. O NVDA foi localizado no Windows, mas a ferramenta de controle falhou antes da interação; não há validação real de fala. Alguns leitores podem narrar valores nativos apesar das configurações ARIA.

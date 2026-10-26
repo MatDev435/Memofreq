@@ -4,7 +4,7 @@
 
 Monólito frontend modular: uma SPA, uma aplicação e um build estático. React cuida da apresentação; TypeScript estrito torna explícitos modelos e contratos. Não há backend nesta etapa.
 
-A fundação contém o ponto de entrada e ferramentas. A Fase 2 implementa o domínio puro; a Fase 3 implementa a engine e seu contrato. A Fase 4 conecta ambos por `GameController`, com adaptador React e uma interface inicial para o Normal Mode. O visual definitivo permanece uma etapa posterior.
+A fundação contém o ponto de entrada e ferramentas. A Fase 2 implementa o domínio puro; a Fase 3 implementa a engine e seu contrato. A Fase 4 conecta ambos por `GameController`, com adaptador React e uma interface inicial para o Normal Mode. A Fase 5 estende a coordenação e a apresentação para Hard e Extreme, preservando o domínio e a engine existentes. O visual definitivo permanece uma etapa posterior.
 
 ## Limites e dependências
 
@@ -31,6 +31,16 @@ A confirmação é aceita sincronamente, impedindo duplicações e alterações 
 O hook observa visibilidade e pagehide, cancela operações na desativação e posterga o descarte definitivo por uma microtask para suportar a reconexão do StrictMode. Engines fechadas recebem outra instância no próximo gesto; uma versão da engine impede notificações antigas de afetarem a nova.
 
 Componentes separados apresentam volume/teste de áudio, ajuste do tom e resultados. A formatação pt-BR com duas casas fica em `src/ui/format.ts`, sem arredondar os dados do domínio. O resultado final desta fase é textual, com uma tabela de cinco rounds; o gráfico pertence à Fase 6.
+
+## Integração da Fase 5
+
+`start(selection)` recebe uma seleção discriminada e cria uma definição imutável. `restart()` lê a modalidade da sessão encerrada, preservando também a quantidade de referências do Extreme. A escolha de modalidade só aparece na inicial.
+
+Normal e Hard usam `playReference`; Extreme envia todos os alvos ordenados e a pausa de 300 ms a uma única chamada de `playSequence`. Apenas a conclusão integral dessa reprodução inicia a primeira tentativa. Não há anúncios, foco ou atualizações por frequência durante a sequência.
+
+Após confirmar, `COMPLETE_ROUND` só consolida o round quando todas as respostas existem. Antes disso, a interface apresenta o resultado individual e `advance()` prepara a próxima tentativa com nova frequência inicial válida. `AUDIO_READY` para esse destino inicia apenas o tom contínuo, sem contagem nem referências. Suspensão ou ocultação durante a preparação exige retomada explícita e conserva as respostas anteriores. Fechamento do contexto em resultados permite criar outra engine no próximo gesto.
+
+`ToneControl` recebe a política de exibição do domínio e omite o elemento de leitura de Hz no Hard e Extreme; seu valor nativo continua normalizado e seu nome e `aria-valuetext` permanecem estáveis. Resultados numéricos são revelados fora de regiões vivas após a cauda. `RoundSummary` apresenta as pontuações individuais e a média armazenada pelo domínio, sem recálculo ou arredondamento intermediário na UI.
 
 ## Ferramentas e decisões
 
@@ -135,7 +145,7 @@ Fechar/recarregar a página perde o progresso: não há persistência nesta vers
 
 O contrato `AudioPort` é implementado por `WebAudioEngine`: habilitar áudio, reproduzir referências ou sequências, iniciar tom contínuo, atualizar frequência/volume, cancelar e descartar. A engine recebe a faixa de frequências e não importa regras, modos ou estados do jogo.
 
-Cada reprodução fornece handle com ID e promessa de término. Os resultados `completed`, `stopped`, `cancelled` e `interrupted` distinguem referência concluída de cancelamento. O controlador futuro só aceitará uma conclusão normal com o contexto de execução ainda vigente. Handles antigos não afetam novas reproduções.
+Cada reprodução fornece handle com ID e promessa de término. Os resultados `completed`, `stopped`, `cancelled` e `interrupted` distinguem referência concluída de cancelamento. O controlador só aceita uma conclusão normal com o contexto de execução ainda vigente. Handles antigos não afetam novas reproduções.
 
 Os testes unitários usam um contexto controlado; Playwright verifica AudioContext real e amostras de OfflineAudioContext. O [guia da engine](audio-engine.md) detalha grafos, parâmetros, concorrência, fallback de automação e limites da validação.
 

@@ -1,6 +1,6 @@
 # Especificação funcional do Memofreq
 
-Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. A Fase 4 integra domínio, engine e interface para o Normal Mode jogável. Hard, Extreme e gráfico ainda aguardam suas fases autorizadas; a identidade visual definitiva será refinada posteriormente.
+Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. As Fases 4 e 5 integram domínio, engine e interface para Normal, Hard e Extreme com duas ou três referências. O gráfico aguarda autorização da Fase 6; a identidade visual definitiva será refinada posteriormente.
 
 ## 1. Produto e escopo
 
@@ -131,7 +131,7 @@ Requisito aprovado em todos os modos, inclusive Normal:
 - O foco não será movido automaticamente para um valor numérico revelado.
 - Informar round, tentativa e disponibilidade da resposta sem narrar continuamente o slider.
 
-Manter semântica de slider e oferecer uma via alternativa de ajuste por botões de nome estável, conforme a proposta em `accessibility.md`. A compatibilidade com leitores de tela reais deve ser documentada e testada nas fases jogáveis; não se promete silêncio absoluto com base apenas em ARIA.
+Manter semântica de slider e oferecer uma via alternativa de ajuste por botões de nome estável, conforme a proposta em `accessibility.md`. A compatibilidade com leitores de tela reais deve ser documentada e testada nas fases jogáveis. O usuário relatou sucesso com NVDA no Normal e assumiu os próximos testes manuais em 26/10/2026; não se promete silêncio absoluto com base apenas em ARIA.
 
 ## 10. Interrupções
 

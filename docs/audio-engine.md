@@ -2,9 +2,9 @@
 
 ## Limites
 
-`WebAudioEngine` é independente do React e das regras do jogo. Implementa `AudioPort`, recebe uma faixa de frequências na construção e não sorteia alvos nem calcula resultados. A aplicação futura injeta `DEFAULT_RULES.range` e os tempos da modalidade.
+`WebAudioEngine` é independente do React e das regras do jogo. Implementa `AudioPort`, recebe uma faixa de frequências na construção e não sorteia alvos nem calcula resultados. A aplicação injeta `DEFAULT_RULES.range` e os tempos da modalidade.
 
-A Fase 4 integra a engine à interface do Normal Mode. A engine permanece independente dessa apresentação e pode ser testada isoladamente.
+As Fases 4 e 5 integram a engine à interface de Normal, Hard e Extreme. A engine permanece independente dessa apresentação e pode ser testada isoladamente.
 
 ## Contrato
 
@@ -86,7 +86,11 @@ Essas verificações não equivalem a escuta humana, teste de fones, validação
 
 ## Roteiro de escuta manual
 
-Na interface da Fase 4, abra a URL impressa por `npm run dev` e use **Testar áudio** e **Volume**. Inicie uma partida Normal, ouça a referência e ajuste o tom contínuo pelo slider ou pelos botões. Confirme para verificar o fade e avance pelos cinco rounds. Encerrar partida deve silenciar o áudio; resultados devem permitir consulta sem replay.
+Na interface jogável, abra a URL impressa por `npm run dev` e use **Testar áudio** e **Volume**. Inicie uma partida Normal, ouça a referência e ajuste o tom contínuo pelo slider ou pelos botões. Confirme para verificar o fade e avance pelos cinco rounds. Encerrar partida deve silenciar o áudio; resultados devem permitir consulta sem replay.
+
+No Hard, verifique a referência de 1,5 s e a frequência oculta. No Extreme, ouça toda a sequência com pausas de 300 ms e responda na ordem, sem nova referência entre tentativas. A média só aparece após a última resposta.
+
+O usuário relatou funcionamento da versão Normal, inclusive com NVDA, em 26/10/2026 e assumiu as próximas verificações manuais. Isso não comprova avaliação individual de todos os casos abaixo.
 
 Registre qualidade sonora, estalos, continuidade do ajuste e comportamento com fones no checklist manual somente após ouvir de fato. Os testes automatizados de PCM e API não substituem essa escuta.
 

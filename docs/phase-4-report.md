@@ -93,3 +93,7 @@ O servidor da porta 5173 já existia, foi identificado como este checkout e foi 
 Repositório privado: [MatDev435/Memofreq](https://github.com/MatDev435/Memofreq), branch principal `main`. Autenticação e identidade do remoto foram conferidas antes da sincronização. Execuções remotas: [GitHub Actions — Quality](https://github.com/MatDev435/Memofreq/actions/workflows/ci.yml).
 
 A próxima implementação prevista é Hard/Extreme na Fase 5, somente após autorização. O gráfico e a revisão conjunta ficam na Fase 6; o refinamento visual definitivo permanece posterior, conforme solicitado.
+
+## Validação posterior informada pelo usuário
+
+Após esta entrega, em 26/10/2026, o usuário relatou funcionamento da interface, inclusive com NVDA, e assumiu os próximos testes manuais com leitores de tela. Navegador, versões e casos específicos não foram informados. O relato está registrado no checklist manual e não altera o histórico das verificações executadas pelo agente nesta fase.

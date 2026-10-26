@@ -5,8 +5,8 @@
 - Leia `README.md`, `docs/functional-spec.md`, `docs/architecture.md`, `docs/accessibility.md` e `docs/implementation-plan.md` antes de trabalhar.
 - A especificação funcional registra as regras aprovadas. Não altere mecânicas sem autorização explícita do usuário.
 - Execute somente a fase autorizada. Ao concluí-la, informe entregas, verificações reais, pendências, commits e sincronização com o GitHub; aguarde autorização antes da próxima fase.
-- A **Fase 4 — Normal jogável** foi autorizada em 26/10/2026 e está concluída, assim como as Fases 1 a 3. A Fase 5 não está autorizada.
-- Na Fase 4, conecte domínio, áudio e interface para o Normal Mode, com teste de áudio, volume, slider, teclado e resultados textuais. Hard, Extreme, gráfico e acabamento visual definitivo permanecem nas fases posteriores.
+- As Fases 1 a 4 estão concluídas. A **Fase 5 — Hard e Extreme** foi autorizada em 26/10/2026 e está concluída. A Fase 6 não está autorizada.
+- A Fase 5 inclui Hard, Extreme com duas ou três referências, respostas sequenciais, valores ocultos e médias. Gráfico e acabamento visual definitivo permanecem nas fases posteriores.
 - Não implemente backend, autenticação, ranking, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação.
 
 ## Engenharia
@@ -28,7 +28,7 @@
 - Resultados terão frequências acessíveis sob demanda, fora de regiões vivas e sem foco automático nos valores.
 - Mantenha anúncios curtos das etapas fora dos tons. Nenhuma API web garante controlar a fila de fala de um leitor de tela.
 - Não esconda o slider inteiro da árvore acessível, não remova suas informações obrigatórias e não use `role="application"` para contornar anúncios.
-- Valide controles com leitores de tela reais nas fases jogáveis; axe e Playwright não substituem essa verificação.
+- O usuário relatou funcionamento do Normal com NVDA em 26/10/2026 e assumiu os próximos testes manuais com leitores de tela. Não tente operar o NVDA nem outras ferramentas de leitor por conta própria; mantenha os testes automatizados e o roteiro manual para o usuário. Registre os relatos como validação do usuário, sem inventar versões, passos ou compatibilidade universal.
 
 ## Qualidade e documentação
 
