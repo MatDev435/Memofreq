@@ -8,6 +8,7 @@ import { AttemptResult } from '../ui/components/AttemptResult';
 import { ToneControl } from '../ui/components/ToneControl';
 import { ModeSelector } from '../ui/components/ModeSelector';
 import { RoundSummary } from '../ui/components/RoundSummary';
+import { RoundScores } from '../ui/components/RoundScores';
 import { formatNumber } from '../ui/format';
 import { createBrowserGameController } from './createGameController';
 
@@ -174,23 +175,7 @@ export function App({
                 {formatNumber(game.result.score)} <small>/ 50</small>
               </strong>
             </p>
-            <table>
-              <caption>Pontuação dos rounds</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Round</th>
-                  <th scope="col">Pontos de 10</th>
-                </tr>
-              </thead>
-              <tbody>
-                {game.result.rounds.map((round) => (
-                  <tr key={round.roundIndex}>
-                    <th scope="row">{round.roundIndex + 1}</th>
-                    <td>{formatNumber(round.score)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <RoundScores rounds={game.result.rounds} />
             <div className="button-row">
               <button
                 type="button"

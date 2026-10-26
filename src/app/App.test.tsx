@@ -125,6 +125,9 @@ describe('Normal Mode integrado', () => {
       screen.getByRole('heading', { name: 'Resultado da partida' }),
     ).toHaveFocus();
     expect(screen.getAllByRole('row')).toHaveLength(6);
+    expect(
+      screen.getByRole('img', { name: 'Gráfico de pontuação dos rounds' }),
+    ).toBeVisible();
     expect(f.audio.playReference).toHaveBeenCalledTimes(5);
     await clickButton(screen.getByRole('button', { name: 'Voltar ao início' }));
     expect(
@@ -296,6 +299,9 @@ describe.each([
     ).toHaveFocus();
     expect(screen.getByText(new RegExp(`^Modo ${mode}`))).toBeVisible();
     expect(screen.getAllByRole('row')).toHaveLength(6);
+    expect(
+      screen.getByRole('img', { name: 'Gráfico de pontuação dos rounds' }),
+    ).toBeVisible();
     expect(f.audio.playReference).toHaveBeenCalledTimes(count === 1 ? 5 : 0);
     expect(f.audio.playSequence).toHaveBeenCalledTimes(count > 1 ? 5 : 0);
     expect(f.audio.startContinuous).toHaveBeenCalledTimes(5);

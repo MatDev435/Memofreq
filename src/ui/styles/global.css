@@ -14,6 +14,7 @@
 
 body {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .site-header,
@@ -301,6 +302,7 @@ fieldset {
 }
 .result-details > div {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
   padding-block: 0.65rem;
@@ -308,6 +310,7 @@ fieldset {
 }
 .result-details dd {
   margin: 0;
+  margin-inline-start: auto;
   text-align: right;
   font-weight: 650;
   font-variant-numeric: tabular-nums;
@@ -335,6 +338,39 @@ fieldset {
 .total-score small {
   font-size: 1rem;
   color: #4d6052;
+}
+.round-chart {
+  margin: 1.5rem 0;
+}
+.round-chart figcaption {
+  font-weight: 650;
+  margin-bottom: 0.75rem;
+}
+.round-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 34rem;
+  margin-inline: auto;
+}
+.round-chart text {
+  fill: #375c43;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+}
+.chart-tick line {
+  stroke: #b8c3b6;
+}
+.round-bar rect {
+  fill: #23553c;
+}
+.round-chart .chart-score {
+  fill: #14271e;
+  font-size: 16px;
+  font-weight: 650;
+}
+.round-scores td {
+  white-space: nowrap;
 }
 table {
   border-collapse: collapse;
@@ -394,6 +430,32 @@ thead {
   }
   .round-header {
     flex-wrap: wrap;
+  }
+  .panel,
+  .listening-note {
+    padding: min(1.2rem, 4vw);
+  }
+  .audio-controls {
+    padding-inline: min(1rem, 4vw);
+  }
+  .tone-control {
+    padding: min(1rem, 3vw);
+  }
+  .round-scores td,
+  .round-scores th {
+    padding-inline: 0.25rem;
+  }
+  .volume-row {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.25rem 0.75rem;
+  }
+  .volume-row input {
+    grid-row: 2;
+    grid-column: 1 / -1;
+  }
+  .volume-row > span {
+    grid-row: 1;
+    grid-column: 2;
   }
   .button-row > button {
     flex: 1 1 auto;
