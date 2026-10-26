@@ -4,7 +4,7 @@
 
 Monólito frontend modular: uma SPA, uma aplicação e um build estático. React cuida da apresentação; TypeScript estrito torna explícitos modelos e contratos. Não há backend nesta etapa.
 
-A fundação contém somente o ponto de entrada, tela estática e ferramentas. Os módulos de domínio, aplicação e áudio estão reservados por arquivos explicativos, sem implementação antecipada.
+A fundação contém o ponto de entrada, tela estática e ferramentas. A Fase 2 implementa `src/domain` com configuração, geração, pontuação, modelos e reducer puro. Aplicação e áudio continuam reservados para integração posterior; a UI ainda não consome o domínio.
 
 ## Limites e dependências
 
@@ -32,9 +32,9 @@ A aplicação será a única coordenadora dos efeitos da partida. O reducer ser�
 
 As dependências ficam fixadas no `package.json` e no lockfile. Node 24 e npm 11 são a linha de execução aprovada. Não atualizar majors durante uma fase sem conferir compatibilidade e executar os checks.
 
-## Modelo de domínio planejado
+## Modelo de domínio implementado
 
-Modelos diferenciarão configuração da partida, definição do desafio, progresso e resultado final. O formato exato será implementado e testado na Fase 2.
+Os modelos diferenciam configuração da partida, definição do desafio, progresso e resultado final. Entradas são copiadas e congeladas: mudanças posteriores nos objetos do chamador não modificam alvos, regras ou resultados da sessão.
 
 - Configuração: modo, quantidade de referências, faixa e versão das regras.
 - Definição: cinco listas ordenadas de alvos, independentes da interface.
@@ -46,9 +46,9 @@ Valores numéricos serão validados no limite do domínio. Não usar `NaN`, infi
 
 A geração logarítmica e a pontuação serão funções separadas. A posição inicial será amostrada diretamente na união dos intervalos permitidos a pelo menos 300 cents do alvo. Não haverá arredondamento na geração ou no armazenamento de resultados.
 
-## Máquina de estados planejada
+## Máquina de estados implementada
 
-União discriminada e reducer puro, sem biblioteca adicional:
+União discriminada e reducer puro em `src/domain/gameReducer.ts`, sem biblioteca adicional:
 
 ```text
 inicial → preparandoAudio → contagem → referencias → tentativa
@@ -64,7 +64,25 @@ resultadoFinal / interrompida → inicial ou nova partida
 
 Uma preparação concluída pode ser imediata se o contexto já estiver ativo. O destino dessa preparação deve ser explícito: iniciar contagem ou iniciar uma nova tentativa, nunca repetir referências.
 
-Eventos carregarão identificadores da partida e da execução; operações sensíveis identificarão também a tentativa. Um evento só produz efeito quando corresponde ao estado e aos identificadores vigentes.
+Eventos carregam identificadores da partida e da execução, que também distinguem a tentativa vigente. Um evento só produz efeito quando corresponde ao estado e aos identificadores vigentes.
+
+Na implementação, `gameId` identifica o desafio e `executionId` identifica a etapa vigente. Esse contador aumenta em cada transição, incluindo avanço de tentativa e round; assim também identifica implicitamente a tentativa. Movimentos do slider mantêm o contador, permitindo atualizar continuamente a mesma voz no futuro. O contador não volta a zero ao retornar à inicial, protegendo uma nova partida inclusive se o chamador reutilizar o mesmo `gameId`.
+
+O contexto de callbacks deve ser capturado antes da operação assíncrona; eventos do usuário e visibilidade devem usar o contexto atual. Eventos antigos, transições indevidas e valores inválidos de controle retornam o mesmo objeto de estado. Uma definição inválida é rejeitada atomicamente com `RangeError`, sem iniciar uma partida parcial.
+
+O reducer não sorteia, não mede tempo e não reproduz sons. `REFERENCES_FINISHED` recebe a frequência inicial sorteada externamente. `CONFIRM_ATTEMPT` usa o último valor aceito de `SET_FREQUENCY`. `COMPLETE_ROUND` exige todas as respostas, armazena sua média e `FINISH_GAME` exige cinco resultados antes de calcular a soma.
+
+### Geração e precisão
+
+`frequencies.ts` converte posição normalizada e frequência pela escala logarítmica. A posição inicial é sorteada com uma única chamada ao RNG, ponderando os dois intervalos permitidos pela largura logarítmica. Correções de poucos ULPs afastam valores da fronteira quando o erro de ponto flutuante deixaria a distância ligeiramente abaixo do mínimo. No limite de viabilidade, um extremo válido pode ser escolhido; a regra de distância nunca é relaxada.
+
+Uma configuração é rejeitada quando a distância mínima supera metade da extensão total em cents: nesse caso existem alvos para os quais nenhum extremo seria suficientemente distante. A igualdade é permitida e pode resultar em apenas extremos válidos para o alvo central.
+
+Referências distintas são sorteadas em ordem. Para não travar com uma fonte defeituosa que repete sempre o mesmo valor, há um limite de 32 sorteios por referência solicitada; ao excedê-lo, a geração falha explicitamente, sem introduzir alvos determinísticos de substituição.
+
+`scoring.ts` usa a diferença de logaritmos para calcular cents, matematicamente equivalente ao logaritmo da razão e sem overflow/underflow da divisão. A função matemática aceita frequências positivas e finitas; os limites específicos da partida são validados pela definição e pelo reducer. Médias e somas não arredondam parcelas. A formatação pt-BR permanece uma responsabilidade futura da apresentação.
+
+Todos os testes do domínio rodam em ambiente Node, sem depender de DOM ou AudioContext. O guia `src/domain/README.md` descreve os arquivos e os contratos de integração.
 
 Invariantes:
 
@@ -78,7 +96,7 @@ Invariantes:
 
 ## Política de interrupções por estado
 
-Aplicar a política no controlador, não em um listener global que invalida tudo. Usar `document.visibilityState` para ocultação e `AudioContext.state` para suspensão efetiva. Perda de foco isolada não equivale a ocultação.
+O reducer aplica a política por estado a eventos abstratos. O controlador futuro observará `document.visibilityState` para ocultação e `AudioContext.state` para suspensão efetiva, enviará os eventos e cancelará os efeitos correspondentes. A Fase 2 não instala listeners ou executa as ações físicas de áudio descritas na tabela. Perda de foco isolada não equivale a ocultação.
 
 | Estado                 | Página oculta                                                 | Suspensão/falha do áudio                                   | Retorno                                                                     |
 | ---------------------- | ------------------------------------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------- |

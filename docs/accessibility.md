@@ -6,7 +6,7 @@ O desafio é auditivo. Em todos os modos, inclusive Normal, a aplicação não d
 
 Isso não elimina a operação por tecnologia assistiva: o controle permanece identificável, ajustável e com alternativa de operação. Resultados numéricos continuam acessíveis para leitura intencional.
 
-Este documento é uma **proposta a validar nas fases jogáveis**. A Fase 1 não implementa o slider nem comprova comportamento com leitores de tela reais.
+Este documento é uma **proposta a validar nas fases jogáveis**. As Fases 1 e 2 não implementam o slider nem comprovam comportamento com leitores de tela reais. A configuração de domínio `showFrequencyVisually` distingue apenas a exibição visual e não autoriza anúncios automáticos.
 
 ## Controle proposto
 

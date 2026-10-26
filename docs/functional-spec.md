@@ -1,6 +1,6 @@
 # Especificação funcional do Memofreq
 
-Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. A implementação atual está limitada à Fase 1; descrever uma regra aqui não significa que ela já foi implementada.
+Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. A Fase 2 implementa e testa o domínio isolado; a interface ainda é estática, sem áudio ou controles jogáveis. Descrever uma regra aqui não significa que a experiência correspondente já esteja integrada.
 
 ## 1. Produto e escopo
 

@@ -2,7 +2,7 @@
 
 Jogo web de percepção e memória auditiva: ouça frequências de referência e tente reproduzi-las ajustando um tom contínuo.
 
-**Estado atual: Fase 1 — Fundação.** A aplicação contém uma tela estática de apresentação. Partidas, áudio, slider, regras e resultados ainda não foram implementados. A Fase 2 depende de nova autorização.
+**Estado atual: Fase 2 — Domínio e estados concluída.** Configuração, sorteios, pontuação, modelos e máquina de estados estão implementados e testados isoladamente. A aplicação ainda apresenta a tela estática da fundação; áudio, slider e integração jogável serão implementados nas próximas fases. A Fase 3 depende de nova autorização.
 
 ## Requisitos
 
@@ -39,7 +39,7 @@ Em uma máquina Linux sem as bibliotecas necessárias, a instalação documentad
 | `npm run format:check` | Verificar formatação                                      |
 | `npm run format`       | Aplicar formatação                                        |
 | `npm test`             | Vitest em modo de observação                              |
-| `npm run test:run`     | Testes de componentes, execução única                     |
+| `npm run test:run`     | Testes do domínio e componentes, execução única           |
 | `npm run build`        | Verificar tipos e gerar `dist/`                           |
 | `npm run preview`      | Servir o build localmente                                 |
 | `npm run test:e2e`     | Smoke tests do build em Chromium desktop e viewport móvel |
@@ -61,6 +61,7 @@ Sem backend, contas, persistência remota ou dependências de áudio. Não há i
 - [Plano de implementação](docs/implementation-plan.md): fases, dependências e critérios de aceitação.
 - [Testes manuais](docs/manual-testing.md): roteiro e registro explícito das verificações.
 - [Relatório da Fase 1](docs/phase-1-report.md): entregas, inventário e verificações executadas.
+- [Relatório da Fase 2](docs/phase-2-report.md): domínio, transições e validação das regras.
 - [Instruções para agentes](AGENTS.md): regras permanentes para futuras sessões.
 
 Consulte o plano para identificar o estágio atual antes de modificar o projeto. Não avance fases sem autorização do usuário.

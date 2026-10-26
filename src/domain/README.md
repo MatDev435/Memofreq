@@ -1,3 +1,27 @@
-# Domínio — reservado para a Fase 2
+# Domínio — Fase 2
 
-Receberá configuração, modelos, geração logarítmica, pontuação e reducer puro. Não importar React, DOM ou Web Audio API. Nenhuma regra executável é implementada na Fase 1.
+Código TypeScript puro, sem React, DOM, Web Audio API, timers ou persistência. Os testes deste diretório usam o ambiente Node do Vitest.
+
+| Arquivo             | Responsabilidade                                                          |
+| ------------------- | ------------------------------------------------------------------------- |
+| `config.ts`         | Regras centralizadas, validação e quatro perfis de modalidade             |
+| `frequencies.ts`    | Conversão logarítmica, referências distintas e posição inicial            |
+| `scoring.ts`        | Cents, resultado individual, médias e soma sem arredondamento             |
+| `models.ts`         | Definição, sessão, resultados, estados e eventos imutáveis                |
+| `gameDefinition.ts` | Gerar e validar desafios de cinco rounds; copiar e congelar entradas      |
+| `gameReducer.ts`    | Transições, respostas definitivas, avanço, interrupções e eventos antigos |
+
+## Contratos para integração futura
+
+- A aleatoriedade é obrigatoriamente injetada e deve produzir valores em `[0, 1)`. Não existe RNG oculto no reducer.
+- `createGameDefinition` sorteia um desafio; `snapshotGameDefinition` também aceita um desafio externo validável, sem criar API ou serviço fictício.
+- `createInitialState` recebe a visibilidade inicial. `gameReducer` recebe o estado e um evento acompanhado de `gameId` e `executionId`.
+- `getEventContext` fornece esse par de identificação. Para callbacks assíncronos, capture-o **antes** de iniciar a operação; não substitua o contexto antigo pelo atual quando o callback chegar.
+- Interações atuais e eventos reais de visibilidade usam o contexto vigente. A aplicação deve lê-lo no despacho, evitando closures antigas em listeners permanentes.
+- `executionId` aumenta em mudanças de etapa, cancelamentos, reinícios e saída. Não muda a cada movimento do slider ou simples retorno de visibilidade em resultado.
+- Eventos fora de etapa, antigos ou com frequência inválida preservam o estado. Definições ou configurações inválidas lançam `RangeError` antes de criar uma sessão parcial.
+- `REFERENCES_FINISHED` e `NEXT_ATTEMPT` recebem uma posição inicial já sorteada e validada; `SET_FREQUENCY` altera o valor atual; `CONFIRM_ATTEMPT` confirma esse valor, sem aceitar uma segunda frequência divergente no evento.
+- O sinal `referenceStarted` é uma observação da futura engine/relógio do áudio. Se verdadeiro ao interromper a contagem, a partida é invalidada; o domínio não tenta inferi-lo por timers.
+- `showFrequencyVisually` controla somente a futura apresentação visual. Não autoriza anúncios de Hz por leitores de tela em modo algum.
+
+Os eventos com nomes de áudio representam confirmações lógicas; não há implementação sonora nesta fase. O controlador futuro deve encerrar efeitos cancelados quando o contexto de execução deixar de ser vigente.

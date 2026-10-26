@@ -4,14 +4,14 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 
 ## Situação atual
 
-| Fase                       | Estado                   | Autorização            |
-| -------------------------- | ------------------------ | ---------------------- |
-| 1 — Fundação               | Concluída e sincronizada | Autorizada             |
-| 2 — Domínio e estados      | Não iniciada             | Aguardando autorização |
-| 3 — Engine de áudio        | Não iniciada             | Aguardando autorização |
-| 4 — Normal jogável         | Não iniciada             | Aguardando autorização |
-| 5 — Hard e Extreme         | Não iniciada             | Aguardando autorização |
-| 6 — Integração e qualidade | Não iniciada             | Aguardando autorização |
+| Fase                       | Estado                   | Autorização              |
+| -------------------------- | ------------------------ | ------------------------ |
+| 1 — Fundação               | Concluída e sincronizada | Autorizada               |
+| 2 — Domínio e estados      | Concluída                | Autorizada em 26/10/2026 |
+| 3 — Engine de áudio        | Não iniciada             | Aguardando autorização   |
+| 4 — Normal jogável         | Não iniciada             | Aguardando autorização   |
+| 5 — Hard e Extreme         | Não iniciada             | Aguardando autorização   |
+| 6 — Integração e qualidade | Não iniciada             | Aguardando autorização   |
 
 ## Fase 1 — Fundação
 

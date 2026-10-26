@@ -5,8 +5,8 @@
 - Leia `README.md`, `docs/functional-spec.md`, `docs/architecture.md`, `docs/accessibility.md` e `docs/implementation-plan.md` antes de trabalhar.
 - A especificação funcional registra as regras aprovadas. Não altere mecânicas sem autorização explícita do usuário.
 - Execute somente a fase autorizada. Ao concluí-la, informe entregas, verificações reais, pendências, commits e sincronização com o GitHub; aguarde autorização antes da próxima fase.
-- Na autorização atual, somente a **Fase 1 — Fundação** está liberada. A Fase 2 não está autorizada.
-- Não implemente antecipadamente domínio, engine, partidas ou controles jogáveis na Fase 1.
+- A **Fase 2 — Domínio e estados** foi autorizada em 26/10/2026 e está concluída, assim como a Fase 1. A Fase 3 não está autorizada.
+- Na Fase 2, implemente somente configuração, modelos, geração, pontuação e estados puros. Não antecipe a engine, integração React ou controles jogáveis.
 - Não implemente backend, autenticação, ranking, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação.
 
 ## Engenharia
