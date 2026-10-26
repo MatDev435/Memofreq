@@ -6,7 +6,10 @@ import type { ModeSelection } from '../domain/config';
 import { AudioControls } from '../ui/components/AudioControls';
 import { AttemptResult } from '../ui/components/AttemptResult';
 import { ToneControl } from '../ui/components/ToneControl';
-import { ModeSelector } from '../ui/components/ModeSelector';
+import { HomeScreen } from '../ui/screens/HomeScreen';
+import { Brand } from '../ui/components/Brand';
+import { Icon } from '../ui/components/Icon';
+import { WaveArt } from '../ui/components/WaveArt';
 import { RoundSummary } from '../ui/components/RoundSummary';
 import { RoundScores } from '../ui/components/RoundScores';
 import { formatNumber } from '../ui/format';
@@ -18,6 +21,7 @@ export function App({
   readonly createController?: () => GameController;
 }) {
   const [controller] = useState(() => createController());
+  const [motionPaused, setMotionPaused] = useState(false);
   const [mode, setMode] = useState<ModeSelection['mode']>('normal');
   const [frequencyCount, setFrequencyCount] = useState<2 | 3>(2);
   const snapshot = useGameController(controller);
@@ -82,33 +86,58 @@ export function App({
           : 'Sua resposta';
 
   return (
-    <>
+    <div
+      className={`app-shell ${home ? 'is-home' : 'is-game'}`}
+      data-motion={motionPaused ? 'paused' : 'full'}
+    >
+      <div className="ambient-background" aria-hidden="true">
+        <WaveArt variant="mesh" />
+      </div>
       <a className="skip-link" href="#conteudo">
         Ir para o conteúdo
       </a>
       <header className="site-header">
-        <span className="wordmark">Memofreq</span>
-        <span className="project-stage">Memória auditiva</span>
-      </header>
-      <main id="conteudo" tabIndex={-1}>
-        <div className="page-title">
-          <p className="eyebrow">Percepção e memória auditiva</p>
-          <h1 id="titulo">Memofreq</h1>
-          {home && (
-            <p className="introduction">
-              Ouça um tom, guarde na memória e tente encontrá-lo novamente.
-            </p>
-          )}
+        <Brand />
+        <div className="header-end">
+          <span className="project-stage">
+            Um desafio para os seus ouvidos.
+          </span>
+          <button
+            type="button"
+            className="motion-toggle"
+            aria-label="Animações visuais"
+            aria-pressed={!motionPaused}
+            title={motionPaused ? 'Ativar animações' : 'Pausar animações'}
+            onClick={() => {
+              setMotionPaused(!motionPaused);
+            }}
+          >
+            <Icon name="motion" />
+          </button>
         </div>
-        <AudioControls
-          volume={snapshot.volume}
-          home={home}
-          busy={busy}
-          sample={snapshot.sample}
-          onVolume={controller.setVolume}
-          onTest={controller.testAudio}
-          onStop={controller.stopSample}
-        />
+      </header>
+      <main
+        id="conteudo"
+        tabIndex={-1}
+        className={home ? 'home-main' : 'session-main'}
+      >
+        {!home && (
+          <div className="page-title">
+            <p className="eyebrow">Percepção e memória auditiva</p>
+            <h1 id="titulo">Memofreq</h1>
+          </div>
+        )}
+        {!home && (
+          <AudioControls
+            volume={snapshot.volume}
+            home={home}
+            busy={busy}
+            sample={snapshot.sample}
+            onVolume={controller.setVolume}
+            onTest={controller.testAudio}
+            onStop={controller.stopSample}
+          />
+        )}
         {snapshot.error && <p className="error-message">{snapshot.error}</p>}
         <p
           className="sr-only"
@@ -120,49 +149,30 @@ export function App({
         </p>
 
         {home ? (
-          <>
-            <section className="panel home-panel" aria-labelledby="como-jogar">
-              <h2 id="como-jogar">Escute uma vez. Encontre de memória.</h2>
-              <p>
-                As referências tocam uma única vez. Depois, outro tom começa
-                automaticamente: ajuste-o pelo slider ou pelos botões e
-                confirme. No Extreme, memorize a sequência inteira e responda na
-                mesma ordem. Cada confirmação passa diretamente ao próximo
-                palpite; os resultados aparecem juntos ao terminar o round. A
-                frequência fica oculta durante as tentativas no Hard e Extreme.
-              </p>
-              <ModeSelector
-                mode={mode}
-                frequencyCount={frequencyCount}
-                onMode={setMode}
-                onFrequencyCount={setFrequencyCount}
+          <HomeScreen
+            audio={
+              <AudioControls
+                volume={snapshot.volume}
+                home
+                busy={busy}
+                sample={snapshot.sample}
+                onVolume={controller.setVolume}
+                onTest={controller.testAudio}
+                onStop={controller.stopSample}
               />
-              <button
-                ref={start}
-                type="button"
-                className="primary"
-                disabled={busy}
-                onClick={() => {
-                  controller.start(
-                    mode === 'extreme' ? { mode, frequencyCount } : { mode },
-                  );
-                }}
-              >
-                Iniciar partida
-              </button>
-            </section>
-            <aside className="listening-note" aria-labelledby="fones">
-              <h2 id="fones">Coloque seus fones de ouvido!</h2>
-              <p>
-                Recomendamos fones e um ambiente silencioso. Ajuste o volume
-                para um nível confortável antes de começar.
-              </p>
-              <p>
-                Para ajustar sem ouvir anúncios do controle deslizante, use os
-                botões Diminuir tom e Aumentar tom durante a tentativa.
-              </p>
-            </aside>
-          </>
+            }
+            mode={mode}
+            frequencyCount={frequencyCount}
+            onMode={setMode}
+            onFrequencyCount={setFrequencyCount}
+            busy={busy}
+            startRef={start}
+            onStart={() => {
+              controller.start(
+                mode === 'extreme' ? { mode, frequencyCount } : { mode },
+              );
+            }}
+          />
         ) : game.phase === 'final-result' ? (
           <section className="panel final-result" aria-labelledby="final-title">
             <p className="eyebrow">Modo {modeLabel} · 5 rounds concluídos</p>
@@ -351,6 +361,6 @@ export function App({
         )}
       </main>
       <footer>Um desafio para os seus ouvidos.</footer>
-    </>
+    </div>
   );
 }
