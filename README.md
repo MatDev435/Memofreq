@@ -2,7 +2,7 @@
 
 Jogo web de percepção e memória auditiva: ouça frequências de referência e tente reproduzi-las ajustando um tom contínuo.
 
-**Estado atual: Fase 6 — Integração e qualidade concluída.** Normal, Hard e Extreme com duas ou três referências estão integrados, com resultados conjuntos no Extreme e gráfico dos cinco rounds acompanhado de tabela. O acabamento visual definitivo permanece uma etapa posterior.
+**Estado atual: Fase 7 — Redesign completo concluído.** As quatro telas foram recriadas a partir dos oito mockups desktop/mobile: menu, gameplay, resumo do round e resultado final. O jogo mantém as regras e o áudio existentes, com indicadores circulares, gráfico, detalhes consultáveis e movimento reduzido. Veja o [relatório com capturas](docs/phase-7-report.md).
 
 ## Requisitos
 
@@ -27,6 +27,8 @@ O servidor de desenvolvimento imprime a URL local, normalmente `http://127.0.0.1
 2. Selecione **Normal**, **Hard** ou **Extreme**. No Extreme, escolha duas ou três referências antes de iniciar; essa quantidade fica fixa durante a partida. A contagem dura três segundos. Normal apresenta uma referência de três segundos; Hard apresenta uma de 1,5 s; Extreme apresenta a sequência inteira de referências de 1,5 s com pausas de 300 ms.
 3. O tom contínuo começa automaticamente. Ajuste pelo slider ou pelos botões **Diminuir tom** e **Aumentar tom**.
 4. Confirme a tentativa, consulte o resultado e avance. No Extreme, cada confirmação passa automaticamente ao próximo palpite, sorteando outra posição do slider sem interromper o tom. Após a última resposta, consulte todos os alvos, palpites e pontos juntos, com a média do round. Após cinco rounds, veja o total, o gráfico com escala fixa de zero a dez e a tabela de notas; **Jogar novamente** preserva modalidade e quantidade, com novos sorteios.
+
+O botão **Animações visuais** pausa os efeitos decorativos; a preferência de movimento reduzido do sistema também é respeitada. A tipografia Inter é servida pelo próprio build, sem requisições a fontes externas.
 
 No slider, setas ajustam em passos finos, Page Up/Page Down fazem ajustes maiores e Home/End alcançam os extremos. Hz aparece visualmente apenas no Normal, sem região viva ou associação dinâmica ao nome do controle. Hard e Extreme omitem o texto de frequência durante as tentativas, inclusive em nomes e descrições acessíveis. Resultados são consultáveis sob demanda. Os botões oferecem uma alternativa caso o leitor de tela narre alterações do slider nativo.
 
@@ -71,6 +73,9 @@ React, TypeScript estrito, Vite, CSS convencional e engine com Web Audio API nat
 Sem backend, contas, persistência remota ou dependências de áudio. O build estático é validado localmente em uma subpasta; a publicação em um host remoto ainda não está configurada. Veja o [guia de hospedagem](docs/deployment.md). `base: './'` permite servir o build estático em uma subpasta; se futuramente houver rotas, a estratégia de navegação e o fallback do host precisarão ser revistos.
 
 ## Documentação e continuidade
+
+- [Redesign da Fase 7 e capturas das quatro telas](docs/phase-7-report.md).
+- [Plano por tela e referências da Fase 7](docs/phase-7-plan.md).
 
 - [Relatório consolidado com capturas da interface](docs/visual-report.md): mudanças das Fases 1 a 4, seis imagens reais, testes, commits e pendências.
 - [Especificação funcional](docs/functional-spec.md): fonte de verdade das mecânicas aprovadas.

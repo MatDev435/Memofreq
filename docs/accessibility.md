@@ -79,3 +79,15 @@ Na entrega da Fase 4, o NVDA foi encontrado instalado, mas o controle Windows fa
 Testes de DOM, axe e teclado automatizado verificam parte da estrutura; não validam o que o leitor efetivamente fala.
 
 Referência: [W3C — Slider Pattern](https://www.w3.org/WAI/ARIA/apg/patterns/slider/), incluindo a necessidade de testar tecnologias assistivas em dispositivos de toque.
+
+## Redesign da Fase 7
+
+A apresentação mantém o input nativo e os comandos existentes. “Ajustar tom” continua sendo o nome estável, e `aria-valuetext` permanece “Ajuste pelo som”. A indicação visual “Mais grave/Mais agudo” é decorativa e fica fora da árvore acessível; não há mensagens de região durante o movimento. Volume possui nome acessível explícito mesmo quando seu texto visual é ocultado em telas estreitas.
+
+Os anéis são SVGs decorativos com notas em texto comum. No resultado final, o anel com troféu é decorativo; o total tem texto equivalente. Gráfico, tabela, cards e detalhes não têm região viva. A navegação e os destinos de foco anteriores foram preservados, inclusive confirmação intermediária do Extreme e título final sem números. Os dados dos cinco rounds podem ser consultados intencionalmente no disclosure final.
+
+O botão “Animações visuais” indica com `aria-pressed` se os efeitos estão habilitados. Seu valor permanece durante a navegação da SPA; não inicia nem para áudio. A preferência de movimento reduzido do sistema tem precedência e desativa efeitos mesmo quando o botão está habilitado. Os dois controles não afirmam reconfigurar a preferência do sistema.
+
+O reflow reorganiza o cabeçalho e os controles com texto ampliado. A tabela do Extreme mantém cabeçalhos e relações de coluna; Normal/Hard não criam colunas adicionais. Contorno de foco visível, link para pular ao conteúdo e alternativas por botões permanecem disponíveis.
+
+A validação automatizada da Fase 7 cobre axe, teclado, foco, movimento reduzido, nomes e reflow; resultados e limites ficam no relatório da fase. O agente não operou leitores de tela nem realizou escuta humana. A nova apresentação aguarda a validação manual do usuário com NVDA, conforme combinado.

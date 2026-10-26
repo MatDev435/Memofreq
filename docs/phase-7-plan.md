@@ -35,3 +35,14 @@ Nenhum arquivo de domínio, controlador, hook de ciclo de vida ou engine será a
 ## Verificação e entregas
 
 Checks existentes, testes de componentes, E2E nos quatro perfis de navegador, axe, reflow, movimento reduzido e build estático. Adaptar seletores quando a apresentação passar a incluir detalhes adicionais, mantendo as verificações de mecânica. Capturas reais por tela em desktop/mobile, inspeção comparativa com as referências, commits organizados por tela e relatório persistente. Backend e publicação remota permanecem fora do escopo.
+
+## Entrega por tela
+
+| Etapa           | Commit    | Revisão                                                                |
+| --------------- | --------- | ---------------------------------------------------------------------- |
+| Menu inicial    | `ac1c5bf` | Referências desktop/mobile, cards, áudio, teclado e fonte local        |
+| Gameplay        | `aa83ca1` | Controles nativos, mesmo foco entre palpites, status e onda decorativa |
+| Resumo do round | `da89c83` | Um/dois/três cards, anéis, Hz/cents e nota real                        |
+| Resultado final | `f606d99` | Total, gráfico, notas por frequência, médias e detalhes                |
+
+As quatro etapas foram implementadas na ordem solicitada, com checks e capturas intermediários. A revisão final acrescentou abreviação visual da tabela estreita (nome acessível completo), layout de cards relativo ao tamanho do texto, teste de limites do número dentro do anel e capturas com animações finitas concluídas. Evidências consolidadas em `phase-7-report.md`.

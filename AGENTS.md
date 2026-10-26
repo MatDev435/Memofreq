@@ -8,7 +8,8 @@
 - As Fases 1 a 5 estão concluídas. O usuário testou e aprovou a correção do Extreme. A **Fase 6 — Integração e qualidade** foi autorizada em 26/10/2026 e está concluída.
 - Correção do Extreme autorizada em 26/10/2026: cada confirmação intermediária registra o palpite e passa automaticamente ao próximo, sorteando outra posição no mesmo tom contínuo, sem resultados, pausa, anúncios ou botão de continuar. Revelar todos os alvos, palpites e notas juntos somente após a última confirmação e apresentar a média do round.
 - A Fase 6 inclui gráfico dos cinco rounds com eixo 0–10, tabela equivalente, revisão de integração, compatibilidade, reflow e validação local do build estático. O acabamento visual definitivo e funcionalidades futuras exigem nova autorização.
-- A Fase 7 — Redesign completo foi autorizada com oito referências desktop/mobile. Desenvolver na ordem menu, gameplay, resumo do round, resultado final, conforme `docs/phase-7-plan.md`. Preservar integralmente domínio, controlador, engine, áudio e navegação; adaptar a apresentação aos modos reais e aos valores corretos, mesmo quando o mockup divergir.
+- A Fase 7 — Redesign completo está concluída e foi autorizada com oito referências desktop/mobile. As telas foram desenvolvidas na ordem menu, gameplay, resumo do round, resultado final, conforme `docs/phase-7-plan.md`. Preservar integralmente domínio, controlador, engine, áudio e navegação; adaptar a apresentação aos modos reais e aos valores corretos, mesmo quando o mockup divergir.
+- A Fase 7 preservou domínio, controlador, hook e engine; validou 181 testes Vitest e 60 E2E nos quatro perfis. Evidências e capturas em `docs/phase-7-report.md`. O teste manual do redesign com NVDA continua com o usuário; novas funcionalidades exigem autorização.
 - Não implemente backend, autenticação, ranking, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação.
 
 ## Engenharia

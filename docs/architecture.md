@@ -192,3 +192,17 @@ Versão das regras e modalidades distintas permitirão separar rankings futurame
 - [MDN — AudioContext](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext).
 - [MDN — AudioParam](https://developer.mozilla.org/en-US/docs/Web/API/AudioParam).
 - [W3C — padrão de slider](https://www.w3.org/WAI/ARIA/apg/patterns/slider/).
+
+## Apresentação da Fase 7
+
+O redesign não altera `src/domain`, `src/application`, `src/audio` nem a fábrica do controlador. `App` continua assinando o mesmo snapshot e enviando as mesmas ações. O único estado visual adicional é a pausa das animações, local ao componente, sem persistência ou influência no áudio.
+
+- `HomeScreen`, `PlayingScreen` e `FinalScreen` compõem as telas; `RoundSummary` apresenta o round consolidado. Todos recebem dados e callbacks já disponíveis.
+- `SessionHeader`, `GameProgress`, `AudioControls`, `ToneControl`, `KeyboardHints`, `AttemptResult`, `ScoreRing`, `RoundChart` e `RoundScoreTable` são componentes reutilizáveis. A escolha entre uma/duas/três frequências vem da sessão e dos resultados, sem configuração duplicada.
+- O slider permanece nativo, com os mesmos handlers e guardas de confirmação. O DOM dos controles e o foco permanecem entre os palpites do Extreme; não há animação de remontagem, resultado ou fala entre eles.
+- `ScoreRing` normaliza a apresentação em dez ou cinquenta; não calcula pontuação. Gráfico, tabela e detalhes recebem os valores imutáveis do domínio, sem arredondamento intermediário ou soma alternativa.
+- `Brand`, `Icon` e `WaveArt` são SVGs próprios e decorativos. Ondas determinísticas são pré-calculadas e memoizadas, sem amostrar áudio ou gerar pistas da frequência. Não há loop de animação no React.
+- CSS é carregado na ordem `global.css` (tokens, elementos compartilhados e menu), `game.css` (sessão/gameplay), `results.css` (round/final). Breakpoints reorganizam a composição; o conteúdo pode quebrar com texto ampliado. Inter variável e licença OFL ficam em `src/ui/fonts/`; Vite emite o asset com caminho relativo ao build.
+- Animações usam CSS. `prefers-reduced-motion` e `data-motion="paused"` desativam animações/transições; números não são interpolados e as ações nunca esperam um efeito terminar. A transição de abertura/fechamento de `details` é uma melhoria progressiva, com operação nativa preservada em navegadores sem esse recurso.
+
+Referências originais: `docs/references/phase-7/`. Capturas reais e relatório: `docs/images/phase-7/` e `docs/phase-7-report.md`.

@@ -12,6 +12,7 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 | 4 — Normal jogável         | Concluída                | Autorizada em 26/10/2026 |
 | 5 — Hard e Extreme         | Concluída                | Autorizada em 26/10/2026 |
 | 6 — Integração e qualidade | Concluída                | Autorizada em 26/10/2026 |
+| 7 — Redesign completo      | Concluída                | Autorizada em 26/10/2026 |
 
 ## Fase 1 — Fundação
 
@@ -84,3 +85,13 @@ Correção autorizada em 26/10/2026 após teste do usuário: palpites do Extreme
 ## Futuro, sem implementação autorizada
 
 Autenticação, persistência remota, estatísticas, rankings por modalidade e desafio diário. Não criar APIs falsas ou abstrações genéricas para essas possibilidades.
+
+## Fase 7 — Redesign completo
+
+**Autorização:** recebida com oito imagens de referência, após a Fase 6. Ordem solicitada: menu inicial, gameplay, resumo do round e resultado final. Não exige novas aprovações entre essas quatro telas.
+
+**Entregas:** identidade permanente escura, roxo/ciano, fonte local, marca e elementos SVG reutilizáveis; composição responsiva fiel aos mockups; anéis e gráfico animados; controle de movimento e respeito à preferência do sistema; manutenção de áudio, regras, foco, teclado e anúncios; resultados adaptados ao modo e quantidade reais; testes, capturas e relatório persistente.
+
+**Aceitação:** preservar os arquivos de domínio, controlador, hook e engine; passar nos checks existentes e novos testes de apresentação/reflow; validar as quatro modalidades nos quatro perfis de navegador; capturar e revisar desktop/mobile das quatro telas. NVDA e escuta humana continuam com o usuário.
+
+**Andamento por tela:** as quatro telas e a revisão final estão concluídas; 181 testes de unidade/componentes e 60 E2E aprovados, com capturas e relatório persistentes. Ver `phase-7-plan.md` e `phase-7-report.md`.

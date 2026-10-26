@@ -1,6 +1,6 @@
 # Especificação funcional do Memofreq
 
-Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. As Fases 4 e 5 integram domínio, engine e interface para Normal, Hard e Extreme com duas ou três referências. A Fase 6 acrescenta o gráfico e a tabela de notas e revisa a integração; a identidade visual definitiva será refinada posteriormente.
+Status: aprovada para implementação incremental, com ajustes aprovados em 26/10/2026. Este documento é a fonte de verdade das mecânicas. As Fases 4 e 5 integram domínio, engine e interface para Normal, Hard e Extreme com duas ou três referências. A Fase 6 acrescenta o gráfico e a tabela de notas e revisa a integração; a Fase 7 recria a apresentação conforme os oito mockups aprovados, preservando essas regras.
 
 ## 1. Produto e escopo
 
@@ -153,3 +153,14 @@ A retomada a partir do resultado do round pode exigir clique para habilitar o co
 Preparar modelos para distinguir Normal, Hard, Extreme com duas e Extreme com três frequências. Manter definição de desafios separada da pontuação.
 
 Backend, contas, histórico remoto, rankings e desafio diário só serão implementados sob solicitação. Desafios competitivos exigirão geração e validação confiáveis no servidor; a aplicação frontend não oferece proteção contra inspeção dos dados ou manipulação dos resultados.
+
+## Apresentação aprovada na Fase 7
+
+- Dark mode permanente, tons preto/azul-marinho, roxo/ciano e destaques âmbar, Inter local, SVGs de áudio e cards responsivos.
+- Menu com modalidades, quantidade fixa do Extreme, teste de áudio, volume, instruções e início. A seleção de quantidade permanece visível e desabilitada no Normal/Hard.
+- Ao iniciar, o menu sai do DOM. Cabeçalho compacto mantém modo real, volume, saída e controle de animações em todas as etapas da partida.
+- Gameplay apresenta progresso dos cinco rounds, contagem/referência/ajuste, slider, botões e atalhos. O progresso das frequências só aparece quando há múltiplas tentativas.
+- Resumo apresenta um card por frequência concluída, com indicador de zero a dez, alvo, palpite, diferença em Hz/cents e nota geral real. Normal/Hard usam uma frequência e linguagem no singular; Extreme usa duas/três e média. Nunca revelar um palpite intermediário do Extreme.
+- Resultado final apresenta total de cinquenta, gráfico e tabela dos cinco rounds. Extreme inclui notas individuais e a média por round; Normal/Hard têm apenas a nota da única frequência. Um disclosure permite consultar alvos e respostas de todos os rounds.
+- Números dos mockups não definem regras. Média, total e distância em cents são os valores consolidados do domínio, com arredondamento apenas nos textos.
+- Movimento é exclusivamente visual: entrada de telas, seleção, hover/clique/foco, ondas, preenchimento de anéis/barras e abertura/fechamento de detalhes. Respeitar movimento reduzido do sistema e permitir pausa dos efeitos. Nenhum timer visual controla áudio ou avanço.

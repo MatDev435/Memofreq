@@ -79,3 +79,18 @@ Foram inspecionadas visualmente capturas do Chromium desktop e Pixel 7 emulado. 
 | 26/10/2026 | Chromium / Pixel 7 emulado, capturas Playwright               | Inspeção visual                               | Conteúdo legível e controles sem corte horizontal nas capturas      | Escuta humana, aparelhos físicos e leitores de tela reais                                                |
 | 26/10/2026 | Ambiente do usuário; NVDA; navegador e versões não informados | Teste geral da interface Normal após a Fase 4 | Usuário relatou funcionamento, inclusive com NVDA                   | Casos específicos não discriminados; novos modos ainda aguardam teste manual do usuário                  |
 | 26/10/2026 | Ambiente do usuário; navegador e versões não informados       | Fluxo Extreme após a correção                 | Usuário relatou que testou e agora está correto; autorizou a Fase 6 | Quantidade de referências e casos de acessibilidade não discriminados; gráfico novo aguarda teste manual |
+
+## Roteiro manual específico do redesign — Fase 7
+
+Itens para o usuário; não marcar automaticamente a partir do axe ou das capturas:
+
+- [ ] Conferir fidelidade dos quatro pares desktop/mobile com as referências.
+- [ ] Jogar Normal/Hard/Extreme de duas e três frequências; conferir quantidade de cards/colunas e ausência do menu durante a partida.
+- [ ] No Extreme, confirmar palpites intermediários sem perda de foco, pausa do tom ou revelação parcial.
+- [ ] Com NVDA, verificar o nome “Ajustar tom”, ausência de Hz automático e a alternativa por botões; consultar resultados e detalhes intencionalmente.
+- [ ] Verificar que foco no próximo round/título final continua sem leitura automática de valores.
+- [ ] Pausar “Animações visuais” e ativar movimento reduzido no sistema: efeitos param, áudio e jogo continuam operáveis.
+- [ ] Conferir texto ampliado/zoom real e orientação no aparelho físico, inclusive volume, confirmação e tabela final.
+- [ ] Avaliar toque/arraste, conforto visual e áudio enquanto os efeitos estão ativos.
+
+A Fase 7 foi validada automaticamente e por inspeção de capturas; isso não substitui a escuta ou o teste real com leitor. Os resultados observados estão em `phase-7-report.md`.
