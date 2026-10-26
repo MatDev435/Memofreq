@@ -90,8 +90,8 @@ describe('Coordenação do Normal Mode', () => {
       f.controller.setPosition(
         frequencyToPosition(getCurrentTarget(game.session)),
       );
-      f.controller.confirm();
-      f.controller.confirm();
+      f.controller.confirm(f.controller.getSnapshot().game.executionId);
+      f.controller.confirm(f.controller.getSnapshot().game.executionId);
       await flush();
       expect(f.controller.getSnapshot().game.phase).toBe('round-result');
       f.controller.advance();
@@ -124,7 +124,7 @@ describe('Coordenação do Normal Mode', () => {
     const game = f.controller.getSnapshot().game;
     if (game.phase !== 'attempt') throw new Error('Tentativa ausente.');
     const frequency = game.frequencyHz;
-    f.controller.confirm();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
     f.controller.setPosition(0.8);
     expect(f.controller.getSnapshot().busy).toBe(true);
     expect(f.controller.getSnapshot().announcement).toBe('');
@@ -222,7 +222,7 @@ describe('Visibilidade, interrupções e callbacks', () => {
   it('preserva resultado em outra aba e avança somente por ação explícita', async () => {
     const f = fixture();
     await toAttempt(f);
-    f.controller.confirm();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
     await flush();
     const result = f.controller.getSnapshot().game;
     f.hide();
@@ -291,7 +291,7 @@ describe('Visibilidade, interrupções e callbacks', () => {
   it('troca uma engine fechada em resultados e ignora notificações da instância antiga', async () => {
     const f = fixture();
     await toAttempt(f);
-    f.controller.confirm();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
     await flush();
     const oldAudio = f.audio;
     oldAudio.interrupt('closed');
@@ -311,7 +311,7 @@ describe('Visibilidade, interrupções e callbacks', () => {
     f.audio.current()?.stop.mockImplementationOnce(() => {
       throw new Error('Falha nativa');
     });
-    f.controller.confirm();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
     await flush();
     expect(f.controller.getSnapshot().game.phase).toBe('round-result');
     expect(f.controller.getSnapshot().busy).toBe(false);
@@ -377,6 +377,7 @@ describe.each(additionalModes)(
           if (game.phase !== 'attempt') throw new Error('Tentativa ausente.');
           expect(game.session.attemptIndex).toBe(attempt);
           expect(game.session.definition.selection).toEqual(selection);
+          const voice = f.audio.current();
           const target = getCurrentTarget(game.session);
           expect(distanceCents(game.initialHz, target)).toBeGreaterThanOrEqual(
             300,
@@ -388,14 +389,14 @@ describe.each(additionalModes)(
               target * 2 ** (((attempt + 1) * 37.123) / 1200),
             ),
           );
-          f.controller.confirm();
-          f.controller.confirm();
+          f.controller.confirm(game.executionId);
+          f.controller.confirm(game.executionId);
           await flush();
           const result = f.controller.getSnapshot().game;
           if (result.phase === 'home') throw new Error('Resposta ausente.');
           expect(result.session.attempts[attempt]?.targetHz).toBe(target);
           expect(result.phase).toBe(
-            attempt === count - 1 ? 'round-result' : 'attempt-result',
+            attempt === count - 1 ? 'round-result' : 'attempt',
           );
           expect(f.audio.playReference).toHaveBeenCalledTimes(
             count === 1 ? round + 1 : 0,
@@ -412,6 +413,13 @@ describe.each(additionalModes)(
             if (next.phase !== 'attempt')
               throw new Error('Próxima tentativa ausente.');
             expect(next.session.attempts[attempt]).toBe(recorded);
+            expect(f.audio.current()).toBe(voice);
+            expect(voice?.stop).not.toHaveBeenCalled();
+            expect(voice?.cancel).not.toHaveBeenCalled();
+            expect(f.audio.setFrequency).toHaveBeenLastCalledWith(
+              next.frequencyHz,
+            );
+            expect(f.controller.getSnapshot().announcement).toBe('');
           }
         }
         const completed = f.controller.getSnapshot().game;
@@ -433,7 +441,7 @@ describe.each(additionalModes)(
       expect(final.result.score).toBe(
         final.result.rounds.reduce((sum, round) => sum + round.score, 0),
       );
-      expect(f.audio.startContinuous).toHaveBeenCalledTimes(5 * count);
+      expect(f.audio.startContinuous).toHaveBeenCalledTimes(5);
       expect(vi.getTimerCount()).toBe(0);
       f.controller.restart();
       await flush();
@@ -447,16 +455,16 @@ describe.each(additionalModes)(
 );
 
 describe('Interrupções e retomadas do Extreme', () => {
-  async function firstResult() {
+  async function afterFirstGuess() {
     const f = sequenceFixture();
     f.controller.start({ mode: 'extreme', frequencyCount: 3 });
     await flush();
     await vi.advanceTimersByTimeAsync(3000);
     f.audio.current()?.finish();
     await flush();
-    f.controller.confirm();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
     await flush();
-    expect(f.controller.getSnapshot().game.phase).toBe('attempt-result');
+    expect(f.controller.getSnapshot().game.phase).toBe('attempt');
     return f;
   }
 
@@ -489,91 +497,86 @@ describe('Interrupções e retomadas do Extreme', () => {
     },
   );
 
-  it('preserva a resposta em outra aba e retoma preparação da próxima sem referência ou contagem', async () => {
-    const f = await firstResult();
-    const first = f.controller.getSnapshot().game;
-    f.hide();
+  it.each(['hidden', 'suspended', 'closed'] as const)(
+    'interrompe o tom após o primeiro palpite por %s, sem retomar a tentativa',
+    async (reason) => {
+      const f = await afterFirstGuess();
+      const second = f.controller.getSnapshot().game;
+      if (second.phase !== 'attempt') throw new Error('Tentativa ausente.');
+      expect(second.session.attemptIndex).toBe(1);
+      if (reason === 'hidden') f.hide();
+      else f.audio.interrupt(reason);
+      await flush();
+      f.show();
+      f.controller.resume();
+      const interrupted = f.controller.getSnapshot().game;
+      if (interrupted.phase !== 'interrupted')
+        throw new Error('Interrupção ausente.');
+      expect(interrupted.session.attempts).toBe(second.session.attempts);
+      expect(f.audio.playSequence).toHaveBeenCalledTimes(1);
+      expect(f.audio.current()?.settled).toBe(true);
+      await f.controller.dispose();
+    },
+  );
+
+  it('acompanha a mesma voz após mudar o identificador da tentativa', async () => {
+    const f = await afterFirstGuess();
+    expect(f.audio.startContinuous).toHaveBeenCalledTimes(1);
+    expect(f.audio.current()?.stop).not.toHaveBeenCalled();
+    expect(f.controller.getSnapshot().announcement).toBe('');
+    f.audio.current()?.finish('interrupted');
     await flush();
-    f.show();
-    await vi.advanceTimersByTimeAsync(5000);
-    expect(f.controller.getSnapshot().game.phase).toBe('attempt-result');
-    let enabled: (() => void) | undefined;
-    f.audio.enable.mockImplementationOnce(
-      () =>
-        new Promise<void>((resolve) => {
-          enabled = resolve;
-        }),
-    );
-    f.controller.advance();
-    f.hide();
-    await flush();
-    enabled?.();
-    await flush();
-    f.show();
-    const paused = f.controller.getSnapshot().game;
-    if (paused.phase !== 'awaiting-resume') throw new Error('Pausa ausente.');
-    expect(paused.preparation.destination).toBe('attempt');
-    expect(paused.session.attempts).toBe(
-      first.phase === 'home' ? null : first.session.attempts,
-    );
-    f.controller.resume();
-    await flush();
-    const resumed = f.controller.getSnapshot().game;
-    if (resumed.phase !== 'attempt') throw new Error('Tentativa ausente.');
-    expect(resumed.session.attemptIndex).toBe(1);
-    expect(f.audio.startContinuous).toHaveBeenCalledTimes(2);
-    expect(f.audio.playSequence).toHaveBeenCalledTimes(1);
-    expect(vi.getTimerCount()).toBe(0);
+    expect(f.controller.getSnapshot().game.phase).toBe('interrupted');
     await f.controller.dispose();
   });
 
-  it('retoma falha de habilitação e troca contexto fechado entre tentativas, sem replay', async () => {
-    const f = await firstResult();
-    const oldAudio = f.audio;
-    oldAudio.interrupt('closed');
-    f.controller.advance();
-    await flush();
-    expect(f.audio).not.toBe(oldAudio);
-    expect(f.controller.getSnapshot().game.phase).toBe('attempt');
-    oldAudio.interrupt();
-    expect(f.controller.getSnapshot().game.phase).toBe('attempt');
-    f.controller.confirm();
-    await flush();
-    f.audio.enable.mockRejectedValueOnce(new Error('Bloqueado'));
-    f.controller.advance();
-    await flush();
-    expect(f.controller.getSnapshot().game.phase).toBe('awaiting-resume');
-    f.controller.resume();
-    await flush();
-    const resumed = f.controller.getSnapshot().game;
-    if (resumed.phase !== 'attempt') throw new Error('Tentativa ausente.');
-    expect(resumed.session.attemptIndex).toBe(2);
-    expect(f.audio.playSequence).not.toHaveBeenCalled();
-    await f.controller.dispose();
-  });
-
-  it('preserva a primeira confirmação ao ocultar durante o fade e mantém resultados imutáveis', async () => {
-    const f = sequenceFixture();
-    f.controller.start({ mode: 'extreme', frequencyCount: 2 });
-    await flush();
-    await vi.advanceTimersByTimeAsync(3000);
-    f.audio.current()?.finish();
-    await flush();
+  it('só revela o round depois da última resposta e da cauda, preservando dados ao ocultar', async () => {
+    const f = await afterFirstGuess();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
+    const third = f.controller.getSnapshot().game;
+    if (third.phase !== 'attempt')
+      throw new Error('Terceira tentativa ausente.');
+    expect(third.session.attemptIndex).toBe(2);
+    expect(third.session.attempts).toHaveLength(2);
     const handle = f.audio.current();
     if (!handle) throw new Error('Tom ausente.');
     handle.holdStop = true;
-    f.controller.confirm();
+    f.controller.confirm(third.executionId);
+    expect(f.controller.getSnapshot().busy).toBe(true);
+    expect(f.controller.getSnapshot().announcement).toBe('');
     f.hide();
     handle.finish('stopped');
     await flush();
     f.show();
-    const result = f.controller.getSnapshot().game;
-    if (result.phase !== 'attempt-result') throw new Error('Resposta ausente.');
-    expect(Object.isFrozen(result.session.attempts[0])).toBe(true);
+    const completed = f.controller.getSnapshot().game;
+    if (completed.phase !== 'round-result')
+      throw new Error('Round completo ausente.');
+    expect(completed.session.completedRounds[0]?.attempts).toHaveLength(3);
     f.controller.advance();
     await flush();
-    expect(f.controller.getSnapshot().game.phase).toBe('attempt');
+    expect(f.controller.getSnapshot().game.phase).toBe('countdown');
+    expect(f.audio.startContinuous).toHaveBeenCalledTimes(1);
     expect(f.audio.playSequence).toHaveBeenCalledTimes(1);
+    await f.controller.dispose();
+  });
+
+  it('preserva o resultado completo e pode substituir um contexto fechado para o próximo round', async () => {
+    const f = await afterFirstGuess();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
+    await flush();
+    const result = f.controller.getSnapshot().game;
+    expect(result.phase).toBe('round-result');
+    f.hide();
+    await flush();
+    f.show();
+    const oldAudio = f.audio;
+    oldAudio.interrupt('closed');
+    expect(f.controller.getSnapshot().game.phase).toBe('round-result');
+    f.controller.advance();
+    await flush();
+    expect(f.audio).not.toBe(oldAudio);
+    expect(f.controller.getSnapshot().game.phase).toBe('countdown');
     await f.controller.dispose();
   });
 });

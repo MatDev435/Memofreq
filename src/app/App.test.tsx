@@ -1,7 +1,9 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { StrictMode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { formatHz } from '../ui/format';
+import { positionToFrequency } from '../domain/frequencies';
 import { GameController } from '../application/GameController';
 import { ControlledAudio } from '../test/controlledAudio';
 import { App } from './App';
@@ -216,31 +218,72 @@ describe.each([
         expect(Number(slider.getAttribute('value'))).toBeCloseTo(0.989, 10);
         await clickButton(screen.getByRole('button', { name: 'Diminuir tom' }));
         expect(Number(slider.getAttribute('value'))).toBeCloseTo(0.988, 10);
-        await clickButton(
-          screen.getByRole('button', { name: 'Confirmar tentativa' }),
-        );
-        expect(screen.getByText('Frequência alvo')).toBeVisible();
-        expect(screen.getByRole('status')).toHaveTextContent(
-          'Resposta confirmada.',
-        );
-        expect(screen.getByRole('status')).not.toHaveTextContent(/Hz|\d/);
+        const confirm = screen.getByRole('button', {
+          name: 'Confirmar tentativa',
+        });
+        act(() => {
+          confirm.focus();
+        });
+        const voice = f.audio.current();
+        await clickButton(confirm);
         if (attempt < count - 1) {
-          const next = screen.getByRole('button', {
-            name: 'Próxima tentativa',
-          });
-          expect(next).toHaveFocus();
+          expect(screen.queryByText('Frequência alvo')).not.toBeInTheDocument();
+          expect(screen.queryByText(/Hz/)).not.toBeInTheDocument();
           expect(screen.queryByText(/Média do round/)).not.toBeInTheDocument();
-          await clickButton(next);
           expect(
-            screen.getByRole('button', { name: 'Encerrar partida' }),
-          ).toHaveFocus();
+            screen.queryByRole('button', { name: 'Próxima tentativa' }),
+          ).not.toBeInTheDocument();
+          expect(screen.getByRole('status')).toBeEmptyDOMElement();
+          expect(
+            screen.getByRole('button', { name: 'Confirmar tentativa' }),
+          ).toBe(confirm);
+          expect(confirm).toHaveFocus();
+          expect(f.audio.current()).toBe(voice);
+          expect(voice?.stop).not.toHaveBeenCalled();
+          expect(voice?.cancel).not.toHaveBeenCalled();
+          expect(Number(slider.getAttribute('value'))).not.toBeCloseTo(
+            0.988,
+            8,
+          );
+          const position = slider.getAttribute('value');
+          act(() => {
+            fireEvent.click(confirm, { detail: 2 });
+            fireEvent.keyDown(confirm, { key: 'Enter', repeat: true });
+          });
+          expect(slider).toHaveAttribute('value', position);
+          expect(
+            screen.getByText(
+              `Frequência ${String(attempt + 2)} de ${String(count)}`,
+            ),
+          ).toBeVisible();
+        } else {
+          expect(screen.getAllByText('Frequência alvo')).toHaveLength(count);
+          expect(screen.getByRole('status')).toHaveTextContent(
+            'Resposta confirmada.',
+          );
+          expect(screen.getByRole('status')).not.toHaveTextContent(/Hz|\d/);
         }
       }
       if (count > 1) {
         expect(
           screen.getByRole('heading', { name: /Média do round:/ }),
         ).toBeVisible();
-        expect(screen.getAllByRole('row')).toHaveLength(count + 1);
+        const references = f.audio.playSequence.mock.calls[round]?.[0];
+        references?.forEach((reference, index) => {
+          const result = screen.getByRole('region', {
+            name: `Frequência ${String(index + 1)} de ${String(count)}`,
+          });
+          expect(
+            within(result).getByText(formatHz(reference.frequencyHz)),
+          ).toBeVisible();
+          expect(
+            within(result).getByText(formatHz(positionToFrequency(0.988))),
+          ).toBeVisible();
+          expect(within(result).getByText('Diferença')).toBeVisible();
+          expect(
+            within(result).getByText('Pontuação da tentativa'),
+          ).toBeVisible();
+        });
       }
       await clickButton(
         screen.getByRole('button', {
@@ -255,7 +298,7 @@ describe.each([
     expect(screen.getAllByRole('row')).toHaveLength(6);
     expect(f.audio.playReference).toHaveBeenCalledTimes(count === 1 ? 5 : 0);
     expect(f.audio.playSequence).toHaveBeenCalledTimes(count > 1 ? 5 : 0);
-    expect(f.audio.startContinuous).toHaveBeenCalledTimes(count * 5);
+    expect(f.audio.startContinuous).toHaveBeenCalledTimes(5);
     await clickButton(screen.getByRole('button', { name: 'Jogar novamente' }));
     expect(
       screen.getByRole('heading', { name: new RegExp(`^Modo ${mode}`) }),

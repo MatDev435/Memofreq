@@ -252,13 +252,33 @@ export class GameController {
     );
   };
 
-  readonly confirm = (): void => {
+  readonly confirm = (executionId: number): void => {
     if (
       !this.canAct() ||
+      this.snapshot.game.executionId !== executionId ||
       this.snapshot.game.phase !== 'attempt' ||
       this.playback?.kind !== 'attempt'
     )
       return;
+    const game = this.snapshot.game;
+    const nextTarget =
+      game.session.definition.rounds[game.session.roundIndex]?.references[
+        game.session.attemptIndex + 1
+      ];
+    if (nextTarget !== undefined) {
+      try {
+        const nextInitialHz = generateInitialFrequency(
+          nextTarget,
+          this.options.random,
+          this.rules,
+        );
+        this.audio?.setFrequency(nextInitialHz);
+        this.send({ type: 'CONFIRM_ATTEMPT', nextInitialHz });
+      } catch {
+        this.failCurrent();
+      }
+      return;
+    }
     const handle = this.playback.handle;
     this.update({ busy: true, announcement: '' });
     // A primeira confirmação vence uma interrupção posterior; valores só aparecem após a cauda.
@@ -270,8 +290,8 @@ export class GameController {
         .then(() => {
           if (!this.matches(context)) return;
           if (this.playback?.handle.id === handle.id) this.playback = null;
-          if (this.syncVisibility())
-            this.send({ type: 'COMPLETE_ROUND' }, context);
+          this.syncVisibility();
+          this.send({ type: 'COMPLETE_ROUND' }, context);
           this.update({
             busy: false,
             announcement: this.snapshot.game.pageVisible
@@ -289,33 +309,6 @@ export class GameController {
 
   readonly advance = (): void => {
     if (!this.canAct()) return;
-    const current = this.snapshot.game;
-    if (current.phase === 'attempt-result') {
-      const nextTarget =
-        current.session.definition.rounds[current.session.roundIndex]
-          ?.references[current.session.attemptIndex + 1];
-      if (nextTarget !== undefined) {
-        try {
-          const initialHz = generateInitialFrequency(
-            nextTarget,
-            this.options.random,
-            this.rules,
-          );
-          const enabled = this.enableAudio();
-          this.update({ busy: true, announcement: '', error: null });
-          this.send({ type: 'NEXT_ATTEMPT', initialHz });
-          this.finishPreparation(
-            enabled,
-            this.silence,
-            getEventContext(this.snapshot.game),
-            this.operation,
-          );
-        } catch {
-          this.failCurrent();
-        }
-        return;
-      }
-    }
     if (this.snapshot.game.phase === 'attempt-result')
       this.send({ type: 'COMPLETE_ROUND' });
     const game = this.snapshot.game;
@@ -403,7 +396,6 @@ export class GameController {
         this.update({ busy: false });
         this.send({ type: 'AUDIO_READY' }, context);
         if (this.snapshot.game.phase === 'countdown') this.beginCountdown();
-        else if (this.snapshot.game.phase === 'attempt') this.beginAttempt();
       })
       .catch(() => {
         if (this.matches(context)) this.failCurrent();
@@ -482,12 +474,16 @@ export class GameController {
   private beginAttempt(): void {
     const game = this.snapshot.game;
     if (game.phase !== 'attempt') return;
-    const context = getEventContext(game);
     try {
       const handle = this.getAudio().startContinuous(game.frequencyHz);
       this.playback = { handle, kind: 'attempt' };
       void handle.finished.then(() => {
-        if (this.matches(context)) this.failCurrent();
+        if (
+          this.active &&
+          this.playback?.handle === handle &&
+          this.snapshot.game.phase === 'attempt'
+        )
+          this.failCurrent();
       });
     } catch {
       this.failCurrent();
@@ -530,7 +526,8 @@ export class GameController {
     if (!this.matches(context)) return;
     void this.quiet().then(() => {
       if (!this.matches(context)) return;
-      if (this.syncVisibility()) this.send({ type: 'COMPLETE_ROUND' }, context);
+      this.syncVisibility();
+      this.send({ type: 'COMPLETE_ROUND' }, context);
       this.update({
         busy: false,
         error: 'Resposta registrada. O áudio precisou ser encerrado.',

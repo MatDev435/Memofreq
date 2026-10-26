@@ -1,29 +1,27 @@
 import type { RoundResult } from '../../domain/models';
 import { formatNumber } from '../format';
+import { AttemptDetails } from './AttemptResult';
 
 export function RoundSummary({ round }: { readonly round: RoundResult }) {
   return (
-    <section aria-labelledby="round-summary-title">
-      <h3 id="round-summary-title">
-        Média do round: {formatNumber(round.score)} / 10
-      </h3>
-      <table>
-        <caption>Tentativas do round</caption>
-        <thead>
-          <tr>
-            <th scope="col">Tentativa</th>
-            <th scope="col">Pontos de 10</th>
-          </tr>
-        </thead>
-        <tbody>
-          {round.attempts.map((attempt) => (
-            <tr key={attempt.attemptIndex}>
-              <th scope="row">Frequência {attempt.attemptIndex + 1}</th>
-              <td>{formatNumber(attempt.score)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <section className="result-card" aria-labelledby="round-result-title">
+      <h2 id="round-result-title">Resultado do round</h2>
+      <h3>Média do round: {formatNumber(round.score)} / 10</h3>
+      {round.attempts.map((attempt) => (
+        <section
+          className="round-attempt"
+          key={attempt.attemptIndex}
+          aria-labelledby={`attempt-result-${String(attempt.attemptIndex)}`}
+        >
+          <h3 id={`attempt-result-${String(attempt.attemptIndex)}`}>
+            Frequência {attempt.attemptIndex + 1} de {round.attempts.length}
+          </h3>
+          <AttemptDetails result={attempt} multiple />
+        </section>
+      ))}
+      <p className="muted">
+        Palpites registrados. As respostas não podem ser alteradas.
+      </p>
     </section>
   );
 }

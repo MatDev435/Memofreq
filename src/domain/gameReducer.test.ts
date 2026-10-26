@@ -74,11 +74,12 @@ function finishRound(
       type: 'SET_FREQUENCY',
       frequencyHz: target * 2 ** ((errorsCents[attempt] ?? 0) / 1200),
     });
-    state = dispatch(state, { type: 'CONFIRM_ATTEMPT' });
-    if (attempt + 1 < count) {
-      state = dispatch(state, { type: 'NEXT_ATTEMPT', initialHz: 650 });
-      state = dispatch(state, { type: 'AUDIO_READY' });
-    }
+    state = dispatch(
+      state,
+      attempt + 1 < count
+        ? { type: 'CONFIRM_ATTEMPT', nextInitialHz: 650 }
+        : { type: 'CONFIRM_ATTEMPT' },
+    );
   }
   return dispatch(state, { type: 'COMPLETE_ROUND' });
 }
@@ -206,26 +207,37 @@ describe('Transições inválidas e eventos antigos', () => {
     expect(session(result).attempts).toHaveLength(1);
   });
 
-  it('ignora confirmação e avanço antigos mesmo ao chegar a outra tentativa', () => {
-    const attempt = toAttempt(start({ mode: 'extreme', frequencyCount: 3 }));
+  it('registra e avança atomicamente, rejeitando confirmação antiga na próxima tentativa', () => {
+    const first = dispatch(
+      toAttempt(start({ mode: 'extreme', frequencyCount: 3 })),
+      {
+        type: 'SET_FREQUENCY',
+        frequencyHz: 123.456789,
+      },
+    );
     const confirm: GameEvent = {
-      ...getEventContext(attempt),
+      ...getEventContext(first),
       type: 'CONFIRM_ATTEMPT',
+      nextInitialHz: 650,
     };
-    const result = gameReducer(attempt, confirm);
-    const next: GameEvent = {
-      ...getEventContext(result),
-      type: 'NEXT_ATTEMPT',
-      initialHz: 650,
-    };
-    const preparing = gameReducer(result, next);
-    expect(gameReducer(preparing, next)).toBe(preparing);
-    const second = dispatch(preparing, { type: 'AUDIO_READY' });
+    const second = gameReducer(first, confirm);
+    expect(second.phase).toBe('attempt');
+    expect(session(second).attemptIndex).toBe(1);
+    expect(session(second).attempts[0]?.playerHz).toBe(123.456789);
+    expect(Object.isFrozen(session(second).attempts[0])).toBe(true);
+    expect(session(first).attempts).toHaveLength(0);
     expect(gameReducer(second, confirm)).toBe(second);
-    const secondResult = dispatch(second, { type: 'CONFIRM_ATTEMPT' });
-    expect(gameReducer(secondResult, next)).toBe(secondResult);
-    expect(session(secondResult).attemptIndex).toBe(1);
-    expect(session(secondResult).attempts).toHaveLength(2);
+    expect(dispatch(second, { type: 'COMPLETE_ROUND' })).toBe(second);
+    const third = dispatch(second, {
+      type: 'CONFIRM_ATTEMPT',
+      nextInitialHz: 650,
+    });
+    expect(third.phase).toBe('attempt');
+    expect(session(third).attemptIndex).toBe(2);
+    expect(session(third).attempts).toHaveLength(2);
+    expect(dispatch(third, { type: 'CONFIRM_ATTEMPT' }).phase).toBe(
+      'attempt-result',
+    );
   });
 
   it('não repete referência nem troca a modalidade durante tentativa ou resultado', () => {
@@ -244,9 +256,6 @@ describe('Transições inválidas e eventos antigos', () => {
         }),
       ).toBe(state);
     }
-    expect(dispatch(result, { type: 'NEXT_ATTEMPT', initialHz: 650 })).toBe(
-      result,
-    );
     const round = dispatch(result, { type: 'COMPLETE_ROUND' });
     expect(dispatch(round, { type: 'COMPLETE_ROUND' })).toBe(round);
     expect(dispatch(round, { type: 'FINISH_GAME' })).toBe(round);
@@ -288,13 +297,14 @@ describe('Transições inválidas e eventos antigos', () => {
         dispatch(references, { type: 'REFERENCES_FINISHED', initialHz }),
       ).toBe(references);
     }
-    const result = dispatch(
-      toAttempt(start({ mode: 'extreme', frequencyCount: 2 })),
-      { type: 'CONFIRM_ATTEMPT' },
-    );
-    expect(dispatch(result, { type: 'NEXT_ATTEMPT', initialHz: 200 })).toBe(
-      result,
-    );
+    const attempt = toAttempt(start({ mode: 'extreme', frequencyCount: 2 }));
+    expect(dispatch(attempt, { type: 'CONFIRM_ATTEMPT' })).toBe(attempt);
+    for (const nextInitialHz of [200, 205, 49, 701, NaN, Infinity]) {
+      expect(
+        dispatch(attempt, { type: 'CONFIRM_ATTEMPT', nextInitialHz }),
+      ).toBe(attempt);
+      expect(session(attempt).attempts).toHaveLength(0);
+    }
   });
 });
 
@@ -387,27 +397,36 @@ describe('Interrupções por estado', () => {
     }
   });
 
-  it('retoma preparação de próxima tentativa sem repetir referências', () => {
-    const result = dispatch(
-      toAttempt(start({ mode: 'extreme', frequencyCount: 2 })),
-      { type: 'CONFIRM_ATTEMPT' },
-    );
-    const preparing = dispatch(result, {
-      type: 'NEXT_ATTEMPT',
-      initialHz: 650,
+  it('interrompe o Extreme ao ocultar após o primeiro palpite sem tratar como resultado', () => {
+    const first = toAttempt(start({ mode: 'extreme', frequencyCount: 2 }));
+    const second = dispatch(first, {
+      type: 'CONFIRM_ATTEMPT',
+      nextInitialHz: 650,
     });
-    const oldReady: GameEvent = {
-      ...getEventContext(preparing),
-      type: 'AUDIO_READY',
-    };
-    const paused = dispatch(preparing, hidden);
-    expect(gameReducer(paused, oldReady)).toBe(paused);
-    const resumed = dispatch(dispatch(paused, visible), { type: 'RESUME' });
-    const state = dispatch(resumed, { type: 'AUDIO_READY' });
-    expect(state.phase).toBe('attempt');
-    expect(session(state).attemptIndex).toBe(1);
-    expect(session(state).attempts).toHaveLength(1);
-    if (state.phase === 'attempt') expect(state.initialHz).toBe(650);
+    const hiddenState = dispatch(second, hidden);
+    expect(hiddenState.phase).toBe('interrupted');
+    expect(session(hiddenState).attemptIndex).toBe(1);
+    expect(session(hiddenState).attempts).toHaveLength(1);
+    const returned = dispatch(hiddenState, visible);
+    expect(dispatch(returned, { type: 'RESUME' })).toBe(returned);
+  });
+
+  it('consolida somente respostas completas enquanto oculta sem avançar o round', () => {
+    const first = toAttempt(start({ mode: 'extreme', frequencyCount: 2 }));
+    const second = dispatch(first, {
+      type: 'CONFIRM_ATTEMPT',
+      nextInitialHz: 650,
+    });
+    expect(
+      dispatch(dispatch(second, hidden), { type: 'COMPLETE_ROUND' }).phase,
+    ).toBe('interrupted');
+    const confirmed = dispatch(second, { type: 'CONFIRM_ATTEMPT' });
+    const result = dispatch(dispatch(confirmed, hidden), {
+      type: 'COMPLETE_ROUND',
+    });
+    expect(result.phase).toBe('round-result');
+    expect(session(result).completedRounds[0]?.attempts).toHaveLength(2);
+    expect(dispatch(result, { type: 'NEXT_ROUND' })).toBe(result);
   });
 
   it('aguarda retomada em falha na preparação ou contagem e permite nova partida após interrupção', () => {

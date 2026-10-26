@@ -38,9 +38,9 @@ export interface GameSession {
   readonly completedRounds: readonly RoundResult[];
 }
 
-export type Preparation =
-  | { readonly destination: 'countdown' }
-  | { readonly destination: 'attempt'; readonly initialHz: number };
+export interface Preparation {
+  readonly destination: 'countdown';
+}
 
 export type InterruptionReason =
   'page-hidden' | 'audio-suspended' | 'audio-failed';
@@ -94,7 +94,6 @@ export type GameAction =
       readonly type:
         | 'AUDIO_READY'
         | 'COUNTDOWN_FINISHED'
-        | 'CONFIRM_ATTEMPT'
         | 'COMPLETE_ROUND'
         | 'NEXT_ROUND'
         | 'FINISH_GAME'
@@ -102,9 +101,10 @@ export type GameAction =
         | 'RETURN_HOME';
     }
   | {
-      readonly type: 'REFERENCES_FINISHED' | 'NEXT_ATTEMPT';
+      readonly type: 'REFERENCES_FINISHED';
       readonly initialHz: number;
     }
+  | { readonly type: 'CONFIRM_ATTEMPT'; readonly nextInitialHz?: number }
   | { readonly type: 'SET_FREQUENCY'; readonly frequencyHz: number }
   | {
       readonly type: 'VISIBILITY_CHANGED';

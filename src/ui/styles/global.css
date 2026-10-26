@@ -290,6 +290,12 @@ fieldset {
 .result-card {
   margin-block: 1.5rem;
 }
+.round-attempt {
+  margin-block: 1.5rem;
+}
+.round-attempt h3 {
+  margin-bottom: 0;
+}
 .result-details {
   margin-block: 1rem;
 }

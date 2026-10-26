@@ -49,8 +49,7 @@ export function App({
     lastFocusedPhase.current = game.phase;
     if (home && previous !== null) start.current?.focus();
     else if (game.phase === 'countdown') exit.current?.focus();
-    else if (game.phase === 'round-result' || game.phase === 'attempt-result')
-      next.current?.focus();
+    else if (game.phase === 'round-result') next.current?.focus();
     else if (game.phase === 'awaiting-resume') resume.current?.focus();
     else if (game.phase === 'interrupted') start.current?.focus();
     else if (game.phase === 'final-result') finalTitle.current?.focus();
@@ -60,8 +59,7 @@ export function App({
   const result = !home
     ? game.session.attempts[game.session.attemptIndex]
     : undefined;
-  const showingResult =
-    (game.phase === 'attempt-result' || game.phase === 'round-result') && !busy;
+  const showingResult = game.phase === 'round-result' && !busy;
   const completedRound =
     game.phase === 'round-result'
       ? game.session.completedRounds[game.session.roundIndex]
@@ -128,8 +126,9 @@ export function App({
                 As referências tocam uma única vez. Depois, outro tom começa
                 automaticamente: ajuste-o pelo slider ou pelos botões e
                 confirme. No Extreme, memorize a sequência inteira e responda na
-                mesma ordem, avançando após cada resultado. A frequência fica
-                oculta durante as tentativas no Hard e Extreme.
+                mesma ordem. Cada confirmação passa diretamente ao próximo
+                palpite; os resultados aparecem juntos ao terminar o round. A
+                frequência fica oculta durante as tentativas no Hard e Extreme.
               </p>
               <ModeSelector
                 mode={mode}
@@ -251,9 +250,7 @@ export function App({
                   settings.referencesPerRound > 1 &&
                   (game.phase === 'attempt' ||
                     showingResult ||
-                    ((game.phase === 'preparing-audio' ||
-                      game.phase === 'awaiting-resume') &&
-                      game.preparation.destination === 'attempt')) && (
+                    game.phase === 'attempt-result') && (
                     <p className="round-label">
                       Frequência {game.session.attemptIndex + 1} de{' '}
                       {settings.referencesPerRound}
@@ -271,15 +268,10 @@ export function App({
             </div>
             {game.phase === 'awaiting-resume' ? (
               <section className="paused-card">
-                <h3>
-                  {game.preparation.destination === 'countdown'
-                    ? 'Contagem pausada'
-                    : 'Tentativa pausada'}
-                </h3>
+                <h3>Contagem pausada</h3>
                 <p>
-                  {game.preparation.destination === 'countdown'
-                    ? 'Volte quando estiver pronto. A contagem recomeça do início antes de qualquer som de referência.'
-                    : 'Habilite o áudio para a próxima tentativa. As referências anteriores não serão repetidas.'}
+                  Volte quando estiver pronto. A contagem recomeça do início
+                  antes de qualquer som de referência.
                 </p>
                 <button
                   ref={resume}
@@ -288,9 +280,7 @@ export function App({
                   disabled={busy || !game.pageVisible}
                   onClick={controller.resume}
                 >
-                  {game.preparation.destination === 'countdown'
-                    ? 'Retomar contagem'
-                    : 'Retomar tentativa'}
+                  Retomar contagem
                 </button>
               </section>
             ) : (
@@ -319,18 +309,13 @@ export function App({
                   </div>
                 )}
                 {showingResult && result ? (
-                  <>
-                    <AttemptResult
-                      result={result}
-                      multiple={(settings?.referencesPerRound ?? 1) > 1}
-                      roundComplete={game.phase === 'round-result'}
-                    />
-                    {completedRound &&
-                      settings &&
-                      settings.referencesPerRound > 1 && (
-                        <RoundSummary round={completedRound} />
-                      )}
-                  </>
+                  completedRound &&
+                  settings &&
+                  settings.referencesPerRound > 1 ? (
+                    <RoundSummary round={completedRound} />
+                  ) : (
+                    <AttemptResult result={result} />
+                  )
                 ) : (
                   <ToneControl
                     enabled={game.phase === 'attempt' && !busy}
@@ -351,18 +336,26 @@ export function App({
                       controller.advance();
                     }}
                   >
-                    {game.phase === 'attempt-result'
-                      ? 'Próxima tentativa'
-                      : game.session.roundIndex === ROUND_COUNT - 1
-                        ? 'Ver resultado final'
-                        : 'Próximo round'}
+                    {game.session.roundIndex === ROUND_COUNT - 1
+                      ? 'Ver resultado final'
+                      : 'Próximo round'}
                   </button>
                 ) : (
                   <button
                     type="button"
                     className="primary confirm-button"
                     disabled={game.phase !== 'attempt' || busy}
-                    onClick={controller.confirm}
+                    onClick={(event) => {
+                      if (event.detail <= 1)
+                        controller.confirm(game.executionId);
+                    }}
+                    onKeyDown={(event) => {
+                      if (
+                        event.repeat &&
+                        (event.key === 'Enter' || event.key === ' ')
+                      )
+                        event.preventDefault();
+                    }}
                   >
                     Confirmar tentativa
                   </button>

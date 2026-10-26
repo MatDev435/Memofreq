@@ -1,4 +1,5 @@
 import AxeBuilder from '@axe-core/playwright';
+import { formatHz } from '../src/ui/format';
 import { expect, test } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
@@ -38,6 +39,13 @@ test.beforeEach(async ({ page }) => {
         node.frequency.setValueAtTime = (value, when) => {
           record.frequencyHz = value;
           return setFrequency(value, when);
+        };
+        const rampFrequency = node.frequency.linearRampToValueAtTime.bind(
+          node.frequency,
+        );
+        node.frequency.linearRampToValueAtTime = (value, when) => {
+          record.frequencyHz = value;
+          return rampFrequency(value, when);
         };
         const start = node.start.bind(node);
         node.start = (when = 0) => {
@@ -110,7 +118,7 @@ for (const { mode, count } of [
       await expect(tone).toBeEnabled({ timeout: 14000 });
       const references = await page.evaluate(
         ({ roundIndex, referenceCount }) => {
-          const offset = roundIndex * referenceCount * 2;
+          const offset = roundIndex * (referenceCount + 1);
           return window.phaseFiveAudio.voices.slice(
             offset,
             offset + referenceCount,
@@ -183,71 +191,120 @@ for (const { mode, count } of [
             ).violations,
           ).toEqual([]);
         }
-        await page
-          .getByRole('button', { name: 'Confirmar tentativa', exact: true })
-          .click();
-        await expect(
-          page.getByRole('heading', {
-            name:
-              attempt === count - 1
-                ? 'Resultado do round'
-                : 'Resultado da tentativa',
-            exact: true,
-          }),
-        ).toBeVisible();
-        await expect(page.getByRole('status')).toHaveText(
-          'Resposta confirmada.',
+        const confirm = page.getByRole('button', {
+          name: 'Confirmar tentativa',
+          exact: true,
+        });
+        const before = await page.evaluate(
+          () => window.phaseFiveAudio.voices.length,
         );
-        await expect(
-          page.getByText('Frequência alvo', { exact: true }),
-        ).toBeVisible();
-        await expect
-          .poll(() =>
-            page.evaluate(
-              () =>
-                window.phaseFiveAudio.voices.filter(
-                  (voice) => !voice.disconnected,
-                ).length,
-            ),
-          )
-          .toBe(0);
-        const result = await page.locator('.result-details').innerText();
-        if (round === 0) {
-          await visible(page, false);
-          await visible(page, true);
-          expect(await page.locator('.result-details').innerText()).toBe(
-            result,
-          );
+        if (count > 1 && round === 0 && attempt === 0) await confirm.dblclick();
+        else {
+          await confirm.focus();
+          await page.keyboard.press('Enter');
         }
         if (attempt < count - 1) {
+          await expect(
+            page.getByText(
+              `Frequência ${String(attempt + 2)} de ${String(count)}`,
+              { exact: true },
+            ),
+          ).toBeVisible();
+          await expect(confirm).toBeFocused();
+          await expect(tone).toBeEnabled();
+          await expect(page.getByRole('status')).toBeEmpty();
+          await expect(page.getByText(/\bHz\b/)).toHaveCount(0);
           await expect(
             page.getByRole('button', {
               name: 'Próxima tentativa',
               exact: true,
             }),
-          ).toBeFocused();
-          const before = await page.evaluate(
-            () => window.phaseFiveAudio.voices.length,
+          ).toHaveCount(0);
+          const voices = await page.evaluate(
+            () => window.phaseFiveAudio.voices,
           );
-          await page
-            .getByRole('button', { name: 'Próxima tentativa', exact: true })
-            .click();
-          await expect(tone).toBeEnabled();
-          expect(
-            await page.evaluate(() => window.phaseFiveAudio.voices.length),
-          ).toBe(before + 1);
+          expect(voices).toHaveLength(before);
+          expect(voices.at(-1)?.endsAt).toBeNull();
+          expect(voices.at(-1)?.disconnected).toBe(false);
+          if (round === 0 && attempt === 0)
+            await page.screenshot({
+              path: testInfo.outputPath('next-attempt.png'),
+              fullPage: true,
+            });
+        } else {
+          await expect(
+            page.getByRole('heading', {
+              name: 'Resultado do round',
+              exact: true,
+            }),
+          ).toBeVisible();
+          await expect(page.getByRole('status')).toHaveText(
+            'Resposta confirmada.',
+          );
+          await expect(
+            page.getByText('Frequência alvo', { exact: true }),
+          ).toHaveCount(count);
+          await expect
+            .poll(() =>
+              page.evaluate(
+                () =>
+                  window.phaseFiveAudio.voices.filter(
+                    (voice) => !voice.disconnected,
+                  ).length,
+              ),
+            )
+            .toBe(0);
         }
       }
       if (count > 1) {
         await expect(
           page.getByRole('heading', { name: /Média do round:/ }),
         ).toBeVisible();
-        await expect(page.locator('table tbody tr')).toHaveCount(count);
-        if (round === 0)
+        await expect(page.locator('.round-attempt')).toHaveCount(count);
+        for (let i = 0; i < count; i += 1) {
+          const card = page.getByRole('region', {
+            name: `Frequência ${String(i + 1)} de ${String(count)}`,
+            exact: true,
+          });
+          const target = references[i]?.frequencyHz;
+          if (target === undefined) throw new Error('Alvo ausente.');
+          await expect(
+            card.getByText(formatHz(target), { exact: true }),
+          ).toBeVisible();
+          await expect(
+            card.getByText('Sua frequência', { exact: true }),
+          ).toBeVisible();
+          await expect(
+            card.getByText('Pontuação da tentativa', { exact: true }),
+          ).toBeVisible();
+        }
+        if (round === 0) {
+          expect(
+            (
+              await new AxeBuilder({ page })
+                .withTags([
+                  'wcag2a',
+                  'wcag2aa',
+                  'wcag21a',
+                  'wcag21aa',
+                  'wcag22aa',
+                ])
+                .analyze()
+            ).violations,
+          ).toEqual([]);
           await page.screenshot({
             path: testInfo.outputPath('round-result.png'),
             fullPage: true,
           });
+        }
+      }
+      if (round === 0) {
+        const result = await page.locator('.result-details').allInnerTexts();
+        await visible(page, false);
+        await visible(page, true);
+        expect(await page.locator('.result-details').allInnerTexts()).toEqual(
+          result,
+        );
       }
       await page
         .getByRole('button', {
@@ -265,7 +322,7 @@ for (const { mode, count } of [
       await page.evaluate(() => window.phaseFiveAudio.contexts.length),
     ).toBe(1);
     expect(await page.evaluate(() => window.phaseFiveAudio.voices.length)).toBe(
-      count * 10,
+      (count + 1) * 5,
     );
     expect(
       (
@@ -379,4 +436,98 @@ test('Extreme: ocultação na pausa da sequência cancela vozes futuras sem repl
   await page
     .getByRole('button', { name: 'Encerrar partida', exact: true })
     .click();
+});
+
+test('Extreme: ocultar após o primeiro palpite interrompe a tentativa em curso', async ({
+  page,
+}) => {
+  test.setTimeout(30000);
+  await page.getByRole('radio', { name: /^Extreme/ }).check();
+  await page
+    .getByRole('button', { name: 'Iniciar partida', exact: true })
+    .click();
+  const tone = page.getByRole('slider', { name: 'Ajustar tom', exact: true });
+  await expect(tone).toBeEnabled({ timeout: 14000 });
+  await page
+    .getByRole('button', { name: 'Confirmar tentativa', exact: true })
+    .click();
+  await expect(
+    page.getByText('Frequência 2 de 2', { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Frequência alvo', { exact: true })).toHaveCount(
+    0,
+  );
+  await visible(page, false);
+  await visible(page, true);
+  await expect(
+    page.getByRole('heading', { name: 'Partida interrompida', exact: true }),
+  ).toBeVisible();
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          window.phaseFiveAudio.voices.filter((voice) => !voice.disconnected)
+            .length,
+      ),
+    )
+    .toBe(0);
+  expect(await page.evaluate(() => window.phaseFiveAudio.voices.length)).toBe(
+    3,
+  );
+  await expect(
+    page.getByRole('button', { name: 'Retomar tentativa', exact: true }),
+  ).toHaveCount(0);
+});
+
+test('Extreme: ocultar na última confirmação preserva todos os resultados do round', async ({
+  page,
+}) => {
+  test.setTimeout(30000);
+  await page.getByRole('radio', { name: /^Extreme/ }).check();
+  await page
+    .getByRole('button', { name: 'Iniciar partida', exact: true })
+    .click();
+  const tone = page.getByRole('slider', { name: 'Ajustar tom', exact: true });
+  await expect(tone).toBeEnabled({ timeout: 14000 });
+  await page
+    .getByRole('button', { name: 'Confirmar tentativa', exact: true })
+    .click();
+  await expect(
+    page.getByText('Frequência 2 de 2', { exact: true }),
+  ).toBeVisible();
+  await page.evaluate(() => {
+    const confirm =
+      document.querySelector<HTMLButtonElement>('.confirm-button');
+    if (!confirm) throw new Error('Confirmação ausente.');
+    confirm.click();
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      get: () => 'hidden',
+    });
+    document.dispatchEvent(new Event('visibilitychange'));
+  });
+  await expect
+    .poll(() =>
+      page.evaluate(
+        () =>
+          window.phaseFiveAudio.voices.filter((voice) => !voice.disconnected)
+            .length,
+      ),
+    )
+    .toBe(0);
+  await expect(page.getByRole('status')).toBeEmpty();
+  await visible(page, true);
+  await expect(
+    page.getByRole('heading', { name: 'Resultado do round', exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText('Frequência alvo', { exact: true })).toHaveCount(
+    2,
+  );
+  await expect(
+    page.getByRole('heading', { name: /Média do round:/ }),
+  ).toBeVisible();
+  await expect(page.getByText('Round 1 de 5', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: 'Próximo round', exact: true }),
+  ).toBeEnabled();
 });

@@ -81,7 +81,7 @@ function interrupt(
         state.phase === 'countdown'
           ? Object.freeze({ destination: 'countdown' })
           : state.preparation;
-      if (referenceStarted && preparation.destination === 'countdown') {
+      if (referenceStarted) {
         return transition(state, {
           phase: 'interrupted',
           session: state.session,
@@ -125,7 +125,8 @@ export function gameReducer(state: GameState, event: GameEvent): GameState {
       ? state
       : transition(state, { phase: 'home' });
   }
-  if (!state.pageVisible) return state;
+  // Consolidar respostas já confirmadas é seguro em segundo plano; não inicia áudio.
+  if (!state.pageVisible && event.type !== 'COMPLETE_ROUND') return state;
 
   switch (event.type) {
     case 'START_GAME': {
@@ -148,14 +149,7 @@ export function gameReducer(state: GameState, event: GameEvent): GameState {
     }
     case 'AUDIO_READY':
       if (state.phase !== 'preparing-audio') return state;
-      return state.preparation.destination === 'countdown'
-        ? transition(state, { phase: 'countdown', session: state.session })
-        : transition(state, {
-            phase: 'attempt',
-            session: state.session,
-            initialHz: state.preparation.initialHz,
-            frequencyHz: state.preparation.initialHz,
-          });
+      return transition(state, { phase: 'countdown', session: state.session });
     case 'COUNTDOWN_FINISHED':
       return state.phase === 'countdown'
         ? transition(state, { phase: 'references', session: state.session })
@@ -183,6 +177,22 @@ export function gameReducer(state: GameState, event: GameEvent): GameState {
       return Object.freeze({ ...state, frequencyHz: event.frequencyHz });
     case 'CONFIRM_ATTEMPT': {
       if (state.phase !== 'attempt') return state;
+      const settings = getModeSettings(
+        state.session.definition.selection,
+        state.session.definition.rules,
+      );
+      const hasNext =
+        state.session.attemptIndex + 1 < settings.referencesPerRound;
+      const nextSession = Object.freeze({
+        ...state.session,
+        attemptIndex: state.session.attemptIndex + 1,
+      });
+      if (
+        hasNext &&
+        (event.nextInitialHz === undefined ||
+          !validInitial(nextSession, event.nextInitialHz))
+      )
+        return state;
       const attempt = Object.freeze({
         ...evaluateAttempt(
           getCurrentTarget(state.session),
@@ -195,26 +205,18 @@ export function gameReducer(state: GameState, event: GameEvent): GameState {
         ...state.session,
         attempts: Object.freeze([...state.session.attempts, attempt]),
       });
+      if (hasNext && event.nextInitialHz !== undefined) {
+        return transition(state, {
+          phase: 'attempt',
+          session: Object.freeze({
+            ...session,
+            attemptIndex: nextSession.attemptIndex,
+          }),
+          initialHz: event.nextInitialHz,
+          frequencyHz: event.nextInitialHz,
+        });
+      }
       return transition(state, { phase: 'attempt-result', session });
-    }
-    case 'NEXT_ATTEMPT': {
-      if (state.phase !== 'attempt-result') return state;
-      const settings = getModeSettings(
-        state.session.definition.selection,
-        state.session.definition.rules,
-      );
-      if (state.session.attemptIndex + 1 >= settings.referencesPerRound)
-        return state;
-      const session = Object.freeze({
-        ...state.session,
-        attemptIndex: state.session.attemptIndex + 1,
-      });
-      return validInitial(session, event.initialHz)
-        ? prepare(state, session, {
-            destination: 'attempt',
-            initialHz: event.initialHz,
-          })
-        : state;
     }
     case 'COMPLETE_ROUND': {
       if (state.phase !== 'attempt-result') return state;
