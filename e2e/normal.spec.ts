@@ -50,6 +50,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
   await page.screenshot({
     path: testInfo.outputPath('home.png'),
     fullPage: true,
+    animations: 'disabled',
   });
   const volume = page.getByRole('slider', { name: 'Volume', exact: true });
   await volume.focus();
@@ -86,6 +87,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
       await page.screenshot({
         path: testInfo.outputPath('attempt.png'),
         fullPage: true,
+        animations: 'disabled',
       });
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
@@ -126,6 +128,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
   await page.screenshot({
     path: testInfo.outputPath('results.png'),
     fullPage: true,
+    animations: 'disabled',
   });
   const viewport = page.viewportSize();
   if (!viewport) throw new Error('Viewport ausente.');
@@ -136,6 +139,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
   await page.screenshot({
     path: testInfo.outputPath('results-320-text-200.png'),
     fullPage: true,
+    animations: 'disabled',
   });
   await expectReflow(page);
   await textSize.evaluate((element) => {

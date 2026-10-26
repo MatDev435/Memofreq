@@ -1163,3 +1163,80 @@
     font-size: 21px;
   }
 }
+.frequency-heading-short {
+  display: none;
+}
+@media (max-width: 420px) {
+  .final-table-card table {
+    font-size: 0.75rem;
+  }
+  .final-table-card thead th:first-child {
+    width: 16%;
+  }
+  .frequency-heading-full {
+    display: none;
+  }
+  .frequency-heading-short {
+    display: inline;
+  }
+}
+/* Breakpoints relativos ao texto evitam apertar os resultados quando a fonte cresce. */
+.round-result-screen,
+.final-result {
+  container-type: inline-size;
+}
+.round-attempt {
+  container-type: inline-size;
+}
+.score-ring .ring-content strong {
+  white-space: nowrap;
+}
+@container (max-width:16rem) {
+  .round-attempt .result-details {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+  .round-attempt .result-details > .score-row {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .round-attempt .score-row > dd {
+    max-width: 160px;
+  }
+}
+@container (max-width:20rem) {
+  .round-intro {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .round-intro .game-progress,
+  .round-intro-copy {
+    grid-column: 1;
+    grid-row: auto;
+  }
+  .round-intro-copy {
+    border: 0;
+    padding-left: 0;
+  }
+  .round-average .wave-art {
+    display: none;
+  }
+  .final-total-card {
+    display: flex;
+    flex-direction: column;
+  }
+  .final-total-card .total-score {
+    text-align: center;
+  }
+  .final-total-card .total-score strong {
+    white-space: normal;
+  }
+  .final-total-card .total-score small {
+    white-space: nowrap;
+  }
+  .final-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .final-actions > .primary {
+    grid-column: 1;
+  }
+}

@@ -8,7 +8,9 @@ export async function expectFinalScores(page: Page) {
   await expect(chart).toBeVisible();
   await expect(chart.locator('rect')).toHaveCount(5);
   const table = page.getByRole('table', { name: 'Pontuação dos rounds' });
-  const values = await table.locator('tbody td').allTextContents();
+  const values = await table
+    .locator('tbody .round-score-value')
+    .allTextContents();
   expect(values).toHaveLength(5);
   expect(await chart.locator('.chart-score').allTextContents()).toEqual(values);
   const displayedTotal = Number(
@@ -36,7 +38,9 @@ export async function expectFinalScores(page: Page) {
       document.dispatchEvent(new Event('visibilitychange'));
     }
   });
-  expect(await table.locator('tbody td').allTextContents()).toEqual(values);
+  expect(
+    await table.locator('tbody .round-score-value').allTextContents(),
+  ).toEqual(values);
   await expect(chart).toBeVisible();
 }
 

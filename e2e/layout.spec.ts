@@ -12,6 +12,7 @@ test('inicial continua utilizável a 320 px com texto a 200%', async ({
   await page.screenshot({
     path: testInfo.outputPath('home-320-text-200.png'),
     fullPage: true,
+    animations: 'disabled',
   });
   await expectReflow(page);
   expect(

@@ -120,8 +120,17 @@ export function RoundScoreTable({
           <th scope="col">Round</th>
           {count > 1 &&
             Array.from({ length: count }, (_, i) => (
-              <th scope="col" key={i}>
-                Frequência {i + 1}
+              <th
+                scope="col"
+                key={i}
+                aria-label={`Frequência ${String(i + 1)} · pontos de 10`}
+              >
+                <span className="frequency-heading-full">
+                  Frequência {i + 1}
+                </span>
+                <span className="frequency-heading-short" aria-hidden="true">
+                  Freq. {i + 1}
+                </span>
                 <small>pontos de 10</small>
               </th>
             ))}

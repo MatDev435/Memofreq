@@ -107,6 +107,7 @@ for (const { mode, count } of [
       await page.screenshot({
         path: testInfo.outputPath('selection.png'),
         fullPage: true,
+        animations: 'disabled',
       });
     await page
       .getByRole('button', { name: 'Iniciar partida', exact: true })
@@ -177,6 +178,7 @@ for (const { mode, count } of [
           await page.screenshot({
             path: testInfo.outputPath('attempt.png'),
             fullPage: true,
+            animations: 'disabled',
           });
           expect(
             (
@@ -231,6 +233,7 @@ for (const { mode, count } of [
             await page.screenshot({
               path: testInfo.outputPath('next-attempt.png'),
               fullPage: true,
+              animations: 'disabled',
             });
         } else {
           await expect(
@@ -296,6 +299,7 @@ for (const { mode, count } of [
           await page.screenshot({
             path: testInfo.outputPath('round-result.png'),
             fullPage: true,
+            animations: 'disabled',
           });
         }
       }
@@ -336,6 +340,7 @@ for (const { mode, count } of [
     await page.screenshot({
       path: testInfo.outputPath('final-result.png'),
       fullPage: true,
+      animations: 'disabled',
     });
     await page
       .getByRole('button', { name: 'Jogar novamente', exact: true })
