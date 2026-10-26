@@ -2,6 +2,8 @@
 
 Data: 26/10/2026. A Fase 4 foi autorizada pelo usuário com prioridade em uma interface funcional para testar o áudio e a mecânica. O acabamento visual definitivo permanece uma etapa própria; a Fase 5 não foi iniciada.
 
+Veja também o [relatório consolidado com seis capturas da interface](visual-report.md), cobrindo as Fases 1 a 4, em desktop e celular emulado.
+
 ## Entregas
 
 - Tela inicial com objetivo, Normal selecionado, teste de áudio, parada do teste, volume e recomendação de fones.

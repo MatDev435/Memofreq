@@ -68,6 +68,7 @@ Sem backend, contas, persistência remota ou dependências de áudio. Não há i
 
 ## Documentação e continuidade
 
+- [Relatório consolidado com capturas da interface](docs/visual-report.md): mudanças das Fases 1 a 4, seis imagens reais, testes, commits e pendências.
 - [Especificação funcional](docs/functional-spec.md): fonte de verdade das mecânicas aprovadas.
 - [Arquitetura](docs/architecture.md): limites dos módulos, áudio e interrupções.
 - [Acessibilidade auditiva](docs/accessibility.md): política de anúncios e validação com leitores de tela.
