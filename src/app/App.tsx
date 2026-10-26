@@ -10,8 +10,7 @@ import { Brand } from '../ui/components/Brand';
 import { Icon } from '../ui/components/Icon';
 import { WaveArt } from '../ui/components/WaveArt';
 import { RoundSummary } from '../ui/components/RoundSummary';
-import { RoundScores } from '../ui/components/RoundScores';
-import { formatNumber } from '../ui/format';
+import { FinalScreen } from '../ui/screens/FinalScreen';
 import { SessionHeader } from '../ui/components/SessionHeader';
 import { PlayingScreen } from '../ui/screens/PlayingScreen';
 import { createBrowserGameController } from './createGameController';
@@ -181,37 +180,13 @@ export function App({
             }}
           />
         ) : game.phase === 'final-result' ? (
-          <section className="panel final-result" aria-labelledby="final-title">
-            <p className="eyebrow">5 rounds concluídos</p>
-            <h2 ref={finalTitle} tabIndex={-1} id="final-title">
-              Resultado da partida
-            </h2>
-            <p className="total-score">
-              <span>Pontuação final</span>
-              <strong>
-                {formatNumber(game.result.score)} <small>/ 50</small>
-              </strong>
-            </p>
-            <RoundScores rounds={game.result.rounds} />
-            <div className="button-row">
-              <button
-                type="button"
-                className="primary"
-                disabled={busy}
-                onClick={controller.restart}
-              >
-                Jogar novamente
-              </button>
-              <button
-                type="button"
-                className="secondary"
-                disabled={busy}
-                onClick={controller.leave}
-              >
-                Voltar ao início
-              </button>
-            </div>
-          </section>
+          <FinalScreen
+            result={game.result}
+            titleRef={finalTitle}
+            busy={busy}
+            onRestart={controller.restart}
+            onLeave={controller.leave}
+          />
         ) : game.phase === 'interrupted' ? (
           <section
             className="interrupted-panel screen-enter"

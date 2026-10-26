@@ -1658,3 +1658,24 @@ th:last-child {
     scroll-behavior: auto !important;
   }
 }
+/* O conteúdo pode crescer com o tamanho de texto escolhido pelo usuário. */
+.brand > span {
+  min-width: 0;
+}
+.brand-hero {
+  max-width: 100%;
+  white-space: normal;
+}
+@media (max-width: 420px) {
+  .site-header {
+    flex-wrap: wrap;
+  }
+  .header-end {
+    flex: 1 1 125px;
+    min-width: 0;
+  }
+  .project-stage {
+    min-width: 0;
+    max-width: none;
+  }
+}

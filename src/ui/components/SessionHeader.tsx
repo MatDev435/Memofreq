@@ -43,7 +43,9 @@ export function SessionHeader({
           ref={exitRef}
           type="button"
           className={final ? 'header-home' : 'exit-button'}
-          aria-label={final ? 'Ir para a tela inicial' : 'Encerrar partida'}
+          aria-label={
+            final ? 'Início: voltar à tela inicial' : 'Encerrar partida'
+          }
           onClick={onLeave}
         >
           <Icon name={final ? 'home' : 'exit'} />

@@ -921,3 +921,52 @@
     padding: 20px 15px;
   }
 }
+@media (max-width: 420px) {
+  .session-header {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .session-header h1 {
+    flex: 1 0 auto;
+    max-width: 100%;
+  }
+  .session-header .brand {
+    white-space: normal;
+    max-width: 100%;
+  }
+  .session-header .exit-button,
+  .session-header .header-home {
+    order: 2;
+    margin-left: auto;
+  }
+  .session-header .session-mode {
+    order: 3;
+    flex: 1 1 100%;
+    margin-top: 2px;
+  }
+  .session-header .compact-audio {
+    order: 4;
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+  .session-header .motion-toggle {
+    order: 5;
+    margin-left: auto;
+  }
+  .tone-buttons button {
+    flex: 1 1 110px;
+  }
+  .tone-buttons button > span:last-child {
+    min-width: 0;
+  }
+  .keyboard-hints.is-compact .keyboard-keys {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 3rem), 1fr));
+  }
+  .keyboard-hints.is-compact .keyboard-title {
+    white-space: normal;
+  }
+  .keyboard-hints.is-compact .keyboard-keys small {
+    white-space: normal;
+    text-align: center;
+  }
+}
