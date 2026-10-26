@@ -26,7 +26,7 @@ O servidor de desenvolvimento imprime a URL local, normalmente `http://127.0.0.1
 1. Abra a URL local no navegador. Use **Testar áudio** e ajuste **Volume** para um nível confortável; fones são recomendados.
 2. Selecione **Normal**, **Hard** ou **Extreme**. No Extreme, escolha duas ou três referências antes de iniciar; essa quantidade fica fixa durante a partida. A contagem dura três segundos. Normal apresenta uma referência de três segundos; Hard apresenta uma de 1,5 s; Extreme apresenta a sequência inteira de referências de 1,5 s com pausas de 300 ms.
 3. O tom contínuo começa automaticamente. Ajuste pelo slider ou pelos botões **Diminuir tom** e **Aumentar tom**.
-4. Confirme a tentativa, consulte o resultado e avance. No Extreme, responda na ordem original com **Próxima tentativa**, sem repetir a sequência. Após a última resposta, consulte a média do round. Após cinco rounds, veja o total e as notas; **Jogar novamente** preserva modalidade e quantidade, com novos sorteios.
+4. Confirme a tentativa, consulte o resultado e avance. No Extreme, cada confirmação passa automaticamente ao próximo palpite, sorteando outra posição do slider sem interromper o tom. Após a última resposta, consulte todos os alvos, palpites e pontos juntos, com a média do round. Após cinco rounds, veja o total e as notas; **Jogar novamente** preserva modalidade e quantidade, com novos sorteios.
 
 No slider, setas ajustam em passos finos, Page Up/Page Down fazem ajustes maiores e Home/End alcançam os extremos. Hz aparece visualmente apenas no Normal, sem região viva ou associação dinâmica ao nome do controle. Hard e Extreme omitem o texto de frequência durante as tentativas, inclusive em nomes e descrições acessíveis. Resultados são consultáveis sob demanda. Os botões oferecem uma alternativa caso o leitor de tela narre alterações do slider nativo.
 
@@ -81,7 +81,8 @@ Sem backend, contas, persistência remota ou dependências de áudio. Não há i
 - [Relatório da Fase 2](docs/phase-2-report.md): domínio, transições e validação das regras.
 - [Relatório da Fase 3](docs/phase-3-report.md): engine e testes de áudio executados.
 - [Relatório da Fase 4](docs/phase-4-report.md): Normal jogável, interface e validações.
-- [Relatório da Fase 5](docs/phase-5-report.md): Hard, Extreme, validações e novas capturas.
+- [Relatório da Fase 5](docs/phase-5-report.md): entrega inicial de Hard e Extreme.
+- [Correção do fluxo Extreme](docs/extreme-flow-fix.md): palpites sem interrupção, resultados conjuntos e capturas atualizadas.
 - [Instruções para agentes](AGENTS.md): regras permanentes para futuras sessões.
 
 Consulte o plano para identificar o estágio atual antes de modificar o projeto. Não avance fases sem autorização do usuário.

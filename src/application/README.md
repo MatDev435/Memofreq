@@ -13,9 +13,10 @@ O controlador fornece um snapshot imutável e assinatura para `useSyncExternalSt
 - O clique de confirmação registra a resposta imediatamente e bloqueia ajustes. Resultados e foco só são disponibilizados depois da cauda sonora. Uma troca de aba posterior preserva a resposta já confirmada.
 - No Normal e Hard, o resultado da tentativa é consolidado como resultado do round sem exigir duas telas equivalentes. A próxima referência exige ação explícita.
 - Contagem usa prazo monotônico e timer cancelável; durações dos tons continuam exclusivamente no relógio da engine. Retorno de visibilidade não reinicia som automaticamente.
-- No Extreme, o resultado individual oferece avanço para a próxima tentativa, com novo sorteio inicial, habilitação por gesto e sem contagem ou replay. Após a última resposta, o domínio consolida a média do round.
+- No Extreme, a confirmação intermediária registra o palpite e avança atomicamente no domínio, com posição inicial sorteada para o próximo alvo. A mesma voz recebe `setFrequency`, sem resultado, fade, habilitação, foco ou anúncio intermediário. A UI só revela os resultados completos depois da última confirmação e da cauda sonora.
+- `confirm(executionId)` rejeita confirmações de uma renderização antiga; a UI filtra cliques múltiplos e repetição de teclas. A promessa da voz contínua usa a identidade do handle para observar falhas depois do avanço do índice.
 - `start(selection)` recebe a modalidade; `restart()` preserva a seleção da sessão encerrada e cria outro desafio. A escolha não pode mudar durante a partida.
-- Um contexto fechado pode ser substituído antes de uma próxima tentativa ou round; dados confirmados são preservados.
+- Um contexto fechado pode ser substituído antes de um próximo round; dados confirmados são preservados.
 - Desativação invalida operações e cancela timers/vozes imediatamente. O descarte definitivo é agendado para a próxima microtask e só ocorre se não houver reconexão do mesmo controlador, permitindo o ciclo de montagem do StrictMode sem reutilizar uma engine descartada.
 
 A política de foco e os anúncios ficam na apresentação. Durante referência e tentativa não há foco automático ou mensagens vivas da aplicação. A frequência visual é omitida no Hard e Extreme. Os próximos testes manuais com leitores de tela ficam com o usuário, conforme sua orientação.

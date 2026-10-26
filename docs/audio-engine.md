@@ -88,7 +88,7 @@ Essas verificações não equivalem a escuta humana, teste de fones, validação
 
 Na interface jogável, abra a URL impressa por `npm run dev` e use **Testar áudio** e **Volume**. Inicie uma partida Normal, ouça a referência e ajuste o tom contínuo pelo slider ou pelos botões. Confirme para verificar o fade e avance pelos cinco rounds. Encerrar partida deve silenciar o áudio; resultados devem permitir consulta sem replay.
 
-No Hard, verifique a referência de 1,5 s e a frequência oculta. No Extreme, ouça toda a sequência com pausas de 300 ms e responda na ordem, sem nova referência entre tentativas. A média só aparece após a última resposta.
+No Hard, verifique a referência de 1,5 s e a frequência oculta. No Extreme, ouça toda a sequência com pausas de 300 ms e responda na ordem: a confirmação intermediária sorteia outra posição na mesma voz contínua, sem resultado ou nova referência. Os dados de todas as respostas e a média só aparecem após a última confirmação.
 
 O usuário relatou funcionamento da versão Normal, inclusive com NVDA, em 26/10/2026 e assumiu as próximas verificações manuais. Isso não comprova avaliação individual de todos os casos abaixo.
 

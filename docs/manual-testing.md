@@ -28,12 +28,15 @@ Use diretamente Testar áudio, Volume e as partidas Normal, Hard ou Extreme. Os 
 
 - [ ] Completar cinco rounds do Normal e Hard.
 - [ ] Completar cinco rounds do Extreme com duas e três referências.
-- [ ] Confirmar rapidamente várias vezes; apenas uma resposta é aceita.
+- [ ] Confirmar com duplo clique ou Enter mantido; não registrar involuntariamente o próximo palpite do Extreme.
+- [ ] No Extreme, confirmar o primeiro palpite e verificar nova posição do slider na mesma voz, sem pausa, resultado, anúncio ou botão de continuar.
+- [ ] Após o último palpite, conferir alvo, resposta, diferença e nota de todas as frequências, junto da média do round.
+- [ ] Ocultar a página após um palpite intermediário do Extreme: interromper a partida, pois o próximo já está ativo.
 - [ ] Verificar ausência de replay e impossibilidade de alterar resposta anterior.
 - [ ] Ocultar página na contagem: aguardar ação explícita e recomeçar três segundos, sem ter tocado referência.
 - [ ] Ocultar página durante referência: interromper a partida sem replay.
 - [ ] Ocultar página durante tentativa: interromper a partida e parar tom.
-- [ ] Ocultar página nos resultados da tentativa e do round: preservar dados e permitir continuar.
+- [ ] Ocultar página no resultado completo do round: preservar dados e permitir continuar.
 - [ ] Ocultar página no resultado final: preservar dados.
 - [ ] Apenas desfocar a janela sem ocultar a página: não invalidar automaticamente.
 - [ ] Voltar de resultado com contexto suspenso: habilitar por interação antes de avançar, sem repetir referência.

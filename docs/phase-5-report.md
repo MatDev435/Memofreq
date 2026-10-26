@@ -1,5 +1,7 @@
 # Relatório da Fase 5 — Hard e Extreme
 
+Este relatório registra a entrega inicial da Fase 5. O fluxo Extreme foi corrigido depois do teste do usuário: consulte a [correção com resultados conjuntos e novas capturas](extreme-flow-fix.md). As capturas e verificações abaixo retratam a versão inicial.
+
 Data: 26/10/2026. Fase autorizada pelo usuário após testar a interface Normal e relatar funcionamento, inclusive com NVDA. A Fase 6 não foi iniciada. O acabamento visual definitivo permanece posterior.
 
 ## Entregas

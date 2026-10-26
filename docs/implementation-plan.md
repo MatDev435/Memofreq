@@ -62,6 +62,8 @@ Planejamento aprovado em 26/10/2026. Cada fase exige sua própria autorização.
 
 **Aceitação:** cinco rounds em cada modalidade; quantidade fixa durante a partida; valores ocultos também nos metadados acessíveis durante tentativas; respostas em ordem; posição inicial por tentativa; resultados imutáveis; médias sem arredondamento prévio. Cobrir teclado, estrutura acessível e interrupções durante sequências e entre resultados. Os testes manuais com leitores de tela serão realizados pelo usuário, conforme sua orientação em 26/10/2026; não tentar operar NVDA automaticamente.
 
+Correção autorizada em 26/10/2026 após teste do usuário: palpites do Extreme passam automaticamente ao seguinte na mesma voz contínua, sem resultados intermediários. O resultado do round revela todas as frequências, palpites, diferenças, notas e média juntos. O registro da correção e das verificações fica em [correção do Extreme](extreme-flow-fix.md).
+
 ## Fase 6 — Integração e qualidade
 
 **Dependência:** três modos completos e autorização da fase.

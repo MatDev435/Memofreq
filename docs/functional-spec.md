@@ -20,7 +20,7 @@ A inspiração conceitual é o Dialed Sound, sem copiar design ou código. A int
 - Referências nunca podem ser reproduzidas novamente após a apresentação inicial.
 - Ao terminar as referências, começa automaticamente o tom contínuo da tentativa, desde que o áudio habilitado esteja funcionando.
 - O jogador ajusta o slider e confirma uma única resposta definitiva.
-- Confirmar encerra suavemente o tom e revela o resultado.
+- No Normal e Hard, confirmar encerra suavemente o tom e revela o resultado. No Extreme, apenas a última confirmação encerra o tom e revela os resultados conjuntos do round.
 - Não é possível editar respostas confirmadas, retornar a tentativas ou avançar sem concluí-las.
 - Não há limite de tempo da tentativa definido nesta versão.
 
@@ -41,7 +41,7 @@ No Extreme, a escolha de duas ou três referências é feita antes de iniciar e 
 
 A pausa de 300 ms ocorre somente entre sons, sem pausa adicional antes do primeiro ou depois do último. A sequência inteira é apresentada antes da primeira tentativa.
 
-O jogador responde na ordem original. Após confirmar a primeira tentativa, consulta o resultado e avança à seguinte, que recebe uma nova posição inicial aleatória. Após a última, consulta também a média do round. Não há reprodução automática ou por botão dos alvos na tela de resultados.
+O jogador responde na ordem original. Conforme a correção autorizada em 26/10/2026, confirmar um palpite intermediário registra a resposta e passa imediatamente ao próximo, com nova posição inicial aleatória no mesmo slider e tom contínuo. Não há tela de resultado intermediária, botão de continuar, contagem adicional, replay ou anúncio durante a transição. Somente após confirmar o último palpite o tom encerra suavemente e o round termina. A tela revela, juntos e na ordem original, alvo, palpite, diferença e pontuação de cada frequência, além da média do round. Esse fluxo vale para duas e três referências e se repete nos cinco rounds.
 
 ## 4. Geração e posição inicial
 
@@ -59,7 +59,7 @@ O sorteio será feito diretamente nos intervalos permitidos da escala logarítmi
 
 - Onda senoidal pura, ganho consistente e volume confortável.
 - `AudioContext` reutilizável; habilitação ou retomada por interação inicial do usuário.
-- Oscilador contínuo único por tentativa, sem reinício a cada movimento do slider.
+- Oscilador contínuo único por tentativa no Normal e Hard; no Extreme, a mesma voz permanece durante todos os palpites do round. Movimentos e novas posições iniciais não reiniciam o oscilador.
 - Mudanças de frequência suavizadas em aproximadamente 10–20 ms.
 - Envelopes curtos de entrada e saída para evitar cliques.
 - Duração das referências e intervalos agendados no relógio da Web Audio API.
@@ -86,15 +86,13 @@ Todos os cálculos preservam precisão interna. **Não arredondar antes de médi
 
 ## 7. Resultados
 
-Após cada tentativa, apresentar:
+No Normal e Hard, após a confirmação, apresentar:
 
 - Frequência alvo.
 - Frequência escolhida.
 - Diferença absoluta em Hz.
 - Pontuação individual de zero a dez.
-- No Extreme, posição respondida, por exemplo “Frequência 2 de 3”.
-
-Depois de concluir o Extreme, apresentar também a média do round. Valores revelados não permitem edição nem replay.
+  No Extreme, revelar esses dados de todas as frequências juntos somente após a última confirmação, identificando cada uma pela posição original, por exemplo “Frequência 2 de 3”. Apresentar também a média do round. Os palpites anteriores permanecem definitivos e seus resultados não ficam no DOM ou em metadados acessíveis durante as tentativas restantes. Valores revelados não permitem edição nem replay.
 
 Após cinco rounds, apresentar:
 
@@ -148,7 +146,7 @@ Trocar de aba não é motivo universal para invalidar uma partida.
 
 A mudança de foco da janela, isoladamente, não implica interrupção. Na disputa entre contagem e primeiro som, qualquer evidência de início da referência exige tratar a interrupção como ocorrida nas referências.
 
-A retomada a partir de resultado pode exigir clique para habilitar o contexto antes da próxima tentativa ou contagem. Nenhuma referência anterior será repetida. Detalhes de eventos e corridas estão na arquitetura.
+A retomada a partir do resultado do round pode exigir clique para habilitar o contexto antes da próxima contagem. O Extreme continua em tentativa ativa após um palpite intermediário: ocultação ou suspensão nesse ponto interrompe a partida, sem retomar o palpite restante. Nenhuma referência anterior será repetida. Detalhes de eventos e corridas estão na arquitetura.
 
 ## 11. Futuro, fora da implementação atual
 

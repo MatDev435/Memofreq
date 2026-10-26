@@ -6,6 +6,7 @@
 - A especificação funcional registra as regras aprovadas. Não altere mecânicas sem autorização explícita do usuário.
 - Execute somente a fase autorizada. Ao concluí-la, informe entregas, verificações reais, pendências, commits e sincronização com o GitHub; aguarde autorização antes da próxima fase.
 - As Fases 1 a 4 estão concluídas. A **Fase 5 — Hard e Extreme** foi autorizada em 26/10/2026 e está concluída. A Fase 6 não está autorizada.
+- Correção do Extreme autorizada em 26/10/2026: cada confirmação intermediária registra o palpite e passa automaticamente ao próximo, sorteando outra posição no mesmo tom contínuo, sem resultados, pausa, anúncios ou botão de continuar. Revelar todos os alvos, palpites e notas juntos somente após a última confirmação e apresentar a média do round.
 - A Fase 5 inclui Hard, Extreme com duas ou três referências, respostas sequenciais, valores ocultos e médias. Gráfico e acabamento visual definitivo permanecem nas fases posteriores.
 - Não implemente backend, autenticação, ranking, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação.
 

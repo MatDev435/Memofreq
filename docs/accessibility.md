@@ -36,7 +36,7 @@ Não colocar `aria-hidden` em botões ou no slider. Não publicar informações 
 
 A implementação mantém a região viva vazia durante a preparação, contagem, referência e tentativa. Não move foco automaticamente durante os tons. O foco vai para Encerrar partida antes da contagem, para a ação de continuar após a cauda sonora e para um título sem números ao abrir o resultado final. A entrada inicial da página não força foco.
 
-“Resposta confirmada.” e “Partida concluída.” são anúncios curtos em momentos sem tons. Dados numéricos de resultado não fazem parte de mensagens vivas ou nomes desses destinos de foco. O teste de áudio só anuncia sua conclusão após o término sonoro. Mensagens de erro são consultáveis em texto, com feedback vivo curto após a limpeza.
+No Extreme, confirmações intermediárias mantêm o mesmo botão e foco, sem mensagens vivas, revelação de valores ou regiões de resultado. A posição do palpite na sequência permanece consultável em texto não vivo. “Resposta confirmada.” só é emitido após a última confirmação e a cauda sonora; “Partida concluída.” também ocorre sem tons. Dados numéricos de resultado não fazem parte de mensagens vivas ou nomes desses destinos de foco. O teste de áudio só anuncia sua conclusão após o término sonoro. Mensagens de erro são consultáveis em texto, com feedback vivo curto após a limpeza.
 
 Uma região viva curta e controlada, inicialmente vazia, poderá informar somente etapas: “Prepare-se”, “Tentativa disponível”, “Resposta confirmada” ou “Partida interrompida”.
 

@@ -26,7 +26,7 @@ A aplicação é a coordenadora dos efeitos da partida. O reducer é puro e não
 
 Os comandos de iniciar/retomar habilitam áudio dentro do gesto, antes de aguardar qualquer operação. Timers da contagem usam prazo monotônico e são cancelados na mudança de execução. Apenas o resultado `completed` da referência vigente inicia automaticamente a tentativa, com uma posição válida sorteada externamente.
 
-A confirmação é aceita sincronamente, impedindo duplicações e alterações durante o fade. A UI aguarda a saída sonora para revelar valores e mover foco. Se houver ocultação nesse intervalo, a resposta já registrada permanece válida; o avanço continua explícito.
+A confirmação é aceita sincronamente, impedindo duplicações e alterações durante o fade. A UI aguarda a saída sonora para revelar valores e mover foco. A consolidação de respostas já completas pode ocorrer enquanto a página estiver oculta, pois não inicia áudio nem avança o round; isso evita revelar apenas o último palpite ao retornar. Se houver ocultação nesse intervalo, a resposta já registrada permanece válida; o avanço continua explícito.
 
 O hook observa visibilidade e pagehide, cancela operações na desativação e posterga o descarte definitivo por uma microtask para suportar a reconexão do StrictMode. Engines fechadas recebem outra instância no próximo gesto; uma versão da engine impede notificações antigas de afetarem a nova.
 
@@ -38,9 +38,11 @@ Componentes separados apresentam volume/teste de áudio, ajuste do tom e resulta
 
 Normal e Hard usam `playReference`; Extreme envia todos os alvos ordenados e a pausa de 300 ms a uma única chamada de `playSequence`. Apenas a conclusão integral dessa reprodução inicia a primeira tentativa. Não há anúncios, foco ou atualizações por frequência durante a sequência.
 
-Após confirmar, `COMPLETE_ROUND` só consolida o round quando todas as respostas existem. Antes disso, a interface apresenta o resultado individual e `advance()` prepara a próxima tentativa com nova frequência inicial válida. `AUDIO_READY` para esse destino inicia apenas o tom contínuo, sem contagem nem referências. Suspensão ou ocultação durante a preparação exige retomada explícita e conserva as respostas anteriores. Fechamento do contexto em resultados permite criar outra engine no próximo gesto.
+No Extreme, `CONFIRM_ATTEMPT` recebe `nextInitialHz` enquanto houver outro palpite. O reducer valida a posição para o próximo alvo antes de aceitar qualquer alteração e registra a resposta atual, avança o índice e define a nova frequência em uma única transição `attempt → attempt`. O controlador usa a suavização de `setFrequency` na mesma voz, sem parada, habilitação adicional ou mensagem viva. A confirmação da UI carrega o `executionId` renderizado; cliques múltiplos e repetição de tecla são filtrados para impedir aceitar involuntariamente o próximo palpite. O callback de término acompanha a identidade do handle contínuo, que atravessa essas transições, e falhas continuam interrompendo a tentativa vigente.
 
-`ToneControl` recebe a política de exibição do domínio e omite o elemento de leitura de Hz no Hard e Extreme; seu valor nativo continua normalizado e seu nome e `aria-valuetext` permanecem estáveis. Resultados numéricos são revelados fora de regiões vivas após a cauda. `RoundSummary` apresenta as pontuações individuais e a média armazenada pelo domínio, sem recálculo ou arredondamento intermediário na UI.
+Somente a última confirmação entra em `attempt-result`, uma etapa interna de saída sonora. `COMPLETE_ROUND` exige todas as respostas antes de consolidar a média. `RoundSummary` revela todos os dados juntos depois da cauda; `advance()` serve apenas para avançar o round ou finalizar a partida. Ocultação ou suspensão após um palpite intermediário interrompe a partida, pois o próximo palpite já está ativo. Fechamento do contexto em um resultado completo permite criar outra engine no próximo gesto.
+
+`ToneControl` recebe a política de exibição do domínio e omite o elemento de leitura de Hz no Hard e Extreme; seu valor nativo continua normalizado e seu nome e `aria-valuetext` permanecem estáveis. Resultados numéricos são revelados fora de regiões vivas após a cauda. `RoundSummary` apresenta alvo, palpite, diferença e pontuação de cada frequência, além da média armazenada pelo domínio, sem recálculo ou arredondamento intermediário na UI.
 
 ## Ferramentas e decisões
 
@@ -74,8 +76,8 @@ União discriminada e reducer puro em `src/domain/gameReducer.ts`, sem bibliotec
 
 ```text
 inicial → preparandoAudio → contagem → referencias → tentativa
-tentativa → resultadoTentativa
-resultadoTentativa → preparandoAudio → tentativa seguinte (Extreme)
+tentativa → tentativa seguinte (Extreme, sem tela ou pausa)
+tentativa → resultadoTentativa (somente após a última resposta; cauda sonora)
 resultadoTentativa → resultadoRound (após todas as tentativas)
 resultadoRound → preparandoAudio → contagem (round seguinte)
 resultadoRound → resultadoFinal (após o quinto round)
@@ -84,15 +86,15 @@ estados ativos → interrompida (quando a integridade for comprometida)
 resultadoFinal / interrompida → inicial ou nova partida
 ```
 
-Uma preparação concluída pode ser imediata se o contexto já estiver ativo. O destino dessa preparação deve ser explícito: iniciar contagem ou iniciar uma nova tentativa, nunca repetir referências.
+Uma preparação concluída pode ser imediata se o contexto já estiver ativo e sempre inicia a contagem do round. Não há preparação entre palpites do Extreme nem replay de referências.
 
 Eventos carregam identificadores da partida e da execução, que também distinguem a tentativa vigente. Um evento só produz efeito quando corresponde ao estado e aos identificadores vigentes.
 
-Na implementação, `gameId` identifica o desafio e `executionId` identifica a etapa vigente. Esse contador aumenta em cada transição, incluindo avanço de tentativa e round; assim também identifica implicitamente a tentativa. Movimentos do slider mantêm o contador, permitindo atualizar continuamente a mesma voz no futuro. O contador não volta a zero ao retornar à inicial, protegendo uma nova partida inclusive se o chamador reutilizar o mesmo `gameId`.
+Na implementação, `gameId` identifica o desafio e `executionId` identifica a etapa vigente. Esse contador aumenta em cada transição, incluindo avanço de tentativa e round; assim também identifica implicitamente a tentativa. Movimentos do slider mantêm o contador, permitindo atualizar continuamente a mesma voz. No Extreme, a voz também atravessa mudanças do índice de tentativa. O contador não volta a zero ao retornar à inicial, protegendo uma nova partida inclusive se o chamador reutilizar o mesmo `gameId`.
 
 O contexto de callbacks deve ser capturado antes da operação assíncrona; eventos do usuário e visibilidade devem usar o contexto atual. Eventos antigos, transições indevidas e valores inválidos de controle retornam o mesmo objeto de estado. Uma definição inválida é rejeitada atomicamente com `RangeError`, sem iniciar uma partida parcial.
 
-O reducer não sorteia, não mede tempo e não reproduz sons. `REFERENCES_FINISHED` recebe a frequência inicial sorteada externamente. `CONFIRM_ATTEMPT` usa o último valor aceito de `SET_FREQUENCY`. `COMPLETE_ROUND` exige todas as respostas, armazena sua média e `FINISH_GAME` exige cinco resultados antes de calcular a soma.
+O reducer não sorteia, não mede tempo e não reproduz sons. `REFERENCES_FINISHED` recebe a frequência inicial sorteada externamente. `CONFIRM_ATTEMPT` usa o último valor aceito de `SET_FREQUENCY`; seu parâmetro opcional `nextInitialHz` é uma posição inicial para o palpite seguinte, nunca a resposta atual. `COMPLETE_ROUND` exige todas as respostas, armazena sua média e `FINISH_GAME` exige cinco resultados antes de calcular a soma.
 
 ### Geração e precisão
 
@@ -154,7 +156,7 @@ Os testes unitários usam um contexto controlado; Playwright verifica AudioConte
 - Osciladores `sine` com ganho por voz e ganho mestre.
 - Referências agendadas por `currentTime`, com duração e pausas precisas, envelopes dentro da duração.
 - O término da última voz conclui a sequência vigente; timers visuais não definem o fim sonoro.
-- Um oscilador por tentativa. Atualizações substituem automação pendente sem reiniciar a voz.
+- Um oscilador contínuo por round; no Extreme, essa voz permanece durante todos os palpites. Atualizações substituem automação pendente sem reiniciar a voz.
 - Suavização de aproximadamente 15 ms; cancelamento preserva continuidade de parâmetros antes de agendar o novo destino.
 - Fechamento suave do ganho, parada e desconexão após a cauda.
 - Registro de todos os nós ativos ou agendados, incluindo aqueles cujo início ainda não ocorreu.
