@@ -95,3 +95,9 @@ Autenticação, persistência remota, estatísticas, rankings por modalidade e d
 **Aceitação:** preservar os arquivos de domínio, controlador, hook e engine; passar nos checks existentes e novos testes de apresentação/reflow; validar as quatro modalidades nos quatro perfis de navegador; capturar e revisar desktop/mobile das quatro telas. NVDA e escuta humana continuam com o usuário.
 
 **Andamento por tela:** as quatro telas e a revisão final estão concluídas; 181 testes de unidade/componentes e 60 E2E aprovados, com capturas e relatório persistentes. Ver `phase-7-plan.md` e `phase-7-report.md`.
+
+## Ajuste após a Fase 7 — layout compacto
+
+Autorizado e aprovado manualmente pelo usuário em 27/10/2026. Escopo: compactar menu, gameplay e resultados, principalmente no mobile, preservando identidade visual, ordem dos elementos e mecânicas. A primeira entrega ficou local, sem testes ou commit, conforme solicitado. Após a aprovação, o usuário autorizou as verificações automatizadas e o commit. Evidências de validação ficam em `compact-layout-report.md`; o relato manual está no checklist.
+
+**Conclusão:** layout aprovado pelo usuário; `npm run check` e 60 E2E aprovados em 27/10/2026. Nenhuma correção adicional necessária. Commit local autorizado; push não realizado nesta entrega.

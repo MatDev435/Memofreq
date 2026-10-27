@@ -5,9 +5,9 @@
 .round-intro {
   display: grid;
   grid-template-columns: 1.15fr 1fr;
-  gap: 20px 32px;
+  gap: 13px 32px;
   align-items: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 .round-intro .game-progress {
   grid-column: 1 / -1;
@@ -15,7 +15,7 @@
 }
 .round-intro .round-progress > p {
   font-size: 0.875rem;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 .round-intro .progress-dots {
   max-width: 180px;
@@ -23,7 +23,7 @@
 .round-intro-copy .eyebrow {
   font-size: 0.6875rem;
   color: #c285ff;
-  margin-bottom: 8px;
+  margin-bottom: 5px;
 }
 .result-question {
   font-size: 1.8rem;
@@ -35,16 +35,16 @@
 .result-subtitle {
   color: #53cef8;
   font-size: 1.0625rem;
-  margin-top: 12px;
+  margin-top: 8px;
 }
 .round-average {
   display: flex;
-  gap: 24px;
+  gap: 16px 24px;
   align-items: center;
   border: 1px solid #653da0;
   border-right-color: #165979;
   border-radius: 16px;
-  padding: 20px;
+  padding: 13px 20px;
   background: linear-gradient(105deg, #23114655, #071e2f44);
   overflow: hidden;
 }
@@ -88,7 +88,7 @@
 .attempt-cards {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 12px 18px;
 }
 .attempt-cards.count-2 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -100,7 +100,7 @@
 .round-attempt {
   --attempt-accent: #ae58ff;
   margin: 0;
-  padding: 18px 15px 8px;
+  padding: 12px 15px 5px;
   border: 1px solid #60369c;
   border-radius: 16px;
   background: linear-gradient(125deg, #2310443b, #090f1a88);
@@ -139,7 +139,7 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(100px, 0.65fr);
   gap: 0 12px;
-  margin: 22px 0 0;
+  margin: 14px 0 0;
   align-items: start;
 }
 .round-attempt .result-details > div {
@@ -147,8 +147,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   align-items: center;
-  gap: 5px 10px;
-  padding: 9px 0;
+  gap: 4px 10px;
+  padding: 6px 0;
   font-size: 0.8125rem;
 }
 .round-attempt .result-details dt {
@@ -187,8 +187,8 @@
 }
 .round-attempt > .wave-art {
   width: 100%;
-  height: 80px;
-  margin-top: 16px;
+  height: 52px;
+  margin-top: 10px;
   color: var(--attempt-accent);
 }
 .round-attempt .wave-art stop {
@@ -248,13 +248,13 @@
 }
 .round-feedback {
   display: flex;
-  gap: 28px;
+  gap: 18px 28px;
   align-items: center;
-  padding: 20px 25px;
+  padding: 13px 25px;
   border: 1px solid #90682a;
   border-radius: 16px;
   background: linear-gradient(110deg, #32220940, #29231522);
-  margin: 24px 0 28px;
+  margin: 16px 0 18px;
 }
 .feedback-icon {
   width: 58px;
@@ -283,7 +283,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 28px;
+  gap: 18px 28px;
 }
 .technical-details {
   flex: 1;
@@ -293,10 +293,10 @@
 .technical-details > summary {
   display: flex;
   width: fit-content;
-  min-height: 60px;
+  min-height: 44px;
   align-items: center;
-  gap: 20px;
-  padding: 14px 25px;
+  gap: 13px 20px;
+  padding: 9px 25px;
   border: 1px solid #50659a;
   border-radius: 12px;
   background: linear-gradient(120deg, #14213b99, #0c142555);
@@ -319,8 +319,8 @@
 .round-actions > .next-round-button {
   width: 48%;
   min-width: 0;
-  min-height: 64px;
-  gap: 30px;
+  min-height: 44px;
+  gap: 20px 30px;
   font-size: 1.1875rem;
 }
 .next-round-button .icon {
@@ -339,27 +339,27 @@
 }
 @media (max-width: 1150px) {
   .round-intro {
-    gap: 20px;
+    gap: 13px 20px;
   }
   .result-question {
     font-size: 1.5rem;
   }
   .round-average {
-    gap: 15px;
-    padding: 16px;
+    gap: 10px 15px;
+    padding: 10px 16px;
   }
   .round-average .wave-art {
     display: none;
   }
   .attempt-cards {
-    gap: 12px;
+    gap: 8px 12px;
   }
   .round-attempt .result-details {
     grid-template-columns: minmax(0, 1fr) 100px;
     gap: 0 8px;
   }
   .round-attempt {
-    padding: 16px 12px 8px;
+    padding: 10px 12px 5px;
   }
   .round-attempt .result-details > div {
     font-size: 0.75rem;
@@ -391,11 +391,11 @@
 }
 @media (max-width: 800px) {
   .round-result-screen {
-    padding: 22px 20px;
+    padding: 14px 20px;
   }
   .round-intro {
     grid-template-columns: minmax(100px, 0.85fr) minmax(0, 1.15fr);
-    gap: 20px 18px;
+    gap: 13px 18px;
   }
   .round-intro .game-progress {
     grid-column: 1;
@@ -404,7 +404,7 @@
     padding-top: 7px;
   }
   .round-intro .round-progress > p {
-    margin-bottom: 20px;
+    margin-bottom: 13px;
   }
   .round-intro-copy {
     grid-row: 1;
@@ -421,7 +421,7 @@
   }
   .result-subtitle {
     font-size: 0.875rem;
-    margin-top: 8px;
+    margin-top: 5px;
   }
   .round-average {
     grid-column: 1 / -1;
@@ -439,20 +439,20 @@
     font-size: 2rem;
   }
   .round-attempt {
-    padding: 17px 16px 6px;
+    padding: 11px 16px 4px;
   }
   .round-attempt > h3 {
     gap: 15px;
     font-size: 0.9375rem;
   }
   .round-attempt .result-details {
-    margin-top: 20px;
+    margin-top: 13px;
     gap: 0 15px;
     grid-template-columns: minmax(0, 1fr) minmax(96px, 27%);
   }
   .round-attempt .result-details > div {
     font-size: 0.875rem;
-    gap: 8px;
+    gap: 5px 8px;
   }
   .round-attempt .result-details dd {
     font-size: 0.9375rem;
@@ -461,13 +461,13 @@
     font-size: 0.75rem;
   }
   .round-attempt > .wave-art {
-    height: 65px;
-    margin-top: 12px;
+    height: 42px;
+    margin-top: 8px;
   }
   .round-feedback {
-    padding: 18px 15px;
-    gap: 18px;
-    margin: 20px 0;
+    padding: 12px 15px;
+    gap: 12px 18px;
+    margin: 13px 0;
   }
   .feedback-icon {
     width: 46px;
@@ -481,27 +481,27 @@
     font-size: 0.875rem;
   }
   .round-actions {
-    gap: 15px;
+    gap: 10px 15px;
   }
   .technical-details > summary {
     font-size: 0.875rem;
-    padding: 12px 15px;
-    gap: 12px;
-    min-height: 70px;
+    padding: 8px 15px;
+    gap: 8px 12px;
+    min-height: 46px;
   }
   .round-actions > .next-round-button {
     font-size: 1rem;
-    min-height: 70px;
-    padding: 12px 18px;
-    gap: 12px;
+    min-height: 46px;
+    padding: 8px 18px;
+    gap: 8px 12px;
   }
 }
 @media (max-width: 420px) {
   .round-result-screen {
-    padding: 20px 13px;
+    padding: 13px 13px;
   }
   .round-intro {
-    gap: 20px 12px;
+    gap: 13px 12px;
   }
   .round-intro-copy {
     padding-left: 13px;
@@ -516,8 +516,8 @@
     font-size: 0.8125rem;
   }
   .round-average {
-    gap: 15px;
-    padding: 13px;
+    gap: 10px 15px;
+    padding: 8px 13px;
   }
   .average-icon {
     width: 45px;
@@ -535,7 +535,7 @@
     width: 25%;
   }
   .round-attempt {
-    padding: 16px 12px 6px;
+    padding: 10px 12px 4px;
   }
   .round-attempt .result-details {
     gap: 0 9px;
@@ -544,7 +544,7 @@
   .round-attempt .result-details > div {
     font-size: 0.75rem;
     flex-wrap: wrap;
-    padding: 7px 0;
+    padding: 5px 0;
   }
   .round-attempt .result-details dd {
     font-size: 0.8125rem;
@@ -571,12 +571,12 @@
     flex-basis: 100%;
   }
   .technical-details > summary {
-    min-height: 55px;
+    min-height: 44px;
     width: 100%;
   }
 }
 .final-result {
-  padding: 26px 30px 24px;
+  padding: 17px 30px 16px;
 }
 .final-intro {
   display: flex;
@@ -584,8 +584,8 @@
   justify-content: space-between;
   position: relative;
   overflow: hidden;
-  margin: 0 0 22px;
-  min-height: 115px;
+  margin: 0 0 14px;
+  min-height: 75px;
 }
 .final-intro > div {
   position: relative;
@@ -623,7 +623,7 @@
 .final-overview {
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.95fr);
-  gap: 20px;
+  gap: 13px 20px;
 }
 .final-total-card,
 .final-chart-card,
@@ -636,7 +636,7 @@
 .final-total-card {
   border-color: #543980;
   background: radial-gradient(ellipse at 30% 100%, #44217b20, transparent 80%);
-  padding: 17px 20px 14px;
+  padding: 11px 20px 9px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -680,9 +680,9 @@
 }
 .final-feedback {
   display: flex;
-  gap: 15px;
+  gap: 10px 15px;
   align-items: center;
-  padding: 12px;
+  padding: 8px 12px;
   border: 1px solid #2b2d56;
   border-radius: 12px;
   text-align: left;
@@ -709,7 +709,7 @@
   margin-top: 3px;
 }
 .final-chart-card {
-  padding: 18px 24px 8px;
+  padding: 12px 24px 5px;
 }
 .final-chart-card .round-chart {
   margin: 0;
@@ -751,18 +751,18 @@
 .final-bottom {
   display: grid;
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 1fr);
-  gap: 26px;
-  margin-top: 20px;
+  gap: 17px 26px;
+  margin-top: 13px;
   align-items: start;
 }
 .final-table-card {
-  padding: 17px 20px 12px;
+  padding: 11px 20px 8px;
   position: relative;
 }
 .final-table-card caption {
   font-size: 1.125rem;
   color: #f5f6ff;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
 .final-table-card table {
@@ -845,12 +845,12 @@
 }
 .final-actions {
   display: grid;
-  gap: 16px;
-  padding-top: 6px;
+  gap: 10px 16px;
+  padding-top: 4px;
 }
 .final-actions > button {
   width: 100%;
-  min-height: 63px;
+  min-height: 44px;
   font-size: 1rem;
 }
 .final-actions > button > .icon:last-child {
@@ -869,8 +869,8 @@
 .final-actions .listening-note {
   display: flex;
   align-items: center;
-  padding: 18px 15px;
-  gap: 18px;
+  padding: 12px 15px;
+  gap: 12px 18px;
   margin: 4px 0 0;
   border: 1px solid #244361;
   border-radius: 13px;
@@ -908,22 +908,22 @@
   }
   .final-bottom {
     grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
-    gap: 20px;
+    gap: 13px 20px;
   }
   .final-feedback {
-    gap: 10px;
-    padding: 10px;
+    gap: 6px 10px;
+    padding: 6px 10px;
   }
   .final-total-card {
     padding-inline: 14px;
   }
   .final-actions > button {
     font-size: 0.9375rem;
-    padding: 12px 15px;
-    gap: 12px;
+    padding: 8px 15px;
+    gap: 8px 12px;
   }
   .final-actions .listening-note {
-    gap: 10px;
+    gap: 6px 10px;
   }
   .final-table-card th,
   .final-table-card td {
@@ -932,11 +932,11 @@
 }
 @media (max-width: 800px) {
   .final-result {
-    padding: 22px 20px;
+    padding: 14px 20px;
   }
   .final-intro {
-    min-height: 115px;
-    margin-bottom: 18px;
+    min-height: 75px;
+    margin-bottom: 12px;
   }
   .final-intro h2 {
     font-size: 2rem;
@@ -955,7 +955,7 @@
   .final-bottom {
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 12px 18px;
   }
   .final-overview > *,
   .final-bottom > * {
@@ -964,8 +964,8 @@
   .final-total-card {
     display: grid;
     grid-template-columns: 1fr 1.5fr;
-    padding: 18px;
-    gap: 15px 10px;
+    padding: 12px 18px;
+    gap: 10px 10px;
   }
   .final-total-card .score-ring {
     max-width: 130px;
@@ -983,8 +983,8 @@
   }
   .final-feedback {
     grid-column: 1 / -1;
-    padding: 13px;
-    gap: 17px;
+    padding: 8px 13px;
+    gap: 11px 17px;
   }
   .final-feedback p {
     font-size: 0.875rem;
@@ -993,7 +993,7 @@
     font-size: 1.125rem;
   }
   .final-chart-card {
-    padding: 18px 16px 8px;
+    padding: 12px 16px 5px;
   }
   .final-chart-card svg {
     max-height: none;
@@ -1003,7 +1003,7 @@
     font-size: 1.125rem;
   }
   .final-table-card {
-    padding: 18px 12px 8px;
+    padding: 12px 12px 5px;
   }
   .final-table-card caption {
     font-size: 1.125rem;
@@ -1023,7 +1023,7 @@
   .final-actions {
     display: grid;
     grid-template-columns: 1fr 1.25fr;
-    gap: 16px 12px;
+    gap: 10px 12px;
     padding: 0;
   }
   .final-actions > .primary {
@@ -1037,7 +1037,7 @@
     gap: 15px;
   }
   .final-actions .listening-note {
-    padding: 15px 12px;
+    padding: 10px 12px;
     margin: 0;
   }
   .final-actions .headphone-orbit {
@@ -1052,7 +1052,7 @@
 }
 @media (max-width: 420px) {
   .final-result {
-    padding: 20px 13px;
+    padding: 13px 13px;
   }
   .final-intro h2 {
     font-size: 1.85rem;
@@ -1064,7 +1064,7 @@
     font-size: 0.5625rem;
   }
   .final-total-card {
-    padding: 15px 12px;
+    padding: 10px 12px;
   }
   .final-total-card .score-ring {
     max-width: 110px;
@@ -1079,8 +1079,8 @@
     font-size: 1rem;
   }
   .final-feedback {
-    gap: 12px;
-    padding: 12px;
+    gap: 8px 12px;
+    padding: 8px 12px;
   }
   .final-feedback strong {
     font-size: 1rem;
@@ -1089,20 +1089,20 @@
     font-size: 0.75rem;
   }
   .final-chart-card {
-    padding: 16px 12px 6px;
+    padding: 10px 12px 4px;
   }
   .final-chart-card .round-chart > p {
     font-size: 0.75rem;
   }
   .final-table-card {
-    padding: 15px 10px 7px;
+    padding: 10px 10px 5px;
   }
   .final-table-card table {
     font-size: 0.6875rem;
   }
   .final-table-card caption {
     font-size: 1rem;
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
 
   .final-table-card thead small {
@@ -1114,8 +1114,8 @@
     gap: 10px;
   }
   .final-actions .listening-note {
-    padding: 12px 9px;
-    gap: 8px;
+    padding: 8px 9px;
+    gap: 5px 8px;
   }
   .final-actions .listening-note strong {
     font-size: 0.75rem;
@@ -1194,7 +1194,7 @@
 @container (max-width:16rem) {
   .round-attempt .result-details {
     grid-template-columns: minmax(0, 1fr);
-    gap: 12px;
+    gap: 8px 12px;
   }
   .round-attempt .result-details > .score-row {
     grid-column: 1;

@@ -230,10 +230,10 @@ h3 {
 }
 .home-hero {
   position: relative;
-  min-height: 255px;
+  min-height: 184px;
   display: flex;
   align-items: center;
-  margin: 28px 32px 0;
+  margin: 20px 32px 0;
 }
 .hero-copy {
   position: relative;
@@ -241,7 +241,7 @@ h3 {
   max-width: 590px;
 }
 .home-hero .eyebrow {
-  margin: 0 0 15px 120px;
+  margin: 0 0 11px 120px;
 }
 .home-hero h1 {
   line-height: 1;
@@ -261,7 +261,7 @@ h3 {
   font-size: 1.2rem;
   line-height: 1.42;
   letter-spacing: 0.005em;
-  margin-top: 18px;
+  margin-top: 13px;
 }
 .hero-wave {
   position: absolute;
@@ -293,8 +293,8 @@ h3 {
   display: grid;
   grid-template-columns: minmax(300px, 1fr) minmax(280px, 1.1fr) auto;
   align-items: center;
-  gap: 30px;
-  padding: 17px 26px;
+  gap: 22px 30px;
+  padding: 12px 26px;
   border: 1px solid var(--line);
   border-radius: 17px;
   background: linear-gradient(115deg, #131725a1, #101725bd);
@@ -398,13 +398,13 @@ input[type='range']:disabled {
   cursor: default;
 }
 .mode-section {
-  margin-top: 22px;
+  margin-top: 16px;
 }
 .mode-heading {
   display: flex;
   align-items: center;
-  gap: 22px;
-  margin: 0 24px 16px;
+  gap: 16px 22px;
+  margin: 0 24px 12px;
 }
 .mode-heading h2 {
   display: flex;
@@ -441,8 +441,8 @@ input[type='range']:disabled {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: 248px;
-  padding: 21px 23px 20px 68px;
+  min-height: 179px;
+  padding: 15px 23px 14px 68px;
   border: 1px solid #2b3d53;
   border-radius: 16px;
   background: linear-gradient(145deg, #111a2677, #0e1621cc);
@@ -547,9 +547,9 @@ input[type='range']:disabled {
 }
 .mode-facts {
   display: grid;
-  gap: 12px;
-  margin: 18px 0 0 -46px;
-  padding-top: 17px;
+  gap: 9px 12px;
+  margin: 13px 0 0 -46px;
+  padding-top: 12px;
   border-top: 1px solid #29375088;
   color: #b9c7e9;
   font-size: 0.8125rem;
@@ -582,13 +582,13 @@ input[type='range']:disabled {
   border-radius: 16px;
   background: linear-gradient(140deg, #11192799, #091321aa);
   margin: 0;
-  padding: 17px 15px 12px;
+  padding: 12px 15px 9px;
 }
 .frequency-heading {
   display: flex;
   align-items: flex-start;
-  gap: 15px;
-  margin-bottom: 16px;
+  gap: 11px 15px;
+  margin-bottom: 12px;
 }
 .frequency-heading > .icon {
   color: #ac76ff;
@@ -611,9 +611,9 @@ input[type='range']:disabled {
 .frequency-options label {
   display: flex;
   align-items: center;
-  gap: 13px;
+  gap: 9px 13px;
   border: 1px solid #3b4e6d;
-  padding: 12px 13px;
+  padding: 9px 13px;
   border-radius: 11px;
   background: #1420305c;
   cursor: pointer;
@@ -665,9 +665,9 @@ input[type='range']:disabled {
 .home-start-row {
   display: grid;
   grid-template-columns: minmax(0, 2.1fr) minmax(220px, 1.2fr);
-  gap: 40px;
+  gap: 29px 40px;
   align-items: center;
-  margin: 23px 24px;
+  margin: 17px 24px;
 }
 .home-start-row > .primary {
   width: 100%;
@@ -799,7 +799,7 @@ kbd {
   box-shadow: inset 0 1px 0 #ffffff07;
 }
 .home-rules {
-  margin: 16px 8px;
+  margin: 12px 8px;
   color: #acbcda;
   font-size: 0.8125rem;
 }
@@ -1121,7 +1121,7 @@ th:last-child {
 }
 @media (min-width: 1550px) {
   .home-hero {
-    min-height: 265px;
+    min-height: 191px;
   }
 }
 @media (max-width: 1200px) {
@@ -1149,8 +1149,8 @@ th:last-child {
   }
   .home-audio {
     grid-template-columns: 1fr 1fr;
-    gap: 15px 25px;
-    padding: 20px;
+    gap: 11px 25px;
+    padding: 14px 20px;
   }
   .audio-intro {
     grid-column: 1;
@@ -1180,11 +1180,11 @@ th:last-child {
     right: 10px;
   }
   .frequency-selection {
-    padding: 14px 12px;
+    padding: 10px 12px;
   }
   .frequency-options label {
-    padding: 10px 8px;
-    gap: 8px;
+    padding: 7px 8px;
+    gap: 6px 8px;
   }
   .frequency-symbols {
     gap: 3px;
@@ -1231,14 +1231,14 @@ th:last-child {
   }
   .home-hero {
     display: block;
-    margin: 32px 0 20px;
+    margin: 23px 0 14px;
     min-height: 0;
   }
   .hero-copy {
     max-width: none;
   }
   .home-hero .eyebrow {
-    margin: 0 0 14px;
+    margin: 0 0 10px;
   }
   .brand-hero {
     font-size: clamp(2.25rem, 8vw, 4.5rem);
@@ -1252,7 +1252,7 @@ th:last-child {
     font-size: 1.05rem;
     line-height: 1.4;
     max-width: 620px;
-    margin-top: 20px;
+    margin-top: 14px;
   }
   .hero-wave {
     position: relative;
@@ -1264,8 +1264,8 @@ th:last-child {
   }
   .home-audio {
     grid-template-columns: 1fr;
-    padding: 20px;
-    gap: 20px;
+    padding: 14px 20px;
+    gap: 14px 20px;
     border-radius: 15px;
   }
   .audio-intro,
@@ -1286,11 +1286,11 @@ th:last-child {
     gap: 20px;
   }
   .mode-section {
-    margin-top: 26px;
+    margin-top: 19px;
   }
   .mode-heading {
     display: block;
-    margin: 0 7px 18px;
+    margin: 0 7px 13px;
   }
   .mode-heading h2 {
     gap: 14px;
@@ -1310,10 +1310,10 @@ th:last-child {
   .mode-card {
     display: grid;
     grid-template-columns: 34px 1fr;
-    gap: 16px;
+    gap: 12px 16px;
     align-items: center;
-    min-height: 112px;
-    padding: 17px 20px 17px 60px;
+    min-height: 81px;
+    padding: 12px 20px 12px 60px;
     border-radius: 14px;
   }
   .mode-card input {
@@ -1355,11 +1355,11 @@ th:last-child {
     opacity: 0.48;
   }
   .frequency-selection {
-    padding: 18px 20px 12px;
+    padding: 13px 20px 9px;
     border-radius: 14px;
   }
   .frequency-heading {
-    gap: 14px;
+    gap: 10px 14px;
   }
   .frequency-heading p {
     font-size: 0.8125rem;
@@ -1371,8 +1371,8 @@ th:last-child {
   }
   .frequency-options label {
     flex: 1;
-    padding: 13px 12px;
-    gap: 9px;
+    padding: 9px 12px;
+    gap: 6px 9px;
     font-size: 0.8125rem;
   }
   .frequency-symbols {
@@ -1388,8 +1388,8 @@ th:last-child {
   .home-start-row {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin: 17px 0 20px;
+    gap: 10px 14px;
+    margin: 12px 0 14px;
   }
   .home-start-row > .primary {
     min-height: 64px;
@@ -1453,7 +1453,7 @@ th:last-child {
     gap: 9px;
   }
   .home-rules {
-    margin: 14px 0;
+    margin: 10px 0;
   }
   .session-main {
     width: calc(100% - 32px);
@@ -1500,7 +1500,7 @@ th:last-child {
     width: calc(100% - 32px);
   }
   .home-hero {
-    margin-top: 30px;
+    margin-top: 22px;
   }
   .home-hero .eyebrow {
     font-size: 0.625rem;
@@ -1517,7 +1517,7 @@ th:last-child {
   .introduction {
     font-size: 1rem;
     line-height: 1.45;
-    margin-top: 17px;
+    margin-top: 12px;
   }
   .hero-wave {
     height: 100px;
@@ -1525,8 +1525,8 @@ th:last-child {
     margin-inline: -16px;
   }
   .home-audio {
-    padding: 17px 16px;
-    gap: 17px;
+    padding: 12px 16px;
+    gap: 12px 17px;
   }
   .audio-intro {
     gap: 15px;
@@ -1551,8 +1551,8 @@ th:last-child {
     padding-left: 49px;
     padding-right: 12px;
     grid-template-columns: 26px 1fr;
-    gap: 12px;
-    min-height: 108px;
+    gap: 9px 12px;
+    min-height: 78px;
   }
   .mode-card input {
     left: 15px;
@@ -1581,15 +1581,15 @@ th:last-child {
     padding-right: 77px;
   }
   .frequency-selection {
-    padding: 16px 14px 11px;
+    padding: 12px 14px 8px;
   }
   .frequency-options {
     gap: 9px;
   }
   .frequency-options label {
-    padding: 11px 8px;
+    padding: 8px 8px;
     font-size: 0.75rem;
-    gap: 7px;
+    gap: 5px 7px;
     flex-wrap: wrap;
   }
   .frequency-options input {

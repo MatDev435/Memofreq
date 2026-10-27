@@ -164,3 +164,7 @@ Backend, contas, histórico remoto, rankings e desafio diário só serão implem
 - Resultado final apresenta total de cinquenta, gráfico e tabela dos cinco rounds. Extreme inclui notas individuais e a média por round; Normal/Hard têm apenas a nota da única frequência. Um disclosure permite consultar alvos e respostas de todos os rounds.
 - Números dos mockups não definem regras. Média, total e distância em cents são os valores consolidados do domínio, com arredondamento apenas nos textos.
 - Movimento é exclusivamente visual: entrada de telas, seleção, hover/clique/foco, ondas, preenchimento de anéis/barras e abertura/fechamento de detalhes. Respeitar movimento reduzido do sistema e permitir pausa dos efeitos. Nenhum timer visual controla áudio ou avanço.
+
+## Compactação do layout aprovada em 27/10/2026
+
+Reduzir a altura ocupada nas quatro telas, priorizando o acesso à confirmação do palpite no mobile. Preservar identidade visual, fontes, cores, imagens, ordem dos elementos e todas as mecânicas. Menu e conteúdo extenso podem continuar com rolagem; não cortar conteúdo para forçar o encaixe. O usuário aprovou o resultado local e autorizou testes e commit após seu teste manual.

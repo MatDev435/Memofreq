@@ -94,3 +94,7 @@ Itens para o usuário; não marcar automaticamente a partir do axe ou das captur
 - [ ] Avaliar toque/arraste, conforto visual e áudio enquanto os efeitos estão ativos.
 
 A Fase 7 foi validada automaticamente e por inspeção de capturas; isso não substitui a escuta ou o teste real com leitor. Os resultados observados estão em `phase-7-report.md`.
+
+## Layout compacto — 27/10/2026
+
+O usuário testou a alteração local de layout e relatou “ficou tudo certo”, autorizando testes automatizados e commit. Dispositivo, navegador, versões e casos específicos não foram informados. O relato aprova a apresentação compacta, sem marcar automaticamente os itens individuais de áudio, leitores de tela, zoom ou compatibilidade deste checklist.

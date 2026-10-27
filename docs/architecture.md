@@ -206,3 +206,7 @@ O redesign não altera `src/domain`, `src/application`, `src/audio` nem a fábri
 - Animações usam CSS. `prefers-reduced-motion` e `data-motion="paused"` desativam animações/transições; números não são interpolados e as ações nunca esperam um efeito terminar. A transição de abertura/fechamento de `details` é uma melhoria progressiva, com operação nativa preservada em navegadores sem esse recurso.
 
 Referências originais: `docs/references/phase-7/`. Capturas reais e relatório: `docs/images/phase-7/` e `docs/phase-7-report.md`.
+
+## Compactação do layout — 27/10/2026
+
+A atualização altera apenas os três arquivos CSS de apresentação: reduz espaçamentos verticais e dimensões dos painéis, preservando a composição e a ordem dos elementos. A altura da onda do gameplay usa `clamp()` e `100svh`; viewports de até 800 px de largura e 740 px de altura recebem compactação adicional. A contagem reserva pelo menos 104 px para seu círculo. Os controles mantêm área de interação e o conteúdo pode crescer com texto ampliado, sem bloquear a rolagem. Domínio, controlador, hook, engine e DOM permanecem inalterados.
