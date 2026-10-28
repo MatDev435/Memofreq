@@ -161,10 +161,10 @@ Os testes unitários usam um contexto controlado; Playwright verifica AudioConte
 
 - Um contexto reutilizado durante a vida da engine.
 - Ativação ou `resume()` em interação do usuário, com confirmação de estado ativo antes de avançar.
-- Osciladores `sine` com ganho por voz e ganho mestre.
+- Bancos aditivos de osciladores `sine`, ganhos por parcial, DSP por voz, envelope e ganho mestre.
 - Referências agendadas por `currentTime`, com duração e pausas precisas, envelopes dentro da duração.
 - O término da última voz conclui a sequência vigente; timers visuais não definem o fim sonoro.
-- Um oscilador contínuo por round; no Extreme, essa voz permanece durante todos os palpites. Atualizações substituem automação pendente sem reiniciar a voz.
+- Um banco contínuo de osciladores por round; no Extreme, essa voz permanece durante todos os palpites. Atualizações substituem automação pendente sem reiniciar a voz.
 - Suavização de aproximadamente 15 ms; cancelamento preserva continuidade de parâmetros antes de agendar o novo destino.
 - Fechamento suave do ganho, parada e desconexão após a cauda.
 - Registro de todos os nós ativos ou agendados, incluindo aqueles cujo início ainda não ocorreu.
@@ -210,3 +210,9 @@ Referências originais: `docs/references/phase-7/`. Capturas reais e relatório:
 ## Compactação do layout — 27/10/2026
 
 A atualização altera apenas os três arquivos CSS de apresentação: reduz espaçamentos verticais e dimensões dos painéis, preservando a composição e a ordem dos elementos. A altura da onda do gameplay usa `clamp()` e `100svh`; viewports de até 800 px de largura e 740 px de altura recebem compactação adicional. A contagem reserva pelo menos 104 px para seu círculo. Os controles mantêm área de interação e o conteúdo pode crescer com texto ampliado, sem bloquear a rolagem. Domínio, controlador, hook, engine e DOM permanecem inalterados.
+
+## Timbre aditivo — 28/10/2026
+
+`Voice` agrupa cinco parciais ativos, cada um com oscilador e ganho, e mantém uma rampa de frequência base. O mesmo instante e duração de rampa são aplicados a todos os parciais com seus respectivos multiplicadores. A frequência base é validada na faixa injetada e todos os componentes devem ficar abaixo de Nyquist. Parciais de ganho zero não criam nós.
+
+Cada voz tem passa-baixas, WaveShaper, passa-baixas pós-saturação e compressor próprios. O envelope fica depois do DSP para garantir silêncio nos intervalos e no fim da reprodução, inclusive com memória dos filtros/compressor. A curva de saturação é pré-calculada uma vez; não há processamento por amostra no JavaScript nem nova dependência. A engine registra cada nó antes de configurá-lo e resolve a reprodução somente após todos os parciais terminarem e todos os nós da voz serem desconectados. Falhas parciais, cancelamento, descarte e identificação de execuções preservam o contrato anterior. Os controles visuais e a coordenação da aplicação permanecem inalterados.

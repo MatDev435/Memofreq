@@ -11,9 +11,9 @@ import { distanceCents } from './scoring';
 
 describe('Frequências e slider logarítmico', () => {
   it('preserva extremos, centro geométrico e inversão da escala', () => {
-    expect(positionToFrequency(0)).toBe(50);
+    expect(positionToFrequency(0)).toBe(80);
     expect(positionToFrequency(1)).toBe(700);
-    expect(positionToFrequency(0.5)).toBeCloseTo(Math.sqrt(50 * 700), 10);
+    expect(positionToFrequency(0.5)).toBeCloseTo(Math.sqrt(80 * 700), 10);
     let previous = 0;
     for (let step = 0; step <= 100; step += 1) {
       const frequency = positionToFrequency(step / 100);
@@ -86,7 +86,7 @@ describe('Frequências e slider logarítmico', () => {
           draw === 20 ? 1 - Number.EPSILON : draw / 20,
         );
         const initial = generateInitialFrequency(target, random);
-        expect(initial).toBeGreaterThanOrEqual(50);
+        expect(initial).toBeGreaterThanOrEqual(80);
         expect(initial).toBeLessThanOrEqual(700);
         expect(distanceCents(initial, target)).toBeGreaterThanOrEqual(300);
         expect(random).toHaveBeenCalledTimes(1);
@@ -95,11 +95,11 @@ describe('Frequências e slider logarítmico', () => {
   });
 
   it('pondera os intervalos válidos pela largura logarítmica', () => {
-    const target = Math.sqrt(50 * 700);
+    const target = Math.sqrt(80 * 700);
     const lowerEnd = target / 2 ** (300 / 1200);
     const upperStart = target * 2 ** (300 / 1200);
     expect(generateInitialFrequency(target, () => 0.25)).toBeCloseTo(
-      Math.sqrt(50 * lowerEnd),
+      Math.sqrt(80 * lowerEnd),
       10,
     );
     expect(generateInitialFrequency(target, () => 0.75)).toBeCloseTo(
@@ -125,7 +125,7 @@ describe('Frequências e slider logarítmico', () => {
     );
   });
 
-  it.each([0, 49.9, 700.1, NaN, Infinity])(
+  it.each([0, 50, 79.9, 700.1, NaN, Infinity])(
     'rejeita alvo ou posição fora da faixa: %s',
     (value) => {
       expect(() => generateInitialFrequency(value, () => 0.5)).toThrow(

@@ -15,7 +15,7 @@ A inspiração conceitual é o Dialed Sound, sem copiar design ou código. A int
 - Exatamente cinco rounds por partida.
 - Cada round vale de zero a dez pontos; total de zero a cinquenta.
 - Contagem regressiva de três segundos antes das referências de cada round.
-- Faixa de frequências: 50 a 700 Hz, centralizada em configuração.
+- Faixa de frequências: 80 a 700 Hz, centralizada em configuração.
 - Sorteios e movimento do slider em escala logarítmica, com precisão decimal.
 - Referências nunca podem ser reproduzidas novamente após a apresentação inicial.
 - Ao terminar as referências, começa automaticamente o tom contínuo da tentativa, desde que o áudio habilitado esteja funcionando.
@@ -57,11 +57,11 @@ O sorteio será feito diretamente nos intervalos permitidos da escala logarítmi
 
 ## 5. Áudio
 
-- Onda senoidal pura, ganho consistente e volume confortável.
+- Síntese aditiva com osciladores senoidais e processamento aprovado em 28/10/2026, conforme `audio-engine.md`; mesmo timbre em referência, tentativa e teste de áudio.
 - `AudioContext` reutilizável; habilitação ou retomada por interação inicial do usuário.
-- Oscilador contínuo único por tentativa no Normal e Hard; no Extreme, a mesma voz permanece durante todos os palpites do round. Movimentos e novas posições iniciais não reiniciam o oscilador.
+- Banco contínuo de osciladores por tentativa no Normal e Hard; no Extreme, a mesma voz permanece durante todos os palpites do round. Movimentos e novas posições iniciais não reiniciam os osciladores.
 - Mudanças de frequência suavizadas em aproximadamente 10–20 ms.
-- Envelopes curtos de entrada e saída para evitar cliques.
+- Ataque linear de 25 ms e release linear de 170 ms, dentro da duração das referências; referências muito curtas limitam cada fase a metade da duração.
 - Duração das referências e intervalos agendados no relógio da Web Audio API.
 - Parada de todos os nós ativos ou agendados ao cancelar uma execução.
 - Nenhum áudio de partida pode permanecer após sair ou reiniciar.
@@ -168,3 +168,7 @@ Backend, contas, histórico remoto, rankings e desafio diário só serão implem
 ## Compactação do layout aprovada em 27/10/2026
 
 Reduzir a altura ocupada nas quatro telas, priorizando o acesso à confirmação do palpite no mobile. Preservar identidade visual, fontes, cores, imagens, ordem dos elementos e todas as mecânicas. Menu e conteúdo extenso podem continuar com rolagem; não cortar conteúdo para forçar o encaixe. O usuário aprovou o resultado local e autorizou testes e commit após seu teste manual.
+
+## Timbre e faixa base — 28/10/2026
+
+A frequência base do jogo passa a 80–700 Hz, com versão de regras 2; sorteios, slider e pontuação continuam usando a base na escala logarítmica. Os componentes 0,5×/1×/1,5×/2×/3×/4×/5×/6× têm ganhos 28%/0%/0%/44%/24%/12%/7%/0%. Os parciais não redefinem os limites da base. Passa-baixas de 1000 Hz (Q 0,1), saturação de 9%, passa-baixas pós-saturação de 9000 Hz, compressor, normalização e saída de 15% seguem `audio-engine.md`. O controle de volume existente continua multiplicando esse ganho de saída, sem mudança de interface. Nenhuma outra regra ou duração de referência/intervalo foi alterada.

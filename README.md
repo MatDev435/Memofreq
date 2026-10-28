@@ -14,7 +14,7 @@ Memofreq é um jogo de percepção e memória auditiva que roda no navegador. Vo
 2. Escute a referência uma única vez e ajuste o tom pelo slider, pelo teclado ou pelos botões.
 3. Confirme seu palpite, confira o resultado e siga até completar os cinco rounds.
 
-Os tons variam de **50 a 700 Hz**. Cada round vale até **10 pontos**, e a soma dos cinco rounds forma a pontuação final.
+Os tons variam de **80 a 700 Hz**. Cada round vale até **10 pontos**, e a soma dos cinco rounds forma a pontuação final.
 
 ![Menu inicial do Memofreq com seleção de modos, volume e teste de áudio](docs/images/phase-7/menu-desktop.png)
 

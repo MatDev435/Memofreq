@@ -17,7 +17,7 @@
 - Mantenha TypeScript estrito; não use `any`, supressões ou casts para esconder erros.
 - Separe domínio puro, coordenação de aplicação, Web Audio API e apresentação React. Não crie abstrações sem uso concreto.
 - Preserve a SPA e o build para hospedagem estática. Não adicione dependências sem necessidade justificada.
-- Não altere faixa 50–700 Hz, escala logarítmica, cinco rounds, pontuação em cents ou tempos aprovados sem autorização.
+- Não altere faixa 80–700 Hz, escala logarítmica, cinco rounds, pontuação em cents ou tempos aprovados sem autorização.
 - Preserve precisão interna. Arredonde apenas a apresentação, com duas casas decimais e localidade pt-BR.
 - Mantenha cancelamento idempotente, identificação das execuções e proteção contra eventos antigos quando o áudio for implementado.
 - Troca de aba em resultados não invalida partidas. Siga a tabela por estado na arquitetura; não aplique invalidação global em `visibilitychange`.
@@ -49,3 +49,8 @@
 - Não versione segredos, `.env`, tokens, dependências instaladas, builds ou relatórios temporários.
 - Verifique a autenticação e a identidade do remoto antes de sincronizar. Não exponha tokens em arquivos, argumentos ou logs.
 - Não sobrescreva repositórios não relacionados e não use push forçado sem autorização.
+
+## Timbre aditivo — autorizado em 28/10/2026
+
+- O usuário autorizou substituir a senoide pura por síntese aditiva, envelopes de 25/170 ms e faixa base de 80–700 Hz, mantendo a interface e os controles. A engine usa o mesmo timbre em referência, tentativa e teste de áudio.
+- Cada voz mantém cinco osciladores ativos proporcionais à frequência base; o banco inteiro continua entre palpites do Extreme. Preservar os parâmetros aprovados em `docs/audio-engine.md`.

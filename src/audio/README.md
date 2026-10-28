@@ -6,7 +6,7 @@
 | ------------------------ | ------------------------------------------------------------------------- |
 | `WebAudioEngine.ts`      | Contexto reutilizável, ganho, vozes, agendamento, cancelamento e descarte |
 | `audioContext.ts`        | Interface mínima para injeção do contexto e manutenção de automações      |
-| `config.ts`              | Constantes técnicas de envelopes, volume e habilitação                    |
+| `config.ts`              | Preset aditivo, DSP, normalização, envelopes, volume e habilitação        |
 | `WebAudioEngine.test.ts` | Ciclo de vida, precisão do agendamento, proteção e limpeza                |
 | `test/fakeAudio.ts`      | Contexto controlado usado somente nos testes                              |
 

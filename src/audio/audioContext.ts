@@ -6,6 +6,9 @@ export interface EngineAudioContext {
   readonly destination: AudioDestinationNode;
   createGain(): GainNode;
   createOscillator(): OscillatorNode;
+  createBiquadFilter(): BiquadFilterNode;
+  createWaveShaper(): WaveShaperNode;
+  createDynamicsCompressor(): DynamicsCompressorNode;
   resume(): Promise<void>;
   close(): Promise<void>;
   addEventListener(type: 'statechange', listener: () => void): void;

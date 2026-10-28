@@ -36,8 +36,8 @@ export interface ModeSettings {
 }
 
 export const DEFAULT_RULES: GameRules = Object.freeze({
-  version: '1',
-  range: Object.freeze({ minHz: 50, maxHz: 700 }),
+  version: '2',
+  range: Object.freeze({ minHz: 80, maxHz: 700 }),
   countdownSeconds: 3,
   referenceSeconds: Object.freeze({ normal: 3, hard: 1.5, extreme: 1.5 }),
   sequenceGapSeconds: 0.3,

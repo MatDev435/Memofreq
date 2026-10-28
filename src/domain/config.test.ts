@@ -14,7 +14,7 @@ describe('Configuração e modalidades', () => {
     expect(ROUND_COUNT).toBe(5);
     expect(MAX_GAME_SCORE).toBe(50);
     expect(DEFAULT_RULES).toMatchObject({
-      range: { minHz: 50, maxHz: 700 },
+      range: { minHz: 80, maxHz: 700 },
       countdownSeconds: 3,
       referenceSeconds: { normal: 3, hard: 1.5, extreme: 1.5 },
       sequenceGapSeconds: 0.3,

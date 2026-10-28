@@ -101,3 +101,9 @@ Autenticação, persistência remota, estatísticas, rankings por modalidade e d
 Autorizado e aprovado manualmente pelo usuário em 27/10/2026. Escopo: compactar menu, gameplay e resultados, principalmente no mobile, preservando identidade visual, ordem dos elementos e mecânicas. A primeira entrega ficou local, sem testes ou commit, conforme solicitado. Após a aprovação, o usuário autorizou as verificações automatizadas e o commit. Evidências de validação ficam em `compact-layout-report.md`; o relato manual está no checklist.
 
 **Conclusão:** layout aprovado pelo usuário; `npm run check` e 60 E2E aprovados em 27/10/2026. Nenhuma correção adicional necessária. Commit local autorizado; push não realizado nesta entrega.
+
+## Atualização autorizada — timbre aditivo e faixa 80–700 Hz
+
+Autorização de 28/10/2026: substituir o timbre conforme os parâmetros fornecidos, ajustar somente o mínimo da frequência base para 80 Hz, preservar mecânicas, interface e controles; executar testes e, se aprovados, fazer commit e push na branch atual. Configuração e contrato técnico em `audio-engine.md`. Validação e limites em `additive-timbre-report.md`.
+
+**Conclusão em 28/10/2026:** preset implementado, faixa base atualizada para 80–700 Hz e interface preservada. `npm run check` aprovado com 192 testes; 60 E2E aprovados nos quatro perfis. Commit e push autorizados na `main`; escuta humana do novo timbre permanece pendente com o usuário.

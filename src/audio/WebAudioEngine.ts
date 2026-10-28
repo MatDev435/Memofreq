@@ -8,7 +8,15 @@ import type {
 } from '../application/audioPort';
 import { holdParameter, rampValue } from './audioContext';
 import type { EngineAudioContext, LinearRamp } from './audioContext';
-import { AUDIO_SETTINGS } from './config';
+import {
+  ACTIVE_PARTIALS,
+  AUDIO_SETTINGS,
+  TIMBRE,
+  TIMBRE_NORMALIZATION,
+  createSaturationCurve,
+} from './config';
+
+const saturationCurve = createSaturationCurve();
 
 export interface AudioEngineOptions {
   readonly range: { readonly minHz: number; readonly maxHz: number };
@@ -27,8 +35,16 @@ function deferred<T>() {
   return { promise, resolve, reject };
 }
 
-interface Voice {
+interface PartialVoice {
   readonly oscillator: OscillatorNode;
+  readonly multiplier: number;
+  scheduled: boolean;
+  ended: boolean;
+}
+
+interface Voice {
+  readonly partials: PartialVoice[];
+  readonly nodes: AudioNode[];
   readonly gain: GainNode;
   readonly startsAt: number;
   readonly endsAt: number | null;
@@ -36,7 +52,6 @@ interface Voice {
   readonly releaseSeconds: number;
   frequencyRamp: LinearRamp;
   stopRamp: LinearRamp | null;
-  scheduled: boolean;
   cleaned: boolean;
 }
 
@@ -216,11 +231,13 @@ export class WebAudioEngine implements AudioPort {
       throw new Error('Nenhum tom contínuo ajustável.');
     const now = context.currentTime;
     const current = rampValue(voice.frequencyRamp, now);
-    holdParameter(voice.oscillator.frequency, now, current);
-    voice.oscillator.frequency.linearRampToValueAtTime(
-      frequencyHz,
-      now + AUDIO_SETTINGS.smoothingSeconds,
-    );
+    for (const { oscillator, multiplier } of voice.partials) {
+      holdParameter(oscillator.frequency, now, current * multiplier);
+      oscillator.frequency.linearRampToValueAtTime(
+        frequencyHz * multiplier,
+        now + AUDIO_SETTINGS.smoothingSeconds,
+      );
+    }
     voice.frequencyRamp = {
       from: current,
       to: frequencyHz,
@@ -324,7 +341,9 @@ export class WebAudioEngine implements AudioPort {
       !Number.isFinite(frequencyHz) ||
       frequencyHz < this.range.minHz ||
       frequencyHz > this.range.maxHz ||
-      frequencyHz >= context.sampleRate / 2
+      ACTIVE_PARTIALS.some(
+        ({ multiplier }) => frequencyHz * multiplier >= context.sampleRate / 2,
+      )
     ) {
       throw new RangeError('Frequência fora da faixa de áudio.');
     }
@@ -364,17 +383,11 @@ export class WebAudioEngine implements AudioPort {
     const context = this.requireReady();
     const master = this.master;
     if (!master) throw new Error('Ganho mestre indisponível.');
-    const oscillator = context.createOscillator();
-    let gain: GainNode;
-    try {
-      gain = context.createGain();
-    } catch (error) {
-      oscillator.disconnect();
-      throw error;
-    }
+    const gain = context.createGain();
     const duration = endsAt === null ? Infinity : endsAt - startsAt;
     const voice: Voice = {
-      oscillator,
+      partials: [],
+      nodes: [gain],
       gain,
       startsAt,
       endsAt,
@@ -387,16 +400,39 @@ export class WebAudioEngine implements AudioPort {
         end: startsAt,
       },
       stopRamp: null,
-      scheduled: false,
       cleaned: false,
     };
+    // Registrar cada nó antes de configurá-lo garante limpeza em falhas parciais.
     group.voices.add(voice);
-    oscillator.onended = () => {
-      this.finishVoice(group, voice);
-    };
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(frequencyHz, startsAt);
-    oscillator.connect(gain);
+    const lowpass = context.createBiquadFilter();
+    voice.nodes.push(lowpass);
+    lowpass.type = 'lowpass';
+    lowpass.frequency.setValueAtTime(TIMBRE.lowpassHz, startsAt);
+    lowpass.Q.setValueAtTime(TIMBRE.lowpassQ, startsAt);
+    const saturation = context.createWaveShaper();
+    voice.nodes.push(saturation);
+    saturation.curve = saturationCurve;
+    const postLowpass = context.createBiquadFilter();
+    voice.nodes.push(postLowpass);
+    postLowpass.type = 'lowpass';
+    postLowpass.frequency.setValueAtTime(TIMBRE.postLowpassHz, startsAt);
+    postLowpass.Q.setValueAtTime(Math.SQRT1_2, startsAt);
+    const compressor = context.createDynamicsCompressor();
+    voice.nodes.push(compressor);
+    for (const key of [
+      'threshold',
+      'knee',
+      'ratio',
+      'attack',
+      'release',
+    ] as const) {
+      compressor[key].setValueAtTime(TIMBRE.compressor[key], startsAt);
+    }
+    lowpass.connect(saturation);
+    saturation.connect(postLowpass);
+    postLowpass.connect(compressor);
+    // Envelope após o DSP também silencia sua memória/latência nas pausas.
+    compressor.connect(gain);
     gain.connect(master);
     gain.gain.setValueAtTime(0, startsAt);
     gain.gain.linearRampToValueAtTime(1, startsAt + voice.attackSeconds);
@@ -404,9 +440,33 @@ export class WebAudioEngine implements AudioPort {
       gain.gain.setValueAtTime(1, endsAt - voice.releaseSeconds);
       gain.gain.linearRampToValueAtTime(0, endsAt);
     }
-    oscillator.start(startsAt);
-    voice.scheduled = true;
-    if (endsAt !== null) oscillator.stop(endsAt);
+    for (const { multiplier, gain: partialGain } of ACTIVE_PARTIALS) {
+      const oscillator = context.createOscillator();
+      voice.nodes.push(oscillator);
+      const partial: PartialVoice = {
+        oscillator,
+        multiplier,
+        scheduled: false,
+        ended: false,
+      };
+      voice.partials.push(partial);
+      const level = context.createGain();
+      voice.nodes.push(level);
+      level.gain.setValueAtTime(partialGain * TIMBRE_NORMALIZATION, startsAt);
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(frequencyHz * multiplier, startsAt);
+      oscillator.connect(level);
+      level.connect(lowpass);
+      oscillator.onended = () => {
+        partial.ended = true;
+        if (voice.partials.every((item) => item.ended)) {
+          this.finishVoice(group, voice);
+        }
+      };
+      oscillator.start(startsAt);
+      partial.scheduled = true;
+      if (endsAt !== null) oscillator.stop(endsAt);
+    }
   }
 
   private handle(group: PlaybackGroup): AudioPlayback {
@@ -476,7 +536,7 @@ export class WebAudioEngine implements AudioPort {
         holdParameter(voice.gain.gain, now, current);
         voice.gain.gain.linearRampToValueAtTime(0, end);
         voice.stopRamp = { from: current, to: 0, start: now, end };
-        voice.oscillator.stop(end);
+        for (const partial of voice.partials) partial.oscillator.stop(end);
       }
     } catch (error) {
       this.hardFinish(group, 'interrupted');
@@ -486,11 +546,13 @@ export class WebAudioEngine implements AudioPort {
   }
 
   private stopImmediately(voice: Voice, now: number): void {
-    if (!voice.scheduled) return;
-    try {
-      voice.oscillator.stop(now);
-    } catch {
-      /* O contexto pode estar fechado ou a fonte já ter terminado. */
+    for (const partial of voice.partials) {
+      if (!partial.scheduled) continue;
+      try {
+        partial.oscillator.stop(now);
+      } catch {
+        /* O contexto pode estar fechado ou a fonte já ter terminado. */
+      }
     }
   }
 
@@ -498,9 +560,8 @@ export class WebAudioEngine implements AudioPort {
     if (voice.cleaned) return;
     this.hasStarted(group);
     voice.cleaned = true;
-    voice.oscillator.onended = null;
-    voice.oscillator.disconnect();
-    voice.gain.disconnect();
+    for (const partial of voice.partials) partial.oscillator.onended = null;
+    for (const node of voice.nodes) node.disconnect();
     group.voices.delete(voice);
     this.settleGroup(group);
   }

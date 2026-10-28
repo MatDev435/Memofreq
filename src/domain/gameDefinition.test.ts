@@ -30,7 +30,7 @@ describe('Definição de desafios', () => {
         expect(new Set(round.references).size).toBe(round.references.length);
         expect(
           round.references.every(
-            (frequency) => frequency >= 50 && frequency <= 700,
+            (frequency) => frequency >= 80 && frequency <= 700,
           ),
         ).toBe(true);
       }

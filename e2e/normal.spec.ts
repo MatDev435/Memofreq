@@ -120,7 +120,7 @@ test('joga cinco rounds reais, revela resultados e retorna sem áudio restante',
   await expect(page.locator('table tbody tr')).toHaveCount(5);
   await expectFinalScores(page);
   expect(await page.evaluate(() => window.gameAudioMetrics.contexts)).toBe(1);
-  expect(await page.evaluate(() => window.gameAudioMetrics.sources)).toBe(11);
+  expect(await page.evaluate(() => window.gameAudioMetrics.sources)).toBe(55);
   const violations = await new AxeBuilder({ page })
     .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
     .analyze();

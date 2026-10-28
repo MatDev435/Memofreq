@@ -98,3 +98,12 @@ A Fase 7 foi validada automaticamente e por inspeção de capturas; isso não su
 ## Layout compacto — 27/10/2026
 
 O usuário testou a alteração local de layout e relatou “ficou tudo certo”, autorizando testes automatizados e commit. Dispositivo, navegador, versões e casos específicos não foram informados. O relato aprova a apresentação compacta, sem marcar automaticamente os itens individuais de áudio, leitores de tela, zoom ou compatibilidade deste checklist.
+
+## Timbre aditivo — 28/10/2026
+
+A mudança de timbre não foi ouvida por uma pessoa nesta entrega. As aprovações manuais anteriores referem-se ao áudio anterior. Os testes automatizados não marcam os itens abaixo.
+
+- [ ] Ouvir o novo timbre no teste de áudio, referências e tentativas em desktop e dispositivo móvel físico.
+- [ ] Conferir conforto do volume e silêncio no zero, na faixa base de 80–700 Hz.
+- [ ] Avaliar ataque de 25 ms, release de 170 ms, ausência de estalos e pausas completas entre referências.
+- [ ] Conferir continuidade de todos os componentes ao arrastar rapidamente e entre palpites do Extreme, com duas e três referências.

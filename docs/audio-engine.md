@@ -1,4 +1,4 @@
-# Engine de áudio — Fase 3
+# Engine de áudio
 
 ## Limites
 
@@ -14,7 +14,7 @@ As Fases 4 e 5 integram a engine à interface de Normal, Hard e Extreme. A engin
 | `playSample()`                    | Toca por 0,5 s o centro geométrico da faixa, independente dos alvos   |
 | `playReference(tone)`             | Agenda uma referência com frequência e duração explícitas             |
 | `playSequence(tones, gapSeconds)` | Agenda toda a sequência e os intervalos pelo relógio do áudio         |
-| `startContinuous(frequencyHz)`    | Inicia uma voz senoidal sem término automático                        |
+| `startContinuous(frequencyHz)`    | Inicia uma voz aditiva sem término automático                         |
 | `setFrequency(frequencyHz)`       | Atualiza a voz contínua com suavização, sem recriá-la                 |
 | `setVolume(volume)`               | Define volume normalizado entre zero e um pelo ganho mestre           |
 | `cancel()`                        | Cancela habilitação pendente e reprodução atual, aguardando a limpeza |
@@ -47,18 +47,35 @@ Identificadores de reprodução aumentam durante a vida da engine. Parar ou rece
 
 ## Grafo e agendamento
 
-O grafo é `OscillatorNode → GainNode da voz → GainNode mestre → destination`. Todas as vozes usam onda `sine` e o mesmo ganho de sustentação. O volume inicial é 0,4 em uma escala normalizada, multiplicado por um teto técnico de ganho 0,2: ganho inicial efetivo de aproximadamente 0,08.
+Timbre autorizado em 28/10/2026. Cada voz usa o grafo:
 
-As constantes técnicas ficam em `src/audio/config.ts`. Os limites 50–700 Hz permanecem exclusivamente na configuração do domínio e são injetados na composição.
+`5 × (OscillatorNode sine → GainNode parcial normalizado) → passa-baixas → WaveShaper → passa-baixas pós-saturação → compressor → GainNode envelope → GainNode mestre → destination`.
+
+| Multiplicador da base | Intensidade |
+| --------------------- | ----------- |
+| 0,5×                  | 28%         |
+| 1×                    | 0%          |
+| 1,5×                  | 0%          |
+| 2×                    | 44%         |
+| 3×                    | 24%         |
+| 4×                    | 12%         |
+| 5×                    | 7%          |
+| 6×                    | 0%          |
+
+Parciais de ganho zero não criam osciladores. A normalização é `0.72 / max(1, sqrt(sum(partialGainSquared)))`, igual a 0,72 neste preset, aplicada aos ganhos antes da soma. O primeiro passa-baixas usa 1000 Hz e Q 0,1. A saturação usa `tanh(x*k)/tanh(k)`, com `k = 1 + 0.09*7`, em curva de 4097 pontos. O passa-baixas pós-saturação usa 9000 Hz e Q definido como `1/sqrt(2)` (aproximadamente 0,707 na propriedade da Web Audio API). O compressor tem threshold −14 dB, knee 12 dB, ratio 10, attack 0,003 s e release 0,18 s.
+
+O envelope posterior ao DSP impede caudas audíveis dos filtros/compressor nas pausas. Cada referência tem seu próprio grafo, sem compartilhar memória de compressão com referências futuras. O volume de saída é 15% (ganho mestre de `0.15 × volume`); o volume do jogador continua inicialmente em 0,4 e permanece ajustável de zero a um pelo mesmo controle. O ganho mestre inicial é, portanto, 0,06; não é uma garantia de amplitude PCM constante após o DSP.
+
+As constantes técnicas ficam em `src/audio/config.ts`. Os limites 80–700 Hz permanecem exclusivamente na configuração do domínio e são injetados na composição.
 
 - Margem inicial de agendamento: 10 ms por operação, sem alterar a duração dos tons ou intervalos entre eles.
-- Entrada e saída: 15 ms, dentro da duração da referência. Tons muito curtos recebem envelopes de no máximo metade de sua duração.
+- Entrada linear de 25 ms e saída linear de 170 ms, dentro da duração da referência. Tons muito curtos recebem envelopes de no máximo metade de sua duração.
 - Mudança de frequência e volume: rampas de 15 ms.
 - Durações e posições temporais são validadas antes de criar vozes. Valores que não podem ser representados no relógio são rejeitados.
 - Inícios, términos e intervalos usam o relógio da Web Audio API. Não há timer JavaScript para encerrar referências ou iniciar cada item da sequência.
-- `ended` desconecta cada fonte; a promessa é concluída depois da limpeza de todas as vozes. Atrasos do event loop podem atrasar a disponibilidade lógica da próxima etapa, mas não alongam o tom agendado.
+- O término de todos os parciais desconecta o grafo inteiro da voz; a promessa é concluída depois da limpeza de todas as vozes. Atrasos do event loop podem atrasar a disponibilidade lógica da próxima etapa, mas não alongam o tom agendado.
 
-O ajuste contínuo usa o mesmo oscilador. A automação anterior é substituída por `cancelAndHoldAtTime` quando disponível. O fallback calcula o valor linear corrente, cancela os eventos futuros e fixa esse valor antes da próxima rampa. A leitura isolada de `AudioParam.value` não é usada como substituto da interpolação controlada.
+O ajuste contínuo usa o mesmo banco de cinco osciladores, inclusive entre palpites do Extreme. Todas as frequências acompanham a base proporcionalmente, com o mesmo prazo de rampa. A automação anterior é substituída por `cancelAndHoldAtTime` quando disponível. O fallback calcula o valor linear corrente, cancela os eventos futuros e fixa esse valor antes da próxima rampa. A leitura isolada de `AudioParam.value` não é usada como substituto da interpolação controlada.
 
 ## Cancelamento e interrupções
 
@@ -79,7 +96,7 @@ A engine não observa visibilidade da página. O domínio já decide o que prese
 - Um contexto controlado verifica agendamento, número de nós, automação, fallback, cancelamento, descarte e eventos atrasados sem depender de tempo real.
 - Os testes Playwright usam um bundle em memória da engine, sem incluí-lo antecipadamente na aplicação estática.
 - AudioContext nativo verifica habilitação por clique, sequência, ajuste contínuo, parada, suspensão e descarte.
-- OfflineAudioContext usa nós e DSP nativos para verificar amostras de senoides de 200/400 Hz, ganho consistente, silêncio nas pausas, limites de amplitude e continuidade entre amostras. Somente o estado de controle é adaptado para o contexto offline, que não implementa o ciclo de autoplay/fechamento de um contexto em tempo real.
+- OfflineAudioContext renderiza o DSP aditivo nativo em 44,1 e 48 kHz, com bases de 80/200/400/700 Hz, verificando componentes espectrais proporcionais, ataque/release, silêncio nas pausas, limites de amplitude e continuidade entre amostras. Somente o estado de controle é adaptado para o contexto offline, que não implementa o ciclo de autoplay/fechamento de um contexto em tempo real.
 - Cancelar antes do início produz amostras silenciosas em toda a renderização offline.
 
 Essas verificações não equivalem a escuta humana, teste de fones, validação de latência de hardware, Safari/Firefox ou leitores de tela reais.
@@ -132,6 +149,8 @@ Após pressioná-lo, experimente `audio.setFrequency(300)`, `audio.setFrequency(
 Finalize a bancada temporária com `await audio.dispose(); button.remove();`. Registre os resultados no checklist manual somente após ouvir de fato. Esses controles temporários de inspeção não pertencem à interface do produto.
 
 ## Referências
+
+- [Web Audio API — características e parâmetros do BiquadFilterNode](https://webaudio.github.io/web-audio-api/#BiquadFilterNode).
 
 - [MDN — AudioContext.resume](https://developer.mozilla.org/en-US/docs/Web/API/AudioContext/resume).
 - [MDN — estados do contexto](https://developer.mozilla.org/en-US/docs/Web/API/BaseAudioContext/state).

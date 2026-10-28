@@ -22,6 +22,7 @@ test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
     window.phaseFiveAudio = { contexts: [], voices: [] };
     const Native = window.AudioContext;
+    let partialIndex = 0;
     window.AudioContext = class extends Native {
       constructor(...args: ConstructorParameters<typeof AudioContext>) {
         super(...args);
@@ -29,6 +30,9 @@ test.beforeEach(async ({ page }) => {
       }
       override createOscillator(): OscillatorNode {
         const node = super.createOscillator();
+        // Uma voz lógica possui cinco parciais; acompanhar o sub-harmônico
+        // de cada banco e convertê-lo à frequência base mantém as verificações do jogo.
+        if (partialIndex++ % 5 !== 0) return node;
         const record = {
           frequencyHz: 0,
           startsAt: 0,
@@ -38,14 +42,14 @@ test.beforeEach(async ({ page }) => {
         window.phaseFiveAudio.voices.push(record);
         const setFrequency = node.frequency.setValueAtTime.bind(node.frequency);
         node.frequency.setValueAtTime = (value, when) => {
-          record.frequencyHz = value;
+          record.frequencyHz = value * 2;
           return setFrequency(value, when);
         };
         const rampFrequency = node.frequency.linearRampToValueAtTime.bind(
           node.frequency,
         );
         node.frequency.linearRampToValueAtTime = (value, when) => {
-          record.frequencyHz = value;
+          record.frequencyHz = value * 2;
           return rampFrequency(value, when);
         };
         const start = node.start.bind(node);

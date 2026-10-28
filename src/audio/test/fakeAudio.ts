@@ -21,12 +21,33 @@ export class FakeAudioParam {
       : undefined;
 }
 
-class FakeGain {
-  readonly gain = new FakeAudioParam();
+class FakeNode {
   readonly connect = vi.fn<(destination: unknown) => undefined>(
     () => undefined,
   );
   readonly disconnect = vi.fn();
+}
+
+class FakeGain extends FakeNode {
+  readonly gain = new FakeAudioParam();
+}
+
+class FakeFilter extends FakeNode {
+  type = 'lowpass';
+  readonly frequency = new FakeAudioParam();
+  readonly Q = new FakeAudioParam();
+}
+
+class FakeShaper extends FakeNode {
+  curve: Float32Array | null = null;
+}
+
+class FakeCompressor extends FakeNode {
+  readonly threshold = new FakeAudioParam();
+  readonly knee = new FakeAudioParam();
+  readonly ratio = new FakeAudioParam();
+  readonly attack = new FakeAudioParam();
+  readonly release = new FakeAudioParam();
 }
 
 class FakeOscillator {
@@ -57,6 +78,24 @@ export class FakeAudioContext {
   readonly destination = {};
   readonly gains: FakeGain[] = [];
   readonly oscillators: FakeOscillator[] = [];
+  readonly filters: FakeFilter[] = [];
+  readonly shapers: FakeShaper[] = [];
+  readonly compressors: FakeCompressor[] = [];
+  readonly createBiquadFilter = vi.fn(() => {
+    const node = new FakeFilter();
+    this.filters.push(node);
+    return node;
+  });
+  readonly createWaveShaper = vi.fn(() => {
+    const node = new FakeShaper();
+    this.shapers.push(node);
+    return node;
+  });
+  readonly createDynamicsCompressor = vi.fn(() => {
+    const node = new FakeCompressor();
+    this.compressors.push(node);
+    return node;
+  });
   readonly listeners = new Set<() => void>();
   readonly createGain = vi.fn(() => {
     const node = new FakeGain();

@@ -8,6 +8,7 @@ interface NativeVerification {
   readonly interruptedStatus: string;
   readonly contextState: string;
   readonly createdOscillators: number;
+  readonly retunedFrequencies: readonly number[];
   readonly interruptions: number;
   readonly durationSeconds: number;
 }
@@ -59,14 +60,17 @@ test('Web Audio nativa habilita por gesto, reproduz, ajusta, interrompe e descar
         window.audioVerification = (async () => {
           const context = new AudioContext();
           let createdOscillators = 0;
+          const oscillators: OscillatorNode[] = [];
           let interruptions = 0;
           const createOscillator = context.createOscillator.bind(context);
           context.createOscillator = () => {
             createdOscillators += 1;
-            return createOscillator();
+            const oscillator = createOscillator();
+            oscillators.push(oscillator);
+            return oscillator;
           };
           const engine = new window.MemofreqAudio.WebAudioEngine({
-            range: { minHz: 50, maxHz: 700 },
+            range: { minHz: 80, maxHz: 700 },
             createContext: () => context,
             onInterruption: () => {
               interruptions += 1;
@@ -89,6 +93,9 @@ test('Web Audio nativa habilita por gesto, reproduz, ajusta, interrompe e descar
             await new Promise<void>((accept) => {
               setTimeout(accept, 40);
             });
+            const retunedFrequencies = oscillators
+              .slice(-5)
+              .map((node) => node.frequency.value);
             const stopped = await continuous.stop();
             const next = engine.startContinuous(300);
             await new Promise<void>((accept) => {
@@ -104,6 +111,7 @@ test('Web Audio nativa habilita por gesto, reproduz, ajusta, interrompe e descar
               interruptedStatus: interrupted.status,
               contextState: context.state,
               createdOscillators,
+              retunedFrequencies,
               interruptions,
               durationSeconds: (sequence.endsAt ?? 0) - sequence.startsAt,
             };
@@ -127,23 +135,22 @@ test('Web Audio nativa habilita por gesto, reproduz, ajusta, interrompe e descar
     stoppedStatus: 'stopped',
     interruptedStatus: 'interrupted',
     contextState: 'closed',
-    createdOscillators: 4,
+    createdOscillators: 20,
+    retunedFrequencies: [200, 800, 1200, 1600, 2000],
     interruptions: 1,
   });
   expect(result.durationSeconds).toBeCloseTo(0.13, 8);
 });
 
-test('OfflineAudioContext verifica senoides, ganho, silêncio entre tons e cancelamento futuro', async ({
+test('OfflineAudioContext verifica timbre aditivo, faixa, envelopes, silêncio e cancelamento', async ({
   page,
 }) => {
-  const result = await page.evaluate(async () => {
-    async function render(cancelled: boolean) {
-      const sampleRate = 48000;
-      const offline = new OfflineAudioContext(1, sampleRate * 0.4, sampleRate);
-      // O renderizador offline não tem autoplay/close. Apenas seu estado de controle é adaptado;
-      // os nós, automações, relógio e amostras renderizadas são da Web Audio API nativa.
+  const results = await page.evaluate(async () => {
+    async function render(sampleRate: number, cancelled: boolean) {
+      const offline = new OfflineAudioContext(1, sampleRate * 2.1, sampleRate);
+      // Apenas o estado de controle é adaptado; nós, DSP e amostras são nativos.
       const engine = new window.MemofreqAudio.WebAudioEngine({
-        range: { minHz: 50, maxHz: 700 },
+        range: { minHz: 80, maxHz: 700 },
         createContext: () => ({
           get currentTime() {
             return offline.currentTime;
@@ -157,6 +164,9 @@ test('OfflineAudioContext verifica senoides, ganho, silêncio entre tons e cance
           destination: offline.destination,
           createGain: () => offline.createGain(),
           createOscillator: () => offline.createOscillator(),
+          createBiquadFilter: () => offline.createBiquadFilter(),
+          createWaveShaper: () => offline.createWaveShaper(),
+          createDynamicsCompressor: () => offline.createDynamicsCompressor(),
           resume: () => Promise.resolve(),
           close: () => Promise.resolve(),
           addEventListener: () => undefined,
@@ -164,12 +174,10 @@ test('OfflineAudioContext verifica senoides, ganho, silêncio entre tons e cance
         }),
       });
       await engine.enable();
+      const bases = [80, 200, 400, 700];
       const sequence = engine.playSequence(
-        [
-          { frequencyHz: 200, durationSeconds: 0.1 },
-          { frequencyHz: 400, durationSeconds: 0.1 },
-        ],
-        0.05,
+        bases.map((frequencyHz) => ({ frequencyHz, durationSeconds: 0.4 })),
+        0.1,
       );
       if (cancelled) await sequence.cancel();
       const audio = await offline.startRendering();
@@ -185,21 +193,19 @@ test('OfflineAudioContext verifica senoides, ganho, silêncio entre tons e cance
             samples.length,
         );
       }
-      function pitch(start: number, end: number): number {
-        const crossings: number[] = [];
-        for (
-          let index = Math.round(start * sampleRate) + 1;
-          index < end * sampleRate;
-          index += 1
-        ) {
-          if ((data[index - 1] ?? 0) <= 0 && (data[index] ?? 0) > 0)
-            crossings.push(index);
+      function amplitude(frequency: number, start: number): number {
+        // Janela de 100 ms: todos os componentes medidos têm um número inteiro de ciclos.
+        const first = Math.round(start * sampleRate);
+        const length = Math.round(0.1 * sampleRate);
+        let real = 0;
+        let imaginary = 0;
+        for (let i = 0; i < length; i += 1) {
+          const angle = (2 * Math.PI * frequency * i) / sampleRate;
+          const value = data[first + i] ?? 0;
+          real += value * Math.cos(angle);
+          imaginary += value * Math.sin(angle);
         }
-        const first = crossings[0];
-        const last = crossings.at(-1);
-        if (first === undefined || last === undefined || first === last)
-          return 0;
-        return (sampleRate * (crossings.length - 1)) / (last - first);
+        return (2 * Math.hypot(real, imaginary)) / length;
       }
       let peak = 0;
       let largestStep = 0;
@@ -214,30 +220,52 @@ test('OfflineAudioContext verifica senoides, ganho, silêncio entre tons e cance
       await engine.dispose();
       return {
         status: outcome.status,
-        firstPitch: pitch(0.04, 0.08),
-        secondPitch: pitch(0.19, 0.23),
-        firstRms: rms(0.04, 0.08),
-        secondRms: rms(0.19, 0.23),
+        tones: bases.map((base, i) => ({
+          base,
+          rms: rms(i * 0.5 + 0.09, i * 0.5 + 0.19),
+          attackRms: rms(i * 0.5 + 0.01, i * 0.5 + 0.025),
+          releaseRms: rms(i * 0.5 + 0.39, i * 0.5 + 0.41),
+          sub: amplitude(base * 0.5, i * 0.5 + 0.09),
+          second: amplitude(base * 2, i * 0.5 + 0.09),
+          third: amplitude(base * 3, i * 0.5 + 0.09),
+          fourth: amplitude(base * 4, i * 0.5 + 0.09),
+          fifth: amplitude(base * 5, i * 0.5 + 0.09),
+          offPitch: amplitude(base * 0.5 + 20, i * 0.5 + 0.09),
+          gap: rms(i * 0.5 + 0.42, i * 0.5 + 0.49),
+        })),
         leadingRms: rms(0, 0.009),
-        gapRms: rms(0.12, 0.15),
-        trailingRms: rms(0.28, 0.39),
-        allRms: rms(0, 0.4),
+        trailingRms: rms(1.92, 2.1),
+        allRms: rms(0, 2.1),
         peak,
         largestStep,
       };
     }
-    return { rendered: await render(false), cancelled: await render(true) };
+    return {
+      rendered: [await render(44100, false), await render(48000, false)],
+      cancelled: await render(48000, true),
+    };
   });
-  expect(result.rendered.status).toBe('completed');
-  expect(result.rendered.firstPitch).toBeCloseTo(200, 0);
-  expect(result.rendered.secondPitch).toBeCloseTo(400, 0);
-  expect(result.rendered.firstRms).toBeCloseTo(0.08 / Math.sqrt(2), 3);
-  expect(result.rendered.secondRms).toBeCloseTo(result.rendered.firstRms, 3);
-  expect(result.rendered.leadingRms).toBe(0);
-  expect(result.rendered.gapRms).toBe(0);
-  expect(result.rendered.trailingRms).toBe(0);
-  expect(result.rendered.peak).toBeLessThanOrEqual(0.081);
-  expect(result.rendered.largestStep).toBeLessThan(0.005);
-  expect(result.cancelled.status).toBe('cancelled');
-  expect(result.cancelled.allRms).toBe(0);
+  for (const rendered of results.rendered) {
+    expect(rendered.status).toBe('completed');
+    for (const tone of rendered.tones) {
+      expect(tone.rms).toBeGreaterThan(0.001);
+      expect(tone.attackRms).toBeLessThan(tone.rms);
+      expect(tone.releaseRms).toBeLessThan(tone.rms);
+      expect(tone.sub).toBeGreaterThan(0.001);
+      expect(tone.second).toBeGreaterThan(0.0001);
+      expect(tone.sub).toBeGreaterThan(tone.offPitch * 10);
+      expect(tone.gap).toBe(0);
+    }
+    const low = rendered.tones[0];
+    if (!low) throw new Error('Tom grave ausente.');
+    expect(low.third).toBeGreaterThan(0.0001);
+    expect(low.fourth).toBeGreaterThan(0.0001);
+    expect(low.fifth).toBeGreaterThan(0.0001);
+    expect(rendered.leadingRms).toBe(0);
+    expect(rendered.trailingRms).toBe(0);
+    expect(rendered.peak).toBeLessThanOrEqual(0.15);
+    expect(rendered.largestStep).toBeLessThan(0.01);
+  }
+  expect(results.cancelled.status).toBe('cancelled');
+  expect(results.cancelled.allRms).toBe(0);
 });
