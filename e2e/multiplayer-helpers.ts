@@ -83,8 +83,20 @@ export async function answerRound(page: Page, attempts: number) {
   await waitForAttempt(page);
   for (let index = 0; index < attempts; index += 1) {
     await page.getByRole('button', { name: 'Aumentar tom' }).click();
-    await page.getByRole('button', { name: 'Confirmar tentativa' }).click();
+    await confirmAttempt(page);
   }
+}
+
+/**
+ * Confirma pelo teclado, como os testes individuais: cliques seguidos no
+ * mesmo botão contam como duplo clique em alguns navegadores (WebKit) e são
+ * ignorados de propósito pela proteção contra confirmações involuntárias.
+ */
+export async function confirmAttempt(page: Page) {
+  const confirm = page.getByRole('button', { name: 'Confirmar tentativa' });
+  await expect(confirm).toBeEnabled();
+  await confirm.focus();
+  await page.keyboard.press('Enter');
 }
 
 export async function setVisible(page: Page, visible: boolean) {

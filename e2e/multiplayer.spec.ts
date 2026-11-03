@@ -4,6 +4,7 @@ import { expectReflow } from './results-checks';
 import {
   answerRound,
   capture,
+  confirmAttempt,
   createRoom,
   expectAccessible,
   joinByCode,
@@ -177,11 +178,11 @@ test('Extreme com três frequências completa cinco rounds com valores ocultos',
     await waitForAttempt(guest);
     await expect(guest.getByText('Frequência 1 de 3')).toBeVisible();
     await expect(guest.locator('.frequency-readout')).toHaveCount(0);
-    await guest.getByRole('button', { name: 'Confirmar tentativa' }).click();
+    await confirmAttempt(guest);
     await expect(guest.getByText('Frequência 2 de 3')).toBeVisible();
     await expect(guest.getByText('Frequência alvo')).toHaveCount(0);
-    await guest.getByRole('button', { name: 'Confirmar tentativa' }).click();
-    await guest.getByRole('button', { name: 'Confirmar tentativa' }).click();
+    await confirmAttempt(guest);
+    await confirmAttempt(guest);
     await expect(
       guest.getByRole('heading', { name: 'Palpites registrados' }),
     ).toBeVisible();
@@ -349,7 +350,7 @@ test('trata sala inexistente, código inválido e interrupções do round', asyn
   ).toBeFocused();
   await page.getByRole('button', { name: 'Retomar tentativa' }).click();
   await waitForAttempt(page);
-  await page.getByRole('button', { name: 'Confirmar tentativa' }).click();
+  await confirmAttempt(page);
 
   const table = page.getByRole('table', { name: 'Palpites do round 1' });
   await expect(table).toContainText('Round perdido');
