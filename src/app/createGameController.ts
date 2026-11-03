@@ -1,14 +1,35 @@
 import { GameController } from '../application/GameController';
+import { MultiplayerController } from '../application/MultiplayerController';
+import type { AudioInterruption } from '../application/audioPort';
+import { MULTIPLAYER_URL } from '../multiplayer/config';
 import { WebAudioEngine } from '../audio/WebAudioEngine';
 import { AUDIO_SETTINGS } from '../audio/config';
 import { DEFAULT_RULES } from '../domain/config';
 
+function createBrowserAudio(
+  onInterruption: (event: AudioInterruption) => void,
+): WebAudioEngine {
+  return new WebAudioEngine({ range: DEFAULT_RULES.range, onInterruption });
+}
+
+const isPageVisible = () => document.visibilityState !== 'hidden';
+
+export function createBrowserMultiplayerController(
+  initialVolume: number = AUDIO_SETTINGS.initialVolume,
+): MultiplayerController {
+  return new MultiplayerController({
+    url: MULTIPLAYER_URL,
+    createAudio: createBrowserAudio,
+    initialVolume,
+    isPageVisible,
+  });
+}
+
 export function createBrowserGameController(): GameController {
   return new GameController({
-    createAudio: (onInterruption) =>
-      new WebAudioEngine({ range: DEFAULT_RULES.range, onInterruption }),
+    createAudio: createBrowserAudio,
     initialVolume: AUDIO_SETTINGS.initialVolume,
-    isPageVisible: () => document.visibilityState !== 'hidden',
+    isPageVisible,
     random: () => {
       const value = crypto.getRandomValues(new Uint32Array(1))[0];
       if (value === undefined) throw new Error('Sorteio indisponível.');
