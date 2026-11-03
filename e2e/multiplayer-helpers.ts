@@ -102,6 +102,8 @@ export async function capture(page: Page, testInfo: TestInfo, name: string) {
     path: testInfo.outputPath(`${name}.png`),
     fullPage: true,
     animations: 'disabled',
+    // Pixels CSS mantêm as evidências leves também no perfil mobile.
+    scale: 'css',
   });
 }
 
