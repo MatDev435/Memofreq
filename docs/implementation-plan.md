@@ -107,3 +107,30 @@ Autorizado e aprovado manualmente pelo usuário em 27/10/2026. Escopo: compactar
 Autorização de 28/10/2026: substituir o timbre conforme os parâmetros fornecidos, ajustar somente o mínimo da frequência base para 80 Hz, preservar mecânicas, interface e controles; executar testes e, se aprovados, fazer commit e push na branch atual. Configuração e contrato técnico em `audio-engine.md`. Validação e limites em `additive-timbre-report.md`.
 
 **Conclusão em 28/10/2026:** preset implementado, faixa base atualizada para 80–700 Hz e interface preservada. `npm run check` aprovado com 192 testes; 60 E2E aprovados nos quatro perfis. Commit e push autorizados na `main`; escuta humana do novo timbre permanece pendente com o usuário.
+
+## Multiplayer — backend
+
+Autorizado em 03/11/2026, em branch própria (`feat/multiplayer-backend`). Escopo: somente o backend em `server/`, com Cloudflare Workers, Durable Objects e WebSocket nativo; sem telas, hooks, controladores ou integração com a interface. A PR só será aberta quando o frontend multiplayer também estiver pronto, e o merge depende da aprovação do usuário.
+
+| Etapa                       | Entrega                                                                                                                          | Estado    |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1 — Regras e protocolo      | Máquina de estados pura da sala, visão pública, ranking, validação de mensagens e testes unitários reutilizando `src/domain`     | Concluída |
+| 2 — Worker e Durable Object | Rotas, origens, códigos, hibernação, storage mínimo, remoções, inatividade, limites e testes de integração contra `wrangler dev` | Concluída |
+| 3 — Documentação e CI       | Protocolo, guia do servidor, `.env.example`, especificação, arquitetura e etapa de integração na CI                              | Concluída |
+
+Frontend multiplayer autorizado e concluído em 03/11/2026 (seção abaixo). Pendente para outra autorização: publicação do Worker na conta Cloudflare do usuário, configuração da URL na Vercel e abertura da PR.
+
+**Verificação em 03/11/2026:** `npm run check` aprovado com 284 testes (192 existentes e 92 do servidor); `npm run test:server` aprovado com 17 testes de integração contra `wrangler dev`, repetidos três vezes sem falhas; `wrangler deploy --dry-run` gerou um bundle de 35 KiB sem publicar. E2E do single-player: 30 testes aprovados em Chromium desktop e Pixel 7 emulado. Firefox e WebKit não foram executados localmente porque o ambiente temporário das fases anteriores não existia mais (navegadores, bibliotecas e áudio virtual); a CI executa os quatro perfis. Nada foi publicado na Cloudflare.
+
+## Multiplayer — frontend
+
+Autorizado em 03/11/2026 na mesma branch, sem PR, merge ou publicação.
+
+| Etapa                             | Entrega                                                                                                                           | Estado    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1 — Cliente e controlador         | `VITE_MULTIPLAYER_URL`, tipos do protocolo compartilhados, conexão com ping, convite e controlador com política de interrupção    | Concluída |
+| 2 — Telas                         | Cartão na inicial, entrada, lobby, prontidão, jogo, espera, resultados, ranking e saída, reaproveitando os componentes existentes | Concluída |
+| 3 — E2E e validação visual        | Worker local no Playwright, partidas completas com vários navegadores, capturas desktop/mobile e correções                        | Concluída |
+| 4 — Acessibilidade e documentação | Revisão de foco e anúncios, axe, reflow, roteiro manual e documentos                                                              | Concluída |
+
+Verificações e limites em `multiplayer-report.md`.

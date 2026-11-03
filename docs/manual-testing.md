@@ -107,3 +107,18 @@ A mudança de timbre não foi ouvida por uma pessoa nesta entrega. As aprovaçõ
 - [ ] Conferir conforto do volume e silêncio no zero, na faixa base de 80–700 Hz.
 - [ ] Avaliar ataque de 25 ms, release de 170 ms, ausência de estalos e pausas completas entre referências.
 - [ ] Conferir continuidade de todos os componentes ao arrastar rapidamente e entre palpites do Extreme, com duas e três referências.
+
+## Multiplayer — 03/11/2026
+
+Itens para o usuário; os E2E com vários navegadores não marcam estes casos.
+
+- [ ] Abrir dois navegadores ou aparelhos, criar uma sala, copiar o convite e entrar pelo link no outro.
+- [ ] Conferir recusa de apelido repetido, sala inexistente e entrada durante a partida.
+- [ ] Como host, trocar entre Normal, Hard e Extreme (2 e 3); como convidado, confirmar que o modo é somente leitura.
+- [ ] Jogar cinco rounds em cada modo, conferindo espera sem valores, resultados de todos e ranking com empates.
+- [ ] Jogar novamente, trocar o modo, receber um novo participante pelo mesmo link e iniciar outra partida.
+- [ ] Remover um participante parado na espera; sair como host e conferir a transferência de host.
+- [ ] Trocar de aba durante a contagem (sem penalidade), a referência (round perdido) e o ajuste (tentativa suspensa e retomada).
+- [ ] Com NVDA, percorrer entrada, lobby, prontidão, espera, resultados e ranking; ouvir os anúncios de entrada/saída/prontidão e confirmar que nenhum é lido sobre os tons nem contém Hz.
+- [ ] Com NVDA, verificar o foco ao começar o round, ao retomar uma tentativa e após remover um participante.
+- [ ] Testar em celular físico, inclusive copiar o convite e operar a tabela com rolagem horizontal.

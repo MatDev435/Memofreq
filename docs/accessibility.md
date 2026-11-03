@@ -91,3 +91,12 @@ O botão “Animações visuais” indica com `aria-pressed` se os efeitos estã
 O reflow reorganiza o cabeçalho e os controles com texto ampliado. A tabela do Extreme mantém cabeçalhos e relações de coluna; Normal/Hard não criam colunas adicionais. Contorno de foco visível, link para pular ao conteúdo e alternativas por botões permanecem disponíveis.
 
 A validação automatizada da Fase 7 cobre axe, teclado, foco, movimento reduzido, nomes e reflow; resultados e limites ficam no relatório da fase. O agente não operou leitores de tela nem realizou escuta humana. A nova apresentação aguarda a validação manual do usuário com NVDA, conforme combinado.
+
+## Multiplayer — 03/11/2026
+
+- Mesmas regras do jogo individual durante os tons: nenhum anúncio vivo ou foco automático na preparação, contagem, referências, ajuste e cauda; Hz visível só no Normal e fora de regiões vivas; slider e botões com nomes estáveis.
+- Foco: título sem números ao entrar em cada tela (entrada, lobby, prontidão, espera, resultados, ranking, saída); “Sair da sala” antes da contagem; “Começar round” ou “Retomar tentativa” nas pausas. Erros de entrada levam o foco ao campo e são anunciados com `role="alert"`.
+- Anúncios polidos e curtos fora dos tons: entrada e saída de participantes, prontidão, conclusão ou perda do round por outros jogadores, troca de host, modo alterado pelo host e mudanças de etapa. Nenhum valor numérico é anunciado.
+- Prontidão usa `aria-disabled` para manter o foco no botão. Remover participante exige confirmação; o foco vai para “Confirmar remoção de …” e volta a “Remover …” ao cancelar.
+- Listas de participantes, prontidão, progresso e classificação têm nomes acessíveis; empates e “Você” são texto. Tabelas de resultados têm legenda e cabeçalhos; quando rolam horizontalmente, são regiões focáveis.
+- Automação: axe sem violações nas telas multiplayer e reflow a 320 px com texto a 200%. A fala real com NVDA não foi verificada pelo agente; ver o roteiro em `manual-testing.md`.

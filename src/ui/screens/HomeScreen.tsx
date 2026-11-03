@@ -15,6 +15,7 @@ export function HomeScreen({
   onStart,
   startRef,
   busy,
+  multiplayer,
 }: {
   readonly audio: ReactNode;
   readonly mode: ModeSelection['mode'];
@@ -24,6 +25,8 @@ export function HomeScreen({
   readonly onStart: () => void;
   readonly startRef: Ref<HTMLButtonElement>;
   readonly busy: boolean;
+  /** Entrada para o modo multiplayer, abaixo do início individual. */
+  readonly multiplayer?: ReactNode;
 }) {
   return (
     <div className="home-screen screen-enter">
@@ -70,6 +73,7 @@ export function HomeScreen({
           </span>
         </p>
       </div>
+      {multiplayer}
       <aside className="listening-note" aria-labelledby="fones">
         <div className="listening-copy">
           <span className="headphone-art">

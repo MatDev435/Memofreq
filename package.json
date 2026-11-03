@@ -2,7 +2,7 @@
   "name": "memofreq",
   "private": true,
   "version": "0.1.0",
-  "description": "Jogo web de percepção e memória auditiva.",
+  "description": "Jogo web de percep\u00e7\u00e3o e mem\u00f3ria auditiva.",
   "type": "module",
   "engines": {
     "node": ">=24.0.0 <25",
@@ -20,7 +20,11 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run format:check && npm run test:run && npm run build"
+    "test:e2e:smoke": "playwright test --grep @smoke --project=chromium",
+    "test:server": "vitest run --config server/integration/vitest.config.ts",
+    "check": "npm run lint && npm run format:check && npm run test:run && npm run build",
+    "server:dev": "wrangler dev --cwd server --ip 127.0.0.1 --port 8787",
+    "server:deploy": "wrangler deploy --cwd server"
   },
   "dependencies": {
     "react": "19.3.1",
@@ -28,6 +32,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "4.14.0",
+    "@cloudflare/workers-types": "5.20261103.1",
     "@eslint/js": "10.0.1",
     "@playwright/test": "1.64.1",
     "@testing-library/jest-dom": "7.0.1",
@@ -46,6 +51,7 @@
     "typescript": "5.9.3",
     "typescript-eslint": "8.72.0",
     "vite": "8.3.5",
-    "vitest": "5.0.5"
+    "vitest": "5.0.5",
+    "wrangler": "4.157.0"
   }
 }

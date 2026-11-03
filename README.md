@@ -49,6 +49,19 @@ Interface responsiva para desktop e mobile, com navegação por teclado, foco vi
 
 Construído com **React**, **TypeScript**, **Vite** e **Web Audio API**, que gera os tons diretamente no navegador.
 
+## Jogue com amigos
+
+No **Multiplayer**, crie uma sala privada, envie o link de convite e disputem as mesmas frequências em tempo real. Cada pessoa ajusta o próprio tom; os palpites aparecem juntos ao fim de cada round e o ranking final soma os cinco rounds. O host escolhe o modo, inicia, pode remover participantes e jogar novamente com o mesmo link. Até 8 participantes, sem cadastro.
+
+Para jogar localmente, copie `.env.example` para `.env.local` e rode o backend e o frontend em dois terminais:
+
+```sh
+npm run server:dev   # Worker local em ws://127.0.0.1:8787
+npm run dev          # Vite em http://127.0.0.1:5173
+```
+
+Backend, protocolo e publicação: [`server/README.md`](server/README.md), [`docs/multiplayer-protocol.md`](docs/multiplayer-protocol.md) e [`docs/deployment.md`](docs/deployment.md).
+
 ---
 
 Conceito inspirado no [Dialed Sound](https://dialed.gg/sound), com identidade visual e implementação próprias.

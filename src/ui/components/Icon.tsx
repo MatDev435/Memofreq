@@ -28,6 +28,12 @@ const paths = {
   motion: 'M5 5v14m5-10v6m5-12v18m5-13v8',
   bars: 'M5 14v7m7-14v14m7-20v20',
   chevron: 'm9 5 7 7-7 7',
+  users:
+    'M16 19v-1a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v1m7-9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm13 9v-1a4 4 0 0 0-3-3.9M16 4.1a3 3 0 0 1 0 5.8',
+  copy: 'M9 9h11v11H9V9Zm-4 6H4V4h11v1',
+  crown: 'm3 8 4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8Z',
+  remove: 'M18 6 6 18M6 6l12 12',
+  link: 'M10 14a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1m2 5a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1',
 } as const;
 export type IconName = keyof typeof paths;
 

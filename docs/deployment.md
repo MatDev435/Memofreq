@@ -47,3 +47,20 @@ A preparação temporária específica deste ambiente Linux, sem instalação de
 A Fase 6 valida tecnicamente o artefato estático e sua execução local em uma subpasta. Nenhum provedor, domínio, credencial de hospedagem ou publicação remota foi configurado. O repositório GitHub permanece privado; o envio de código e a execução da CI não publicam o jogo.
 
 Uma publicação futura deverá registrar host, URL, HTTPS e verificação do build servido. O acabamento visual definitivo continua uma etapa própria.
+
+## Backend multiplayer — 03/11/2026
+
+O frontend continua estático. O backend multiplayer, quando publicado, é um Worker separado na Cloudflare, configurado em `server/wrangler.jsonc` e publicado com `npm run server:deploy`. Passos, autenticação sem expor credenciais (`wrangler login` ou `server/.env` ignorado pelo Git) e limites do plano gratuito estão em `server/README.md`. Nesta etapa nada foi publicado: nenhuma conta, token ou URL de backend foi configurado. A origem `https://memofreq.vercel.app` consta como permitida conforme a página do repositório no GitHub.
+
+## Frontend multiplayer na Vercel — 03/11/2026
+
+O frontend lê `VITE_MULTIPLAYER_URL` no build. Localmente, copie `.env.example` para `.env.local` (ignorado pelo Git). Para publicar quando autorizado:
+
+1. Publique o Worker (`npm run server:deploy`, ver `server/README.md`) e anote a URL `https://memofreq-multiplayer.<subdomínio>.workers.dev`.
+2. Confirme que `ALLOWED_ORIGINS` em `server/wrangler.jsonc` contém o domínio do frontend (`https://memofreq.vercel.app` já consta; previews da Vercel não).
+3. No painel da Vercel, defina `VITE_MULTIPLAYER_URL=wss://memofreq-multiplayer.<subdomínio>.workers.dev` para Production e gere um novo deploy.
+4. Abra a página publicada, crie uma sala e entre pelo convite em outro aparelho.
+
+Variáveis `VITE_` são públicas no JavaScript; nunca coloque tokens nelas. Credenciais da Cloudflare ficam fora do frontend (`wrangler login` ou `server/.env`). Sem a variável, o multiplayer aparece como indisponível e o single-player continua funcionando.
+
+A suíte E2E agora gera o próprio build de preview com `VITE_MULTIPLAYER_URL=ws://127.0.0.1:8797` e sobe o Worker local; `npm run test:e2e` continua sendo o comando.

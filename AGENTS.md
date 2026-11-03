@@ -10,7 +10,7 @@
 - A Fase 6 inclui gráfico dos cinco rounds com eixo 0–10, tabela equivalente, revisão de integração, compatibilidade, reflow e validação local do build estático. O acabamento visual definitivo e funcionalidades futuras exigem nova autorização.
 - A Fase 7 — Redesign completo está concluída e foi autorizada com oito referências desktop/mobile. As telas foram desenvolvidas na ordem menu, gameplay, resumo do round, resultado final, conforme `docs/phase-7-plan.md`. Preservar integralmente domínio, controlador, engine, áudio e navegação; adaptar a apresentação aos modos reais e aos valores corretos, mesmo quando o mockup divergir.
 - A Fase 7 preservou domínio, controlador, hook e engine; validou 181 testes Vitest e 60 E2E nos quatro perfis. Evidências e capturas em `docs/phase-7-report.md`. O teste manual do redesign com NVDA continua com o usuário; novas funcionalidades exigem autorização.
-- Não implemente backend, autenticação, ranking, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação.
+- Não implemente autenticação, ranking persistente, desafio diário, banco de dados, persistência remota ou serviços fictícios sem solicitação. O único backend autorizado é o multiplayer descrito abaixo.
 
 ## Engenharia
 
@@ -54,3 +54,16 @@
 
 - O usuário autorizou substituir a senoide pura por síntese aditiva, envelopes de 25/170 ms e faixa base de 80–700 Hz, mantendo a interface e os controles. A engine usa o mesmo timbre em referência, tentativa e teste de áudio.
 - Cada voz mantém cinco osciladores ativos proporcionais à frequência base; o banco inteiro continua entre palpites do Extreme. Preservar os parâmetros aprovados em `docs/audio-engine.md`.
+
+## Multiplayer — backend autorizado em 03/11/2026
+
+- Backend em `server/` com Cloudflare Workers, Durable Objects e WebSocket nativo, no plano gratuito. Regras em `docs/functional-spec.md`, contrato em `docs/multiplayer-protocol.md` e guia em `server/README.md`.
+- Trabalhar na branch `feat/multiplayer-backend`. Não abrir PR até o frontend multiplayer estar pronto; o merge depende da aprovação do usuário após testes.
+- O frontend multiplayer foi autorizado e concluído em 03/11/2026 na mesma branch (`docs/multiplayer-report.md`). Publicação na Cloudflare/Vercel, PR e merge exigem nova autorização.
+- O servidor é autoritativo e reutiliza `src/domain`; não duplicar regras de pontuação nem alterar o single-player por causa do multiplayer.
+- Política simples: sem reconexão, sem tolerância e sem limite de tempo; remoção imediata ao detectar saída ou fechamento; host pode remover participantes.
+- Credenciais da Cloudflare só em `server/.env` (ignorado) ou via `wrangler login`. `server/.env.example` é versionado sem valores reais.
+- Antes de concluir mudanças no servidor, executar `npm run check` e `npm run test:server`.
+- O cliente não calcula notas, médias ou ranking; mantém a política de interrupção multiplayer documentada: sem penalidade antes da referência e durante o ajuste (tentativa suspensa), round perdido durante a referência.
+- `VITE_MULTIPLAYER_URL` é a única configuração do frontend multiplayer; nunca coloque segredos em variáveis `VITE_`. `.env.local` não é versionado.
+- Mudanças de interface multiplayer exigem `npm run check` e `npm run test:e2e`, que sobe o Worker local e usa vários navegadores.

@@ -216,3 +216,42 @@ A atualização altera apenas os três arquivos CSS de apresentação: reduz esp
 `Voice` agrupa cinco parciais ativos, cada um com oscilador e ganho, e mantém uma rampa de frequência base. O mesmo instante e duração de rampa são aplicados a todos os parciais com seus respectivos multiplicadores. A frequência base é validada na faixa injetada e todos os componentes devem ficar abaixo de Nyquist. Parciais de ganho zero não criam nós.
 
 Cada voz tem passa-baixas, WaveShaper, passa-baixas pós-saturação e compressor próprios. O envelope fica depois do DSP para garantir silêncio nos intervalos e no fim da reprodução, inclusive com memória dos filtros/compressor. A curva de saturação é pré-calculada uma vez; não há processamento por amostra no JavaScript nem nova dependência. A engine registra cada nó antes de configurá-lo e resolve a reprodução somente após todos os parciais terminarem e todos os nós da voz serem desconectados. Falhas parciais, cancelamento, descarte e identificação de execuções preservam o contrato anterior. Os controles visuais e a coordenação da aplicação permanecem inalterados.
+
+## Backend multiplayer — 03/11/2026
+
+`server/` contém um Worker da Cloudflare e um Durable Object por sala, sem alterar a SPA ou o single-player. A Vercel continua servindo o frontend estático; o backend é publicado separadamente com Wrangler. Guia: `server/README.md`; contrato: `multiplayer-protocol.md`.
+
+| Parte                    | Responsabilidade                                                        | Dependências permitidas                     |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------- |
+| `server/src/room`        | Estado da sala, transições, visão pública e ranking, de forma pura      | `src/domain` e tipos do protocolo           |
+| `server/src/protocol.ts` | Mensagens, códigos de erro e validação da entrada                       | Tipos do domínio e da sala                  |
+| `server/src/RoomObject`  | WebSocket com hibernação, storage de uma chave, alarm, limites          | Runtime Workers e camadas puras do servidor |
+| `server/src/index.ts`    | `/health`, rotas de criação/entrada, `Origin`, códigos e encaminhamento | Runtime Workers                             |
+
+- A máquina de estados da sala não usa rede, relógio nem storage; recebe a fonte aleatória por argumento, como o domínio. Ela importa `createGameDefinition`, `generateInitialFrequency`, `isFrequencyInRange`, `evaluateAttempt`, `meanScore` e `totalScore`, evitando regras paralelas.
+- O Durable Object é a única autoridade da sala e processa um evento por vez. O estado completo é serializável e fica na chave `room` do storage SQLite para sobreviver à hibernação; cada WebSocket guarda apenas ID do participante e último sinal. A sala apaga storage e alarm quando fica vazia.
+- Fechamento, erro de WebSocket, saída, remoção, inatividade e limite de mensagens convergem para a mesma remoção idempotente, que transfere o host e reavalia prontidão e conclusão do round.
+- Conexões mortas: o cliente envia `ping` a cada 25 s, respondido pelo runtime sem acordar a sala. Um alarm a cada 30 s remove conexões sem sinal há mais de 75 s. Não há tolerância de reconexão.
+- Ao acordar após reinício, participantes sem WebSocket ativo são removidos. Não há recuperação de partidas.
+- Entradas recusadas usam um WebSocket efêmero, fora da hibernação, para entregar o erro e o fechamento 4000 imediatamente.
+- `server/tsconfig.json` usa os tipos do Workers sem DOM; `server/integration/tsconfig.json` usa tipos do Node. Ambos entram em `tsc -b`. Testes unitários do servidor rodam no Vitest do projeto; `npm run test:server` sobe `wrangler dev` e exercita o protocolo com WebSockets reais.
+- Dependências novas apenas de desenvolvimento: `wrangler` e `@cloudflare/workers-types`. O Worker não tem dependências de produção além do código do repositório.
+
+## Frontend multiplayer — 03/11/2026
+
+| Parte                                      | Responsabilidade                                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `src/multiplayer/config.ts`                | Única leitura tipada de `VITE_MULTIPLAYER_URL` (`ws:`/`wss:`)                                            |
+| `src/multiplayer/protocol.ts`              | Reexporta tipos, códigos e normalizadores de `server/src`; valida a forma das mensagens recebidas        |
+| `src/multiplayer/RoomConnection.ts`        | WebSocket de uma sessão, ping de presença, sem reconexão; silencia eventos após fechar                   |
+| `src/application/MultiplayerController.ts` | Estado espelhado da sala, comandos, anúncios e execução local do round com o `AudioPort`                 |
+| `src/app/MultiplayerApp.tsx`               | Composição das telas, foco, fragmento `#sala=` e cabeçalho                                               |
+| `src/ui/multiplayer/`                      | Apresentação: entrada, lobby, prontidão, espera, resultados, ranking, saída e componentes compartilhados |
+
+O `App` alterna entre o jogo individual e o `MultiplayerApp`; cada um tem seu controlador e sua engine de áudio, criados sob demanda. O multiplayer não usa o `gameReducer`, pois o cliente recebe um round por vez, mas reaproveita as funções do domínio para posições do slider e as regras/configurações vindas do servidor. Não há cálculo de notas, médias ou ranking no cliente.
+
+O controlador guarda a etapa local (`preparing`, `blocked`, `countdown`, `references`, `attempt`, `paused`, `sending`, `submitted`, `forfeited`) com um identificador de execução que protege confirmações repetidas e callbacks de áudio antigos. Mensagens de sala com versão igual ou menor que a atual são descartadas; uma conexão encerrada não entrega eventos.
+
+Componentes existentes ganharam apenas props opcionais (`SessionHeader.title/exitAction`, `ModeSelector.disabled/description`, `HomeScreen.multiplayer`) e ícones novos; o DOM do single-player permanece igual. Estilos ficam em `multiplayer.css`, carregado depois de `results.css`, com os mesmos tokens e breakpoints.
+
+O Playwright sobe o Worker local (porta 8797) e um build de preview com `VITE_MULTIPLAYER_URL` apontando para ele; os cenários multiplayer usam vários contextos de navegador.
