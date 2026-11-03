@@ -298,91 +298,94 @@ test('host remove quem está parado, sai e transfere a função', async ({
   ).toBeFocused();
 });
 
-test('trata sala inexistente, código inválido e interrupções do round', async ({
-  page,
-  browser,
-}, testInfo) => {
-  test.setTimeout(120_000);
-  await page.goto('/');
-  await joinByCode(page, 'zzzzz-zzzzz', 'Ana');
-  await expect(page.getByRole('alert')).toContainText('Sala não encontrada');
-  await page.getByLabel('Código da sala').fill('abc');
-  await page.getByRole('button', { name: 'Entrar na sala' }).click();
-  await expect(page.getByRole('alert')).toContainText(
-    'código de 10 caracteres',
-  );
-  await expect(page.getByLabel('Código da sala')).toBeFocused();
-  await page.getByRole('button', { name: 'Voltar ao menu' }).click();
+test(
+  'trata sala inexistente, código inválido e interrupções do round',
+  { tag: '@smoke' },
+  async ({ page, browser }, testInfo) => {
+    test.setTimeout(120_000);
+    await page.goto('/');
+    await joinByCode(page, 'zzzzz-zzzzz', 'Ana');
+    await expect(page.getByRole('alert')).toContainText('Sala não encontrada');
+    await page.getByLabel('Código da sala').fill('abc');
+    await page.getByRole('button', { name: 'Entrar na sala' }).click();
+    await expect(page.getByRole('alert')).toContainText(
+      'código de 10 caracteres',
+    );
+    await expect(page.getByLabel('Código da sala')).toBeFocused();
+    await page.getByRole('button', { name: 'Voltar ao menu' }).click();
 
-  const link = await createRoom(page, 'Ana');
-  const guest = await openPlayer(browser, testInfo);
-  await joinByInvite(guest, link, 'Bia');
-  await page.getByRole('button', { name: 'Iniciar partida' }).click();
-  await readyEveryone([page, guest], 'Estou pronto');
+    const link = await createRoom(page, 'Ana');
+    const guest = await openPlayer(browser, testInfo);
+    await joinByInvite(guest, link, 'Bia');
+    await page.getByRole('button', { name: 'Iniciar partida' }).click();
+    await readyEveryone([page, guest], 'Estou pronto');
 
-  // Ocultar durante a contagem não penaliza; começa com um clique.
-  await expect(guest.getByText('Prepare-se para ouvir')).toBeVisible();
-  await setVisible(guest, false);
-  await setVisible(guest, true);
-  await expect(
-    guest.getByRole('button', { name: 'Começar round' }),
-  ).toBeFocused();
-  await capture(guest, testInfo, 'mp-14-paused-start');
-  await guest.getByRole('button', { name: 'Começar round' }).click();
-  await expect(guest.getByText('Ouça e memorize')).toBeVisible({
-    timeout: 8000,
-  });
+    // Ocultar durante a contagem não penaliza; começa com um clique.
+    await expect(guest.getByText('Prepare-se para ouvir')).toBeVisible();
+    await setVisible(guest, false);
+    await setVisible(guest, true);
+    await expect(
+      guest.getByRole('button', { name: 'Começar round' }),
+    ).toBeFocused();
+    await capture(guest, testInfo, 'mp-14-paused-start');
+    await guest.getByRole('button', { name: 'Começar round' }).click();
+    await expect(guest.getByText('Ouça e memorize')).toBeVisible({
+      timeout: 8000,
+    });
 
-  // Ocultar durante a referência perde o round.
-  await setVisible(guest, false);
-  await setVisible(guest, true);
-  await expect(
-    guest.getByRole('heading', { name: 'Round perdido' }),
-  ).toBeFocused();
+    // Ocultar durante a referência perde o round.
+    await setVisible(guest, false);
+    await setVisible(guest, true);
+    await expect(
+      guest.getByRole('heading', { name: 'Round perdido' }),
+    ).toBeFocused();
 
-  // Ocultar durante o ajuste suspende sem penalidade.
-  await waitForAttempt(page);
-  await page.getByRole('button', { name: 'Aumentar tom' }).click();
-  await setVisible(page, false);
-  await setVisible(page, true);
-  await expect(
-    page.getByRole('button', { name: 'Retomar tentativa' }),
-  ).toBeFocused();
-  await page.getByRole('button', { name: 'Retomar tentativa' }).click();
-  await waitForAttempt(page);
-  await confirmAttempt(page);
+    // Ocultar durante o ajuste suspende sem penalidade.
+    await waitForAttempt(page);
+    await page.getByRole('button', { name: 'Aumentar tom' }).click();
+    await setVisible(page, false);
+    await setVisible(page, true);
+    await expect(
+      page.getByRole('button', { name: 'Retomar tentativa' }),
+    ).toBeFocused();
+    await page.getByRole('button', { name: 'Retomar tentativa' }).click();
+    await waitForAttempt(page);
+    await confirmAttempt(page);
 
-  const table = page.getByRole('table', { name: 'Palpites do round 1' });
-  await expect(table).toContainText('Round perdido');
-  await expect(guest.getByText('Você perdeu este round')).toBeVisible();
+    const table = page.getByRole('table', { name: 'Palpites do round 1' });
+    await expect(table).toContainText('Round perdido');
+    await expect(guest.getByText('Você perdeu este round')).toBeVisible();
 
-  // Entrar durante a partida é recusado com mensagem clara.
-  const late = await openPlayer(browser, testInfo);
-  await late.goto(link);
-  await late.getByLabel('Seu apelido').fill('Caio');
-  await late.getByRole('button', { name: 'Entrar na sala' }).click();
-  await expect(late.getByRole('alert')).toContainText('em uma partida');
-});
+    // Entrar durante a partida é recusado com mensagem clara.
+    const late = await openPlayer(browser, testInfo);
+    await late.goto(link);
+    await late.getByLabel('Seu apelido').fill('Caio');
+    await late.getByRole('button', { name: 'Entrar na sala' }).click();
+    await expect(late.getByRole('alert')).toContainText('em uma partida');
+  },
+);
 
-test('entrada e lobby continuam utilizáveis a 320 px com texto a 200%', async ({
-  page,
-}, testInfo) => {
-  await page.setViewportSize({ width: 320, height: 740 });
-  await page.goto('/');
-  await page.addStyleTag({ content: 'html { font-size: 200%; }' });
-  await expectReflow(page);
-  await page.getByRole('button', { name: 'Jogar com amigos' }).click();
-  await expectReflow(page);
-  await page.getByLabel('Seu apelido').fill('Ana');
-  await page.getByRole('button', { name: 'Criar sala', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'Lobby' })).toBeVisible();
-  await page.getByRole('radio', { name: /Extreme/ }).click();
-  await expect(page.getByRole('radio', { name: /Extreme/ })).toBeChecked();
-  await capture(page, testInfo, 'mp-15-lobby-320-text-200');
-  await expectReflow(page);
-  await page.getByRole('button', { name: 'Iniciar partida' }).click();
-  await expect(
-    page.getByRole('heading', { name: 'Prepare-se para o round 1' }),
-  ).toBeVisible();
-  await expectReflow(page);
-});
+test(
+  'entrada e lobby continuam utilizáveis a 320 px com texto a 200%',
+  { tag: '@smoke' },
+  async ({ page }, testInfo) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    await page.goto('/');
+    await page.addStyleTag({ content: 'html { font-size: 200%; }' });
+    await expectReflow(page);
+    await page.getByRole('button', { name: 'Jogar com amigos' }).click();
+    await expectReflow(page);
+    await page.getByLabel('Seu apelido').fill('Ana');
+    await page.getByRole('button', { name: 'Criar sala', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Lobby' })).toBeVisible();
+    await page.getByRole('radio', { name: /Extreme/ }).click();
+    await expect(page.getByRole('radio', { name: /Extreme/ })).toBeChecked();
+    await capture(page, testInfo, 'mp-15-lobby-320-text-200');
+    await expectReflow(page);
+    await page.getByRole('button', { name: 'Iniciar partida' }).click();
+    await expect(
+      page.getByRole('heading', { name: 'Prepare-se para o round 1' }),
+    ).toBeVisible();
+    await expectReflow(page);
+  },
+);

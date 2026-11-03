@@ -44,6 +44,8 @@ export async function joinByInvite(
   link: string,
   name: string,
 ): Promise<void> {
+  // Navegação completa: uma troca só de fragmento depende de `hashchange`.
+  await page.goto('about:blank');
   await page.goto(link);
   await expect(
     page.getByRole('heading', { name: 'Convite para uma sala' }),

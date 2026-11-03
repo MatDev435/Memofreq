@@ -1,0 +1,51 @@
+name: E2E completo
+
+# Cobertura completa (single-player e multiplayer) nos quatro perfis.
+# Executada somente sob demanda pela aba Actions.
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: Perfil do Playwright
+        type: choice
+        default: all
+        options: [all, chromium, mobile-chromium, firefox, webkit]
+      grep:
+        description: Filtro opcional de testes (--grep)
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    name: e2e (${{ matrix.project }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        project: ${{ fromJSON(inputs.project == 'all' && '["chromium","mobile-chromium","firefox","webkit"]' || format('["{0}"]', inputs.project)) }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps ${{ matrix.project == 'mobile-chromium' && 'chromium' || matrix.project }}
+      - name: Preparar saída de áudio virtual
+        if: matrix.project == 'firefox' || matrix.project == 'webkit'
+        run: |
+          sudo apt-get install -y --no-install-recommends pulseaudio pulseaudio-utils
+          pulseaudio --start --exit-idle-time=-1
+          pactl load-module module-null-sink sink_name=memofreq
+          pactl set-default-sink memofreq
+      - run: npx playwright test --project=${{ matrix.project }} ${{ inputs.grep != '' && format('--grep "{0}"', inputs.grep) || '' }}
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: failure()
+        with:
+          name: playwright-${{ matrix.project }}
+          path: test-results/
+          retention-days: 7
