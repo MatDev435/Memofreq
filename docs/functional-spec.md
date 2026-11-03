@@ -189,3 +189,11 @@ O usuário autorizou o backend multiplayer em Cloudflare Workers com Durable Obj
 - **Jogadores parados:** não há limite de tempo; o host pode removê-los.
 - **Ciclo de vida:** a sala permanece após o resultado final. Jogar novamente descarta a partida, volta ao lobby, permite trocar o modo e reabre as entradas, indefinidamente. A sala é encerrada e o código invalidado quando o último participante sai.
 - A acessibilidade das futuras telas multiplayer seguirá a seção 9 e `accessibility.md`, na etapa do frontend.
+
+## Multiplayer — frontend autorizado em 03/11/2026
+
+Telas integradas à identidade existente, operando todas as funções do backend: entrada pela inicial ou pelo link `#sala=<código>`, lobby com convite e lista de participantes, seleção de modo e início apenas pelo host, remoção com confirmação, prontidão antes de cada round, tela de jogo existente, espera sem valores, resultados de todos, ranking do servidor, jogar novamente e saída. O servidor define alvos, posições iniciais, notas e ranking; a interface apenas apresenta.
+
+**Interrupções no multiplayer** (não alteram o single-player): antes de qualquer referência, ocultar a página ou perder o áudio pausa a contagem sem penalidade e exige um clique para recomeçar os três segundos; durante as referências, o round é perdido (`forfeit-round`), pois não há replay; durante o ajuste, o tom é silenciado e a tentativa fica suspensa sem penalidade, retomando na mesma frequência por um clique, sem repetir a referência. O jogador também pode desistir explicitamente de um round suspenso. Não há limite de tempo.
+
+`VITE_MULTIPLAYER_URL` define o backend em cada ambiente; sem ela o multiplayer aparece como indisponível. Registro completo em `multiplayer-report.md`.

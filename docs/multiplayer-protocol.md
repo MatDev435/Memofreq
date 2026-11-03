@@ -12,7 +12,7 @@ Versão do protocolo: **1**. Tipos de referência: `server/src/protocol.ts`. O s
 
 - Em desenvolvimento local, `<backend>` é `127.0.0.1:8787` com `ws://` e `http://`.
 - O apelido vai codificado com `encodeURIComponent`. Ele é normalizado (NFC, espaços colapsados e aparados) e deve ter de 1 a 20 grafemas, sem caracteres de controle ou invisíveis. Apelidos equivalentes, ignorando maiúsculas e variantes de largura, são recusados na mesma sala.
-- O código tem 10 caracteres do Base32 de Crockford (`0-9`, `A-Z` sem `I`, `L`, `O`, `U`). Minúsculas, espaços e hífens são aceitos na entrada. Sugestão de link de convite no frontend: `https://memofreq.vercel.app/#sala=<código>`.
+- O código tem 10 caracteres do Base32 de Crockford (`0-9`, `A-Z` sem `I`, `L`, `O`, `U`). Minúsculas, espaços e hífens são aceitos na entrada. O frontend usa o link de convite `https://memofreq.vercel.app/#sala=<código>` (mesma página, fragmento sem rotas).
 - O upgrade exige um cabeçalho `Origin` presente em `ALLOWED_ORIGINS` (`server/wrangler.jsonc`). Origens fora da lista recebem HTTP 403. Requisições sem upgrade recebem 426.
 - Uma entrada recusada (sala inexistente, em partida, cheia, apelido inválido ou repetido) completa o upgrade, envia um `error` com `fatal: true` e fecha com o código 4000. Navegadores não expõem o status HTTP de um upgrade recusado.
 - Não há reconexão nem recuperação de sessão. Recarregar a página ou perder a conexão remove o participante. Durante uma partida, ele só volta quando a sala retornar ao lobby, como novo participante.
@@ -194,3 +194,7 @@ B → … dois palpites …                       A,B ← room phase=round-resul
 … cinco rounds …                            A,B ← room phase=final, ranking, rounds
 A → {"type":"play-again"}                   A,B ← room phase=lobby, match=null
 ```
+
+## Uso pelo frontend
+
+O cliente em `src/multiplayer` e `src/application/MultiplayerController.ts` segue este contrato: envia `ping` a cada 25 s após abrir, ignora versões de `room` iguais ou anteriores à atual, fecha o WebSocket ao receber um erro fatal, não reconecta e nunca envia notas. Ele envia um `submit-guess` por confirmação e `forfeit-round` quando a página é ocultada ou o áudio falha durante as referências, ou quando o jogador desiste de um round suspenso. Detalhes da política em `multiplayer-report.md`.

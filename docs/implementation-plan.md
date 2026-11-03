@@ -118,6 +118,19 @@ Autorizado em 03/11/2026, em branch própria (`feat/multiplayer-backend`). Escop
 | 2 — Worker e Durable Object | Rotas, origens, códigos, hibernação, storage mínimo, remoções, inatividade, limites e testes de integração contra `wrangler dev` | Concluída |
 | 3 — Documentação e CI       | Protocolo, guia do servidor, `.env.example`, especificação, arquitetura e etapa de integração na CI                              | Concluída |
 
-Pendente para outra autorização: frontend multiplayer (telas, controlador, conexão, ping, acessibilidade e E2E multi-contexto), publicação do Worker na conta Cloudflare do usuário e configuração da URL do backend na Vercel.
+Frontend multiplayer autorizado e concluído em 03/11/2026 (seção abaixo). Pendente para outra autorização: publicação do Worker na conta Cloudflare do usuário, configuração da URL na Vercel e abertura da PR.
 
 **Verificação em 03/11/2026:** `npm run check` aprovado com 284 testes (192 existentes e 92 do servidor); `npm run test:server` aprovado com 17 testes de integração contra `wrangler dev`, repetidos três vezes sem falhas; `wrangler deploy --dry-run` gerou um bundle de 35 KiB sem publicar. E2E do single-player: 30 testes aprovados em Chromium desktop e Pixel 7 emulado. Firefox e WebKit não foram executados localmente porque o ambiente temporário das fases anteriores não existia mais (navegadores, bibliotecas e áudio virtual); a CI executa os quatro perfis. Nada foi publicado na Cloudflare.
+
+## Multiplayer — frontend
+
+Autorizado em 03/11/2026 na mesma branch, sem PR, merge ou publicação.
+
+| Etapa                             | Entrega                                                                                                                           | Estado    |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1 — Cliente e controlador         | `VITE_MULTIPLAYER_URL`, tipos do protocolo compartilhados, conexão com ping, convite e controlador com política de interrupção    | Concluída |
+| 2 — Telas                         | Cartão na inicial, entrada, lobby, prontidão, jogo, espera, resultados, ranking e saída, reaproveitando os componentes existentes | Concluída |
+| 3 — E2E e validação visual        | Worker local no Playwright, partidas completas com vários navegadores, capturas desktop/mobile e correções                        | Concluída |
+| 4 — Acessibilidade e documentação | Revisão de foco e anúncios, axe, reflow, roteiro manual e documentos                                                              | Concluída |
+
+Verificações e limites em `multiplayer-report.md`.

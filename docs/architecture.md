@@ -236,3 +236,22 @@ Cada voz tem passa-baixas, WaveShaper, passa-baixas pós-saturação e compresso
 - Entradas recusadas usam um WebSocket efêmero, fora da hibernação, para entregar o erro e o fechamento 4000 imediatamente.
 - `server/tsconfig.json` usa os tipos do Workers sem DOM; `server/integration/tsconfig.json` usa tipos do Node. Ambos entram em `tsc -b`. Testes unitários do servidor rodam no Vitest do projeto; `npm run test:server` sobe `wrangler dev` e exercita o protocolo com WebSockets reais.
 - Dependências novas apenas de desenvolvimento: `wrangler` e `@cloudflare/workers-types`. O Worker não tem dependências de produção além do código do repositório.
+
+## Frontend multiplayer — 03/11/2026
+
+| Parte                                      | Responsabilidade                                                                                         |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `src/multiplayer/config.ts`                | Única leitura tipada de `VITE_MULTIPLAYER_URL` (`ws:`/`wss:`)                                            |
+| `src/multiplayer/protocol.ts`              | Reexporta tipos, códigos e normalizadores de `server/src`; valida a forma das mensagens recebidas        |
+| `src/multiplayer/RoomConnection.ts`        | WebSocket de uma sessão, ping de presença, sem reconexão; silencia eventos após fechar                   |
+| `src/application/MultiplayerController.ts` | Estado espelhado da sala, comandos, anúncios e execução local do round com o `AudioPort`                 |
+| `src/app/MultiplayerApp.tsx`               | Composição das telas, foco, fragmento `#sala=` e cabeçalho                                               |
+| `src/ui/multiplayer/`                      | Apresentação: entrada, lobby, prontidão, espera, resultados, ranking, saída e componentes compartilhados |
+
+O `App` alterna entre o jogo individual e o `MultiplayerApp`; cada um tem seu controlador e sua engine de áudio, criados sob demanda. O multiplayer não usa o `gameReducer`, pois o cliente recebe um round por vez, mas reaproveita as funções do domínio para posições do slider e as regras/configurações vindas do servidor. Não há cálculo de notas, médias ou ranking no cliente.
+
+O controlador guarda a etapa local (`preparing`, `blocked`, `countdown`, `references`, `attempt`, `paused`, `sending`, `submitted`, `forfeited`) com um identificador de execução que protege confirmações repetidas e callbacks de áudio antigos. Mensagens de sala com versão igual ou menor que a atual são descartadas; uma conexão encerrada não entrega eventos.
+
+Componentes existentes ganharam apenas props opcionais (`SessionHeader.title/exitAction`, `ModeSelector.disabled/description`, `HomeScreen.multiplayer`) e ícones novos; o DOM do single-player permanece igual. Estilos ficam em `multiplayer.css`, carregado depois de `results.css`, com os mesmos tokens e breakpoints.
+
+O Playwright sobe o Worker local (porta 8797) e um build de preview com `VITE_MULTIPLAYER_URL` apontando para ele; os cenários multiplayer usam vários contextos de navegador.

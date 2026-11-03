@@ -59,8 +59,11 @@
 
 - Backend em `server/` com Cloudflare Workers, Durable Objects e WebSocket nativo, no plano gratuito. Regras em `docs/functional-spec.md`, contrato em `docs/multiplayer-protocol.md` e guia em `server/README.md`.
 - Trabalhar na branch `feat/multiplayer-backend`. Não abrir PR até o frontend multiplayer estar pronto; o merge depende da aprovação do usuário após testes.
-- Telas, componentes, hooks, controladores e integração multiplayer no frontend exigem nova autorização, assim como a publicação na conta Cloudflare.
+- O frontend multiplayer foi autorizado e concluído em 03/11/2026 na mesma branch (`docs/multiplayer-report.md`). Publicação na Cloudflare/Vercel, PR e merge exigem nova autorização.
 - O servidor é autoritativo e reutiliza `src/domain`; não duplicar regras de pontuação nem alterar o single-player por causa do multiplayer.
 - Política simples: sem reconexão, sem tolerância e sem limite de tempo; remoção imediata ao detectar saída ou fechamento; host pode remover participantes.
 - Credenciais da Cloudflare só em `server/.env` (ignorado) ou via `wrangler login`. `server/.env.example` é versionado sem valores reais.
 - Antes de concluir mudanças no servidor, executar `npm run check` e `npm run test:server`.
+- O cliente não calcula notas, médias ou ranking; mantém a política de interrupção multiplayer documentada: sem penalidade antes da referência e durante o ajuste (tentativa suspensa), round perdido durante a referência.
+- `VITE_MULTIPLAYER_URL` é a única configuração do frontend multiplayer; nunca coloque segredos em variáveis `VITE_`. `.env.local` não é versionado.
+- Mudanças de interface multiplayer exigem `npm run check` e `npm run test:e2e`, que sobe o Worker local e usa vários navegadores.

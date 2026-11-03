@@ -48,6 +48,10 @@ node -e "const ws=new WebSocket('ws://127.0.0.1:8787/rooms?name=Ana',{headers:{O
 
 Para outras origens locais, edite `ALLOWED_ORIGINS` em `wrangler.jsonc` ou crie `server/.dev.vars` (ignorado) com `ALLOWED_ORIGINS=...`.
 
+## Usar com o frontend local
+
+Copie `.env.example` (raiz) para `.env.local`, mantendo `VITE_MULTIPLAYER_URL=ws://127.0.0.1:8787`, e rode `npm run server:dev` e `npm run dev`. As origens `http://127.0.0.1:5173` e `http://localhost:5173` já são permitidas. A suíte E2E sobe sua própria instância na porta 8797 e um build de preview que aponta para ela.
+
 ## Testes
 
 ```sh
@@ -67,7 +71,7 @@ A integração usa storage temporário e encurta a verificação de inatividade 
 3. Confira `ALLOWED_ORIGINS` em `wrangler.jsonc`. Ela já inclui `https://memofreq.vercel.app`. Previews da Vercel usam outros domínios e precisam ser acrescentados explicitamente.
 4. Valide sem publicar: `npx wrangler deploy --dry-run --cwd server`.
 5. Publique: `npm run server:deploy`. O Worker fica em `https://memofreq-multiplayer.<subdomínio>.workers.dev`. Confira em `/health`.
-6. No frontend multiplayer (etapa futura), a URL será configurada por variável de ambiente da Vercel, por exemplo `VITE_MULTIPLAYER_URL=wss://memofreq-multiplayer.<subdomínio>.workers.dev`.
+6. Configure no projeto da Vercel `VITE_MULTIPLAYER_URL=wss://memofreq-multiplayer.<subdomínio>.workers.dev` e gere um novo deploy do frontend; a variável é lida no build.
 
 Limites do plano gratuito consultados em 03/11/2026: 100 mil requisições por dia, 13.000 GB-s de duração por dia, 5 GB de storage SQLite, contadores zerados às 00:00 UTC e operações recusadas ao exceder. Mensagens WebSocket recebidas contam na proporção 20:1, e o ping respondido automaticamente não acorda a sala. A documentação de alarms não informa restrição de plano; confirme no primeiro deploy.
 
