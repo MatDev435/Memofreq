@@ -9,6 +9,9 @@
     },
     {
       "path": "./server/tsconfig.json"
+    },
+    {
+      "path": "./server/integration/tsconfig.json"
     }
   ]
 }

@@ -20,7 +20,10 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:e2e": "playwright test",
-    "check": "npm run lint && npm run format:check && npm run test:run && npm run build"
+    "test:server": "vitest run --config server/integration/vitest.config.ts",
+    "check": "npm run lint && npm run format:check && npm run test:run && npm run build",
+    "server:dev": "wrangler dev --cwd server --ip 127.0.0.1 --port 8787",
+    "server:deploy": "wrangler deploy --cwd server"
   },
   "dependencies": {
     "react": "19.3.1",

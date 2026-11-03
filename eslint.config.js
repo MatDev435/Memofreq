@@ -15,6 +15,7 @@ export default defineConfig([
     '.agents',
     '.codex',
     '.aws',
+    '**/.wrangler',
   ]),
   {
     files: ['**/*.{ts,tsx}'],
