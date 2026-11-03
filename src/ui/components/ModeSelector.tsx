@@ -6,11 +6,16 @@ export function ModeSelector({
   frequencyCount,
   onMode,
   onFrequencyCount,
+  disabled = false,
+  description = 'Escolha o nível de dificuldade que mais combina com você.',
 }: {
   readonly mode: ModeSelection['mode'];
   readonly frequencyCount: 2 | 3;
   readonly onMode: (mode: ModeSelection['mode']) => void;
   readonly onFrequencyCount: (count: 2 | 3) => void;
+  /** Somente leitura, por exemplo para quem não é host. */
+  readonly disabled?: boolean;
+  readonly description?: string;
 }) {
   return (
     <section className="mode-section" aria-labelledby="mode-heading">
@@ -19,10 +24,10 @@ export function ModeSelector({
           <Icon name="gamepad" />
           Modo de jogo
         </h2>
-        <p>Escolha o nível de dificuldade que mais combina com você.</p>
+        <p>{description}</p>
       </div>
       <div className="mode-layout">
-        <fieldset className="mode-selection">
+        <fieldset className="mode-selection" disabled={disabled}>
           <legend className="sr-only">Modo de jogo</legend>
           {(
             [
@@ -99,7 +104,7 @@ export function ModeSelector({
         </fieldset>
         <fieldset
           className="frequency-selection"
-          disabled={mode !== 'extreme'}
+          disabled={disabled || mode !== 'extreme'}
           aria-describedby="frequency-note"
         >
           <legend className="sr-only">Referências por round</legend>

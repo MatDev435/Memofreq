@@ -13,15 +13,45 @@ import { RoundSummary } from '../ui/components/RoundSummary';
 import { FinalScreen } from '../ui/screens/FinalScreen';
 import { SessionHeader } from '../ui/components/SessionHeader';
 import { PlayingScreen } from '../ui/screens/PlayingScreen';
-import { createBrowserGameController } from './createGameController';
+import { MultiplayerCard } from '../ui/multiplayer/MultiplayerCard';
+import type { MultiplayerController } from '../application/MultiplayerController';
+import { MULTIPLAYER_URL } from '../multiplayer/config';
+import { readInviteCode } from '../multiplayer/invite';
+import {
+  createBrowserGameController,
+  createBrowserMultiplayerController,
+} from './createGameController';
+import { MultiplayerApp } from './MultiplayerApp';
+
+function clearInviteHash(): void {
+  if (window.location.hash === '') return;
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.pathname}${window.location.search}`,
+  );
+}
 
 export function App({
   createController = createBrowserGameController,
+  createMultiplayerController = createBrowserMultiplayerController,
+  multiplayerAvailable = MULTIPLAYER_URL !== null,
 }: {
   readonly createController?: () => GameController;
+  readonly createMultiplayerController?: (
+    volume: number,
+  ) => MultiplayerController;
+  readonly multiplayerAvailable?: boolean;
 }) {
   const [controller] = useState(() => createController());
   const [motionPaused, setMotionPaused] = useState(false);
+  // Um link de convite (#sala=…) abre diretamente a entrada multiplayer.
+  const [inviteCode, setInviteCode] = useState(() =>
+    readInviteCode(window.location.hash),
+  );
+  const [multiplayer, setMultiplayer] = useState(() => inviteCode !== null);
+  const multiplayerButton = useRef<HTMLButtonElement>(null);
+  const returnedFromMultiplayer = useRef(false);
   const [mode, setMode] = useState<ModeSelection['mode']>('normal');
   const [frequencyCount, setFrequencyCount] = useState<2 | 3>(2);
   const snapshot = useGameController(controller);
@@ -46,6 +76,28 @@ export function App({
   const resume = useRef<HTMLButtonElement>(null);
   const finalTitle = useRef<HTMLHeadingElement>(null);
   const lastFocusedPhase = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (multiplayer) return;
+    if (returnedFromMultiplayer.current) {
+      returnedFromMultiplayer.current = false;
+      multiplayerButton.current?.focus();
+    }
+  }, [multiplayer]);
+
+  useEffect(() => {
+    // Um convite aberto com o jogo inicial na tela leva à entrada multiplayer.
+    const onHash = () => {
+      const code = readInviteCode(window.location.hash);
+      if (code === null || multiplayer || game.phase !== 'home') return;
+      setInviteCode(code);
+      setMultiplayer(true);
+    };
+    window.addEventListener('hashchange', onHash);
+    return () => {
+      window.removeEventListener('hashchange', onHash);
+    };
+  }, [multiplayer, game.phase]);
 
   useEffect(() => {
     if (busy || !game.pageVisible || game.phase === lastFocusedPhase.current)
@@ -104,6 +156,39 @@ export function App({
       <Icon name="arrow" className="button-arrow" />
     </button>
   );
+  if (multiplayer)
+    return (
+      <div
+        className="app-shell is-game is-multiplayer"
+        data-motion={motionPaused ? 'paused' : 'full'}
+      >
+        <div className="ambient-background" aria-hidden="true">
+          <WaveArt variant="mesh" />
+        </div>
+        <a className="skip-link" href="#conteudo">
+          Ir para o conteúdo
+        </a>
+        <main id="conteudo" tabIndex={-1} className="session-main mp-main">
+          <MultiplayerApp
+            createController={createMultiplayerController}
+            initialVolume={snapshot.volume}
+            inviteCode={inviteCode}
+            motionPaused={motionPaused}
+            onMotion={() => {
+              setMotionPaused(!motionPaused);
+            }}
+            onExit={() => {
+              clearInviteHash();
+              setInviteCode(null);
+              returnedFromMultiplayer.current = true;
+              setMultiplayer(false);
+            }}
+          />
+        </main>
+        <footer>Um desafio para os seus ouvidos.</footer>
+      </div>
+    );
+
   return (
     <div
       className={`app-shell ${home ? 'is-home' : 'is-game'}`}
@@ -178,6 +263,16 @@ export function App({
                 mode === 'extreme' ? { mode, frequencyCount } : { mode },
               );
             }}
+            multiplayer={
+              <MultiplayerCard
+                available={multiplayerAvailable}
+                buttonRef={multiplayerButton}
+                onOpen={() => {
+                  setInviteCode(null);
+                  setMultiplayer(true);
+                }}
+              />
+            }
           />
         ) : game.phase === 'final-result' ? (
           <FinalScreen
