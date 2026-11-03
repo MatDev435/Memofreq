@@ -4,13 +4,11 @@ import { Icon } from '../components/Icon';
 /** Round aguardando início ou tentativa suspensa; nunca repete a referência. */
 export function RoundPausedCard({
   kind,
-  visible,
   resumeRef,
   onResume,
   onForfeit,
 }: {
   readonly kind: 'blocked' | 'paused';
-  readonly visible: boolean;
   readonly resumeRef: Ref<HTMLButtonElement>;
   readonly onResume: () => void;
   readonly onForfeit: () => void;
@@ -32,7 +30,6 @@ export function RoundPausedCard({
           ref={resumeRef}
           className="primary"
           type="button"
-          disabled={!visible}
           onClick={onResume}
         >
           <Icon name="play" />

@@ -228,7 +228,6 @@
 }
 .mp-invite-row > button {
   min-height: 48px;
-  white-space: nowrap;
 }
 .mp-copy-status {
   min-height: 1.4em;
@@ -653,6 +652,7 @@ button.primary[aria-disabled='true']:hover {
   .multiplayer-card > button {
     grid-column: 1 / -1;
     width: 100%;
+    white-space: normal;
   }
 }
 @media (max-width: 800px) {

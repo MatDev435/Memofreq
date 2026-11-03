@@ -869,7 +869,12 @@ export class MultiplayerController {
   private setPlay(play: RoundPlay): number {
     if (play.stage !== 'countdown') this.clearTimer();
     const execution = this.snapshot.execution + 1;
-    this.update({ play, execution });
+    // A região viva fica vazia enquanto houver som de jogo.
+    this.update(
+      SOUND_STAGES.has(play.stage)
+        ? { play, execution, announcement: '' }
+        : { play, execution },
+    );
     return execution;
   }
 

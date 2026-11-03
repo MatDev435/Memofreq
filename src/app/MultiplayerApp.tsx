@@ -246,7 +246,6 @@ export function MultiplayerApp({
         paused={
           <RoundPausedCard
             kind={play.stage === 'paused' ? 'paused' : 'blocked'}
-            visible={snapshot.pageVisible}
             resumeRef={resumeRef}
             onResume={controller.resumeRound}
             onForfeit={controller.forfeitRound}
