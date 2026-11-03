@@ -24,6 +24,9 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run check
+      - run: npm run test:server
+        env:
+          WRANGLER_SEND_METRICS: 'false'
       - run: npx playwright install --with-deps chromium firefox webkit
       - name: Preparar saída de áudio virtual
         run: |

@@ -172,3 +172,20 @@ Reduzir a altura ocupada nas quatro telas, priorizando o acesso à confirmação
 ## Timbre e faixa base — 28/10/2026
 
 A frequência base do jogo passa a 80–700 Hz, com versão de regras 2; sorteios, slider e pontuação continuam usando a base na escala logarítmica. Os componentes 0,5×/1×/1,5×/2×/3×/4×/5×/6× têm ganhos 28%/0%/0%/44%/24%/12%/7%/0%. Os parciais não redefinem os limites da base. Passa-baixas de 1000 Hz (Q 0,1), saturação de 9%, passa-baixas pós-saturação de 9000 Hz, compressor, normalização e saída de 15% seguem `audio-engine.md`. O controle de volume existente continua multiplicando esse ganho de saída, sem mudança de interface. Nenhuma outra regra ou duração de referência/intervalo foi alterada.
+
+## Multiplayer — backend autorizado em 03/11/2026
+
+O usuário autorizou o backend multiplayer em Cloudflare Workers com Durable Objects, sem telas nesta etapa. O single-player permanece inalterado; as regras abaixo valem somente para salas multiplayer. Protocolo: `multiplayer-protocol.md`.
+
+- **Salas:** privadas, temporárias, sem contas e com no máximo oito participantes. Quem cria informa um apelido e vira host. O código de dez caracteres é o convite. Apelidos equivalentes não podem se repetir na sala. Uma sala pode ter um único participante.
+- **Entradas:** só no lobby. Durante a partida e no resultado final, novas entradas são recusadas. O mesmo código volta a aceitar participantes quando a sala retorna ao lobby.
+- **Host:** escolhe Normal, Hard ou Extreme com duas ou três frequências, inicia a partida, remove participantes e pede Jogar novamente após o resultado final. Se sair, o participante mais antigo restante assume.
+- **Partida:** preserva cinco rounds, alvos, posições iniciais com 300 cents, faixa, tempos dos modos e pontuação em cents. O servidor gera os mesmos alvos e posições iniciais para todos, valida cada palpite em ordem, recusa duplicados e calcula notas, médias e totais com o domínio existente.
+- **Sincronização:** após o início, todos confirmam prontidão e o round é liberado. Cada participante responde individualmente e aguarda os demais. Quando todos os participantes atuais concluem, o servidor revela alvos, palpites e notas de todos. Nova prontidão libera o round seguinte. Após o quinto round, a sala apresenta o ranking final.
+- **Visibilidade:** rounds futuros e palpites alheios não são enviados antes do encerramento do round. O alvo do round vigente precisa chegar ao navegador para ser sintetizado; o usuário aceitou que ele possa ser inspecionado.
+- **Interrupção multiplayer:** o cliente pode informar que perdeu o round por interrupção local. O round vale zero, palpites parciais são descartados e a partida continua.
+- **Ranking:** soma dos cinco rounds (0 a 50) dos participantes que permaneceram. Empates exatos na precisão interna compartilham a posição (1, 1, 3); a ordem dentro do empate segue a entrada na sala.
+- **Saídas e desconexões:** saída voluntária, fechamento do WebSocket, remoção pelo host ou conexão silenciosa removem o participante imediatamente, sem tolerância de reconexão nem recuperação após recarregar. Seus dados saem dos resultados seguintes e do ranking, e as condições de avanço são reavaliadas. Com um único participante restante, a partida continua.
+- **Jogadores parados:** não há limite de tempo; o host pode removê-los.
+- **Ciclo de vida:** a sala permanece após o resultado final. Jogar novamente descarta a partida, volta ao lobby, permite trocar o modo e reabre as entradas, indefinidamente. A sala é encerrada e o código invalidado quando o último participante sai.
+- A acessibilidade das futuras telas multiplayer seguirá a seção 9 e `accessibility.md`, na etapa do frontend.

@@ -49,6 +49,10 @@ Interface responsiva para desktop e mobile, com navegação por teclado, foco vi
 
 Construído com **React**, **TypeScript**, **Vite** e **Web Audio API**, que gera os tons diretamente no navegador.
 
+## Multiplayer em desenvolvimento
+
+O backend das salas multiplayer (Cloudflare Workers e Durable Objects) está em [`server/`](server/README.md), com protocolo documentado em [`docs/multiplayer-protocol.md`](docs/multiplayer-protocol.md). As telas multiplayer ainda não foram implementadas.
+
 ---
 
 Conceito inspirado no [Dialed Sound](https://dialed.gg/sound), com identidade visual e implementação próprias.

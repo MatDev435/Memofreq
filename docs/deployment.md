@@ -47,3 +47,7 @@ A preparação temporária específica deste ambiente Linux, sem instalação de
 A Fase 6 valida tecnicamente o artefato estático e sua execução local em uma subpasta. Nenhum provedor, domínio, credencial de hospedagem ou publicação remota foi configurado. O repositório GitHub permanece privado; o envio de código e a execução da CI não publicam o jogo.
 
 Uma publicação futura deverá registrar host, URL, HTTPS e verificação do build servido. O acabamento visual definitivo continua uma etapa própria.
+
+## Backend multiplayer — 03/11/2026
+
+O frontend continua estático. O backend multiplayer, quando publicado, é um Worker separado na Cloudflare, configurado em `server/wrangler.jsonc` e publicado com `npm run server:deploy`. Passos, autenticação sem expor credenciais (`wrangler login` ou `server/.env` ignorado pelo Git) e limites do plano gratuito estão em `server/README.md`. Nesta etapa nada foi publicado: nenhuma conta, token ou URL de backend foi configurado. A origem `https://memofreq.vercel.app` consta como permitida conforme a página do repositório no GitHub.

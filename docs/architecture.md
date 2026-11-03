@@ -216,3 +216,23 @@ A atualização altera apenas os três arquivos CSS de apresentação: reduz esp
 `Voice` agrupa cinco parciais ativos, cada um com oscilador e ganho, e mantém uma rampa de frequência base. O mesmo instante e duração de rampa são aplicados a todos os parciais com seus respectivos multiplicadores. A frequência base é validada na faixa injetada e todos os componentes devem ficar abaixo de Nyquist. Parciais de ganho zero não criam nós.
 
 Cada voz tem passa-baixas, WaveShaper, passa-baixas pós-saturação e compressor próprios. O envelope fica depois do DSP para garantir silêncio nos intervalos e no fim da reprodução, inclusive com memória dos filtros/compressor. A curva de saturação é pré-calculada uma vez; não há processamento por amostra no JavaScript nem nova dependência. A engine registra cada nó antes de configurá-lo e resolve a reprodução somente após todos os parciais terminarem e todos os nós da voz serem desconectados. Falhas parciais, cancelamento, descarte e identificação de execuções preservam o contrato anterior. Os controles visuais e a coordenação da aplicação permanecem inalterados.
+
+## Backend multiplayer — 03/11/2026
+
+`server/` contém um Worker da Cloudflare e um Durable Object por sala, sem alterar a SPA ou o single-player. A Vercel continua servindo o frontend estático; o backend é publicado separadamente com Wrangler. Guia: `server/README.md`; contrato: `multiplayer-protocol.md`.
+
+| Parte                    | Responsabilidade                                                        | Dependências permitidas                     |
+| ------------------------ | ----------------------------------------------------------------------- | ------------------------------------------- |
+| `server/src/room`        | Estado da sala, transições, visão pública e ranking, de forma pura      | `src/domain` e tipos do protocolo           |
+| `server/src/protocol.ts` | Mensagens, códigos de erro e validação da entrada                       | Tipos do domínio e da sala                  |
+| `server/src/RoomObject`  | WebSocket com hibernação, storage de uma chave, alarm, limites          | Runtime Workers e camadas puras do servidor |
+| `server/src/index.ts`    | `/health`, rotas de criação/entrada, `Origin`, códigos e encaminhamento | Runtime Workers                             |
+
+- A máquina de estados da sala não usa rede, relógio nem storage; recebe a fonte aleatória por argumento, como o domínio. Ela importa `createGameDefinition`, `generateInitialFrequency`, `isFrequencyInRange`, `evaluateAttempt`, `meanScore` e `totalScore`, evitando regras paralelas.
+- O Durable Object é a única autoridade da sala e processa um evento por vez. O estado completo é serializável e fica na chave `room` do storage SQLite para sobreviver à hibernação; cada WebSocket guarda apenas ID do participante e último sinal. A sala apaga storage e alarm quando fica vazia.
+- Fechamento, erro de WebSocket, saída, remoção, inatividade e limite de mensagens convergem para a mesma remoção idempotente, que transfere o host e reavalia prontidão e conclusão do round.
+- Conexões mortas: o cliente envia `ping` a cada 25 s, respondido pelo runtime sem acordar a sala. Um alarm a cada 30 s remove conexões sem sinal há mais de 75 s. Não há tolerância de reconexão.
+- Ao acordar após reinício, participantes sem WebSocket ativo são removidos. Não há recuperação de partidas.
+- Entradas recusadas usam um WebSocket efêmero, fora da hibernação, para entregar o erro e o fechamento 4000 imediatamente.
+- `server/tsconfig.json` usa os tipos do Workers sem DOM; `server/integration/tsconfig.json` usa tipos do Node. Ambos entram em `tsc -b`. Testes unitários do servidor rodam no Vitest do projeto; `npm run test:server` sobe `wrangler dev` e exercita o protocolo com WebSockets reais.
+- Dependências novas apenas de desenvolvimento: `wrangler` e `@cloudflare/workers-types`. O Worker não tem dependências de produção além do código do repositório.
