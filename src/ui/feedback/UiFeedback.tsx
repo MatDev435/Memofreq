@@ -8,6 +8,7 @@ import {
   useUiFeedback,
 } from './uiFeedbackContext';
 import type { UiFeedback } from './uiFeedbackContext';
+import { vibrate } from './haptics';
 
 export const UI_SOUNDS_STORAGE_KEY = 'memofreq:ui-sounds';
 const BACK_SELECTOR =
@@ -167,19 +168,25 @@ export function UiFeedbackProvider({
   }, [sounds]);
   const countdownTick = useCallback(
     (final: boolean) => {
-      if (enabled.current) sounds.play(final ? 'tick-final' : 'tick');
+      if (!enabled.current) return;
+      sounds.play(final ? 'tick-final' : 'tick');
+      vibrate(final ? 'tick-final' : 'tick');
     },
     [sounds],
   );
   const roundResult = useCallback(
     (ratio: number) => {
-      if (enabled.current) sounds.playResult(ratio);
+      if (!enabled.current) return;
+      sounds.playResult(ratio);
+      vibrate('result');
     },
     [sounds],
   );
   const finalResult = useCallback(
     (ratio: number) => {
-      if (enabled.current) sounds.playFinal(ratio);
+      if (!enabled.current) return;
+      sounds.playFinal(ratio);
+      vibrate('final');
     },
     [sounds],
   );

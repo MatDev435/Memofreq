@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { UiSounds } from '../../audio/UiSounds';
 import type { UiSound } from '../../audio/UiSounds';
 import { SoundToggle } from '../components/SoundToggle';
@@ -63,7 +63,7 @@ describe('Efeitos sonoros da interface', () => {
   it('vêm ligados por padrão e diferenciam confirmar e voltar', () => {
     const { sounds } = setup(false);
     expect(
-      screen.getByRole('button', { name: 'Efeitos sonoros' }),
+      screen.getByRole('button', { name: 'Efeitos sonoros e vibração' }),
     ).toHaveAttribute('aria-pressed', 'true');
     fireEvent.click(screen.getByRole('button', { name: 'Iniciar' }));
     fireEvent.click(screen.getByRole('button', { name: 'Sair' }));
@@ -80,7 +80,9 @@ describe('Efeitos sonoros da interface', () => {
   it('guardam a preferência e silenciam tudo quando desligados', () => {
     const { sounds, view } = setup(false);
     act(() => {
-      screen.getByRole('button', { name: 'Efeitos sonoros' }).click();
+      screen
+        .getByRole('button', { name: 'Efeitos sonoros e vibração' })
+        .click();
     });
     expect(window.localStorage.getItem(UI_SOUNDS_STORAGE_KEY)).toBe('off');
     sounds.played.length = 0;
@@ -90,7 +92,7 @@ describe('Efeitos sonoros da interface', () => {
     view.unmount();
     setup(false);
     expect(
-      screen.getByRole('button', { name: 'Efeitos sonoros' }),
+      screen.getByRole('button', { name: 'Efeitos sonoros e vibração' }),
     ).toHaveAttribute('aria-pressed', 'false');
   });
 
@@ -101,5 +103,28 @@ describe('Efeitos sonoros da interface', () => {
       sounds.playResult(1);
       sounds.playFinal(0.2);
     }).not.toThrow();
+  });
+
+  it('vibram na contagem quando ligados e respeitam o botão', () => {
+    const vibrate = vi.fn(() => true);
+    Object.defineProperty(navigator, 'vibrate', {
+      configurable: true,
+      value: vibrate,
+    });
+    try {
+      setup(false);
+      fireEvent.pointerDown(screen.getByTestId('tick'));
+      expect(vibrate).toHaveBeenCalledWith(25);
+      act(() => {
+        screen
+          .getByRole('button', { name: 'Efeitos sonoros e vibração' })
+          .click();
+      });
+      vibrate.mockClear();
+      fireEvent.pointerDown(screen.getByTestId('tick'));
+      expect(vibrate).not.toHaveBeenCalled();
+    } finally {
+      Reflect.deleteProperty(navigator, 'vibrate');
+    }
   });
 });
