@@ -261,3 +261,11 @@ O Playwright sobe o Worker local (porta 8797) e um build de preview com `VITE_MU
 - `src/audio/UiSounds.ts` sintetiza os efeitos em um `AudioContext` próprio, criado no primeiro som, sem arquivos nem dependências. A engine dos tons do jogo não foi alterada.
 - `src/ui/feedback/` contém o provedor (delegação de `pointerover`/`focusin`/`click`/`change` no documento), a preferência persistida, o portão de silêncio (`QuietUi`/`useQuietUi`), `ResultCue` e `useCountUp`. O `App` silencia nas fases `countdown`, `references`, `attempt` e `attempt-result`; o `MultiplayerApp` silencia durante o round, exceto em pausa ou bloqueio.
 - Os testes E2E que medem contextos e osciladores da engine desligam os efeitos por `localStorage`; o comportamento dos efeitos é coberto em `src/ui/feedback/UiFeedback.test.tsx`.
+
+## Régua, recorde e escuta comparativa — 04/11/2026
+
+- `src/application/comparison.ts` define os tons e o intervalo da escuta. `GameController.playComparison/stopComparison` só atuam em `round-result`; `advance`, `leave` e a ocultação da página cancelam a escuta antes de qualquer contagem. `MultiplayerController` faz o mesmo em `round-results` e cancela em qualquer mudança de fase ou de round recebida do servidor (`applyRoom`), antes de `syncPlay` preparar a próxima referência. Um contador de operação impede que uma escuta pendente comece depois do cancelamento.
+- O snapshot expõe `comparison` (`roundIndex`, `attemptIndex`, `token`); `useComparisonPart` deriva, por tempo, qual marcador da régua destacar.
+- `src/ui/personalRecord.ts` lê e grava o recorde por modalidade e é idempotente por `gameId`, o que protege contra renderizações repetidas.
+- `src/ui/feedback/haptics.ts` encapsula `navigator.vibrate`.
+
