@@ -6,6 +6,7 @@ import { GameProgress } from '../components/GameProgress';
 import { Icon } from '../components/Icon';
 import { WaveArt } from '../components/WaveArt';
 import { ReadyPanel } from './ReadyPanel';
+import type { ComparisonControl } from '../components/useComparisonPart';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import { ResultCue } from '../feedback/UiFeedback';
 
@@ -87,6 +88,7 @@ export function RoundResultsScreen({
   headingRef,
   onReady,
   onKick,
+  comparison,
 }: {
   readonly room: RoomView;
   readonly me: string | null;
@@ -94,6 +96,8 @@ export function RoundResultsScreen({
   readonly headingRef: Ref<HTMLHeadingElement>;
   readonly onReady: () => void;
   readonly onKick: (id: string) => void;
+  readonly comparison?:
+    ((attemptIndex: number) => ComparisonControl) | undefined;
 }) {
   const results = room.match?.lastRound;
   if (!results) return null;
@@ -152,6 +156,7 @@ export function RoundResultsScreen({
               result={attempt}
               count={count}
               range={room.match?.rules.range}
+              comparison={comparison?.(attempt.attemptIndex)}
             />
           ))}
         </div>

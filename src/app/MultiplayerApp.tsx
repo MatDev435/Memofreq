@@ -201,6 +201,17 @@ export function MultiplayerApp({
         headingRef={headingRef}
         onReady={controller.ready}
         onKick={controller.kick}
+        comparison={(attemptIndex) => ({
+          playing:
+            snapshot.comparison?.attemptIndex === attemptIndex &&
+            snapshot.comparison.roundIndex === match?.lastRound?.roundIndex
+              ? snapshot.comparison.token
+              : null,
+          onPlay: () => {
+            controller.playComparison(attemptIndex);
+          },
+          onStop: controller.stopComparison,
+        })}
       />
     );
   } else if (room.phase === 'final') {

@@ -335,6 +335,17 @@ export function App({
             <RoundSummary
               round={completedRound}
               range={game.session.definition.rules.range}
+              comparison={(attemptIndex) => ({
+                playing:
+                  snapshot.comparison?.attemptIndex === attemptIndex &&
+                  snapshot.comparison.roundIndex === completedRound.roundIndex
+                    ? snapshot.comparison.token
+                    : null,
+                onPlay: () => {
+                  controller.playComparison(attemptIndex);
+                },
+                onStop: controller.stopComparison,
+              })}
               next={
                 <button
                   ref={next}

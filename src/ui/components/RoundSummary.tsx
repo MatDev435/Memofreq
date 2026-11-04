@@ -5,6 +5,7 @@ import type { FrequencyRange } from '../../domain/config';
 import type { RoundResult } from '../../domain/models';
 import { formatNumber } from '../format';
 import { AttemptResult } from './AttemptResult';
+import type { ComparisonControl } from './useComparisonPart';
 import { GameProgress } from './GameProgress';
 import { Icon } from './Icon';
 import { WaveArt } from './WaveArt';
@@ -13,10 +14,14 @@ export function RoundSummary({
   round,
   next,
   range,
+  comparison,
 }: {
   readonly round: RoundResult;
   readonly next?: ReactNode;
   readonly range?: FrequencyRange | undefined;
+  /** Controle da escuta comparativa de cada tentativa. */
+  readonly comparison?:
+    ((attemptIndex: number) => ComparisonControl) | undefined;
 }) {
   const multiple = round.attempts.length > 1;
   const scoreLabel = multiple ? 'Média do round' : 'Pontuação do round';
@@ -64,6 +69,7 @@ export function RoundSummary({
             result={attempt}
             count={round.attempts.length}
             range={range}
+            comparison={comparison?.(attempt.attemptIndex)}
           />
         ))}
       </div>

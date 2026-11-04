@@ -20,6 +20,8 @@ import {
 } from '../domain/gameReducer';
 import type { EventContext, GameAction, GameState } from '../domain/models';
 import type { AudioInterruption, AudioPlayback, AudioPort } from './audioPort';
+import { COMPARISON_GAP_SECONDS, comparisonTones } from './comparison';
+import type { ComparisonState } from './comparison';
 
 export interface GameSnapshot {
   readonly game: GameState;
@@ -29,6 +31,8 @@ export interface GameSnapshot {
   readonly countdown: number | null;
   readonly error: string | null;
   readonly announcement: string;
+  /** Escuta comparativa em andamento na tela de resultado do round. */
+  readonly comparison: ComparisonState | null;
 }
 
 export interface GameControllerOptions {
@@ -52,8 +56,9 @@ export class GameController {
   private audioVersion = 0;
   private playback: {
     readonly handle: AudioPlayback;
-    readonly kind: 'sample' | 'reference' | 'attempt';
+    readonly kind: 'sample' | 'reference' | 'attempt' | 'comparison';
   } | null = null;
+  private comparisonToken = 0;
   private silence: Promise<void> = Promise.resolve();
   private timer: ReturnType<typeof setTimeout> | null = null;
   private active = false;
@@ -69,6 +74,7 @@ export class GameController {
       busy: false,
       sample: 'idle',
       countdown: null,
+      comparison: null,
       error: null,
       announcement: '',
     });
@@ -307,8 +313,71 @@ export class GameController {
     }
   };
 
+  /** Toca o alvo e depois o palpite de uma tentativa do round concluído. */
+  readonly playComparison = (attemptIndex: number): void => {
+    const game = this.snapshot.game;
+    if (!this.canAct() || game.phase !== 'round-result') return;
+    const round = game.session.completedRounds[game.session.roundIndex];
+    const attempt = round?.attempts[attemptIndex];
+    if (!round || !attempt) return;
+    const operation = ++this.operation;
+    const context = getEventContext(game);
+    const previous = this.playback;
+    this.playback = null;
+    const stopped = previous
+      ? previous.handle.cancel().then(() => undefined)
+      : this.silence;
+    try {
+      const audio = this.getAudio();
+      const enabled = this.enableAudio();
+      void Promise.all([enabled, stopped])
+        .then(() => {
+          if (
+            !this.currentOperation(operation) ||
+            !this.visibleMatch(context) ||
+            this.snapshot.game.phase !== 'round-result'
+          )
+            return;
+          const handle = audio.playSequence(
+            comparisonTones(attempt.targetHz, attempt.playerHz),
+            COMPARISON_GAP_SECONDS,
+          );
+          this.playback = { handle, kind: 'comparison' };
+          this.update({
+            error: null,
+            comparison: {
+              roundIndex: round.roundIndex,
+              attemptIndex,
+              token: ++this.comparisonToken,
+            },
+          });
+          return handle.finished.then(() => {
+            if (this.playback?.handle.id === handle.id) this.playback = null;
+            if (this.currentOperation(operation))
+              this.update({ comparison: null });
+          });
+        })
+        .catch(() => {
+          if (this.currentOperation(operation))
+            this.update({ comparison: null });
+        });
+    } catch {
+      this.update({ comparison: null });
+    }
+  };
+
+  readonly stopComparison = (): void => {
+    if (!this.active || this.snapshot.comparison === null) return;
+    this.operation += 1;
+    if (this.playback?.kind === 'comparison') void this.quiet();
+    this.update({ comparison: null });
+  };
+
   readonly advance = (): void => {
     if (!this.canAct()) return;
+    // A escuta comparativa nunca continua no round seguinte.
+    if (this.playback?.kind === 'comparison') void this.quiet();
+    if (this.snapshot.comparison !== null) this.update({ comparison: null });
     if (this.snapshot.game.phase === 'attempt-result')
       this.send({ type: 'COMPLETE_ROUND' });
     const game = this.snapshot.game;
@@ -359,6 +428,7 @@ export class GameController {
       busy: true,
       sample: 'idle',
       countdown: null,
+      comparison: null,
       error: null,
       announcement: '',
     });
@@ -375,8 +445,17 @@ export class GameController {
       this.playback?.kind === 'reference' && this.playback.handle.hasStarted();
     this.send({ type: 'VISIBILITY_CHANGED', visible, referenceStarted });
     if (visible) return;
-    if (this.snapshot.game.phase === 'home') this.operation += 1;
-    this.update({ countdown: null, announcement: '', sample: 'idle' });
+    if (
+      this.snapshot.game.phase === 'home' ||
+      this.snapshot.comparison !== null
+    )
+      this.operation += 1;
+    this.update({
+      countdown: null,
+      announcement: '',
+      sample: 'idle',
+      comparison: null,
+    });
     const context = getEventContext(this.snapshot.game);
     void this.quiet().then(() => {
       if (this.matches(context)) this.update({ busy: false });
@@ -517,6 +596,7 @@ export class GameController {
       busy: false,
       sample: 'idle',
       countdown: null,
+      comparison: null,
       error:
         'O áudio foi interrompido. Você pode habilitá-lo novamente para continuar ou iniciar outra partida.',
     });
@@ -551,6 +631,7 @@ export class GameController {
       busy: true,
       sample: 'idle',
       countdown: null,
+      comparison: null,
       announcement: '',
       error:
         'Não foi possível reproduzir o áudio. Tente habilitá-lo novamente.',

@@ -1388,3 +1388,33 @@
     margin: 0;
   }
 }
+
+/* Escuta comparativa: alvo e, em seguida, o palpite. */
+.comparison-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 12px;
+  margin: 4px 0 10px;
+}
+.comparison-button {
+  min-height: 40px;
+  padding: 8px 16px;
+  gap: 8px;
+  font-size: 0.875rem;
+  border-color: color-mix(in srgb, var(--attempt-accent, #ae58ff) 60%, #435577);
+}
+.comparison-button .icon {
+  width: 18px;
+  height: 18px;
+  color: var(--attempt-accent, #ae58ff);
+}
+.comparison-status {
+  color: #c3cff4;
+  font-size: 0.8125rem;
+}
+@media (max-width: 420px) {
+  .comparison-button {
+    flex: 1 1 100%;
+  }
+}

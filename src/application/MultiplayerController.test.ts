@@ -545,3 +545,93 @@ describe('round', () => {
     expect(setup.snapshot().announcement).toBe('Bia perdeu o round.');
   });
 });
+
+describe('escuta comparativa', () => {
+  async function toResults() {
+    const setup = fixture();
+    const room = new LocalRoom(['Ana', 'Bia']);
+    const socket = enter(setup, room, 'p1');
+    await startRound(setup, room, socket);
+    setup.audio.current()?.finish();
+    await flush();
+    const target = room.view().match?.currentRound?.references[0] ?? 300;
+    for (const id of ['p1', 'p2'])
+      room.run(id, {
+        type: 'submit-guess',
+        roundIndex: 0,
+        attemptIndex: 0,
+        frequencyHz: target,
+      });
+    socket.receive(room.message());
+    expect(setup.snapshot().room?.phase).toBe('round-results');
+    return { setup, room, socket, target };
+  }
+
+  it('toca o alvo e o próprio palpite na tela de resultados', async () => {
+    const { setup, target } = await toResults();
+    setup.controller.playComparison(0);
+    await flush();
+    const [tones] = setup.audio.playSequence.mock.calls.at(-1) ?? [];
+    expect(tones?.map((tone) => tone.frequencyHz)).toEqual([target, target]);
+    expect(setup.snapshot().comparison).toMatchObject({
+      roundIndex: 0,
+      attemptIndex: 0,
+    });
+    setup.audio.current()?.finish();
+    await flush();
+    expect(setup.snapshot().comparison).toBeNull();
+  });
+
+  it('cancela na hora quando o próximo round começa', async () => {
+    const { setup, room, socket } = await toResults();
+    setup.controller.playComparison(0);
+    await flush();
+    const comparison = setup.audio.current();
+    expect(comparison?.settled).toBe(false);
+    for (const player of room.state.players)
+      room.run(player.id, { type: 'ready' });
+    socket.receive(room.message());
+    expect(comparison?.settled).toBe(true);
+    expect(setup.snapshot().comparison).toBeNull();
+    await flush();
+    expect(setup.snapshot().play.stage).toBe('countdown');
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(setup.snapshot().play.stage).toBe('references');
+    expect(setup.audio.current()?.settled).toBe(false);
+  });
+
+  it('não começa se o round seguinte chegar antes de o áudio liberar', async () => {
+    const { setup, room, socket } = await toResults();
+    let release: () => void = () => undefined;
+    setup.audio.enable.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          release = resolve;
+        }),
+    );
+    const before = setup.audio.playSequence.mock.calls.length;
+    setup.controller.playComparison(0);
+    for (const player of room.state.players)
+      room.run(player.id, { type: 'ready' });
+    socket.receive(room.message());
+    release();
+    await flush();
+    expect(setup.audio.playSequence.mock.calls.length).toBe(before);
+    expect(setup.snapshot().comparison).toBeNull();
+  });
+
+  it('para ao ocultar a página e ao sair da sala', async () => {
+    const { setup } = await toResults();
+    setup.controller.playComparison(0);
+    await flush();
+    setup.hide();
+    expect(setup.audio.current()?.settled).toBe(true);
+    expect(setup.snapshot().comparison).toBeNull();
+    setup.show();
+    setup.controller.playComparison(0);
+    await flush();
+    setup.controller.leave();
+    expect(setup.audio.current()?.settled).toBe(true);
+    expect(setup.snapshot().comparison).toBeNull();
+  });
+});

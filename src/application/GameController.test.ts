@@ -580,3 +580,84 @@ describe('Interrupções e retomadas do Extreme', () => {
     await f.controller.dispose();
   });
 });
+
+describe('Escuta comparativa após o resultado', () => {
+  async function toRoundResult(f: ReturnType<typeof fixture>) {
+    await toAttempt(f);
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
+    await flush();
+    expect(f.controller.getSnapshot().game.phase).toBe('round-result');
+  }
+
+  it('toca o alvo e depois o palpite só na tela de resultado', async () => {
+    const f = fixture();
+    await toAttempt(f);
+    f.controller.playComparison(0);
+    await flush();
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+    f.controller.confirm(f.controller.getSnapshot().game.executionId);
+    await flush();
+    const game = f.controller.getSnapshot().game;
+    if (game.phase !== 'round-result') throw new Error('Resultado ausente.');
+    const attempt = game.session.completedRounds[0]?.attempts[0];
+    f.controller.playComparison(0);
+    await flush();
+    expect(f.audio.playSequence).toHaveBeenCalledTimes(1);
+    const [tones] = f.audio.playSequence.mock.calls[0] ?? [];
+    expect(tones?.map((tone) => tone.frequencyHz)).toEqual([
+      attempt?.targetHz,
+      attempt?.playerHz,
+    ]);
+    expect(f.controller.getSnapshot().comparison).toMatchObject({
+      roundIndex: 0,
+      attemptIndex: 0,
+    });
+    f.audio.current()?.finish();
+    await flush();
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+    expect(f.controller.getSnapshot().game.phase).toBe('round-result');
+    await f.controller.dispose();
+  });
+
+  it('cancela na hora ao avançar para o próximo round', async () => {
+    const f = fixture();
+    await toRoundResult(f);
+    f.controller.playComparison(0);
+    await flush();
+    const comparison = f.audio.current();
+    f.controller.advance();
+    expect(comparison?.settled).toBe(true);
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+    await flush();
+    expect(f.controller.getSnapshot().game.phase).toBe('countdown');
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(f.audio.playReference).toHaveBeenCalledTimes(2);
+    expect(f.audio.current()?.settled).toBe(false);
+    await f.controller.dispose();
+  });
+
+  it('para por comando, ao ocultar a página e ao sair', async () => {
+    const f = fixture();
+    await toRoundResult(f);
+    f.controller.playComparison(0);
+    await flush();
+    f.controller.stopComparison();
+    expect(f.audio.current()?.settled).toBe(true);
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+
+    f.controller.playComparison(0);
+    await flush();
+    f.hide();
+    expect(f.audio.current()?.settled).toBe(true);
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+    expect(f.controller.getSnapshot().game.phase).toBe('round-result');
+    f.show();
+
+    f.controller.playComparison(0);
+    await flush();
+    f.controller.leave();
+    expect(f.audio.current()?.settled).toBe(true);
+    expect(f.controller.getSnapshot().comparison).toBeNull();
+    await f.controller.dispose();
+  });
+});
