@@ -1,7 +1,8 @@
 import type { AttemptResult as AttemptData } from '../../domain/models';
 import { formatHz, formatNumber } from '../format';
 import { ScoreRing } from './ScoreRing';
-import { WaveArt } from './WaveArt';
+import type { FrequencyRange } from '../../domain/config';
+import { FrequencyRuler } from './FrequencyRuler';
 
 export function AttemptDetails({
   result,
@@ -40,9 +41,11 @@ export function AttemptDetails({
 export function AttemptResult({
   result,
   count = 1,
+  range,
 }: {
   readonly result: AttemptData;
   readonly count?: number;
+  readonly range?: FrequencyRange | undefined;
 }) {
   return (
     <section
@@ -56,7 +59,11 @@ export function AttemptResult({
         Frequência {result.attemptIndex + 1} de {count}
       </h3>
       <AttemptDetails result={result} multiple={count > 1} />
-      <WaveArt variant="mini" />
+      <FrequencyRuler
+        targetHz={result.targetHz}
+        playerHz={result.playerHz}
+        range={range}
+      />
     </section>
   );
 }

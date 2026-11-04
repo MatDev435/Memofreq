@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { ResultCue } from '../feedback/UiFeedback';
 import { AnimatedNumber } from './AnimatedNumber';
+import type { FrequencyRange } from '../../domain/config';
 import type { RoundResult } from '../../domain/models';
 import { formatNumber } from '../format';
 import { AttemptResult } from './AttemptResult';
@@ -11,9 +12,11 @@ import { WaveArt } from './WaveArt';
 export function RoundSummary({
   round,
   next,
+  range,
 }: {
   readonly round: RoundResult;
   readonly next?: ReactNode;
+  readonly range?: FrequencyRange | undefined;
 }) {
   const multiple = round.attempts.length > 1;
   const scoreLabel = multiple ? 'Média do round' : 'Pontuação do round';
@@ -60,6 +63,7 @@ export function RoundSummary({
             key={attempt.attemptIndex}
             result={attempt}
             count={round.attempts.length}
+            range={range}
           />
         ))}
       </div>

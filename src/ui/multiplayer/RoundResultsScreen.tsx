@@ -151,6 +151,7 @@ export function RoundResultsScreen({
               key={attempt.attemptIndex}
               result={attempt}
               count={count}
+              range={room.match?.rules.range}
             />
           ))}
         </div>

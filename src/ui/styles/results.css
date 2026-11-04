@@ -1240,3 +1240,104 @@
     grid-column: 1;
   }
 }
+
+/* Régua alvo × palpite no resultado de cada tentativa. */
+.frequency-ruler {
+  margin: 10px 0 6px;
+  /* Espaço lateral para os rótulos nos extremos da faixa. */
+  padding: 24px 18px 0;
+  color: #b8ceef;
+}
+.ruler-track {
+  position: relative;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #2a1d55, #18355a 55%, #0f4a55);
+}
+.ruler-gap {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    #ffd57a 0 6px,
+    transparent 6px 10px
+  );
+  opacity: 0.85;
+  transform-origin: left;
+  animation: ruler-gap-in 0.5s ease-out 0.75s both;
+}
+.ruler-marker {
+  position: absolute;
+  top: 50%;
+  width: 18px;
+  height: 18px;
+  margin: -9px 0 0 -9px;
+  animation: ruler-slide 0.8s cubic-bezier(0.2, 0.8, 0.25, 1) both;
+}
+.ruler-marker::before {
+  content: '';
+  position: absolute;
+  inset: 1px;
+  border: 2px solid #0b1020;
+  border-radius: 50%;
+  background: var(--attempt-accent, #ae58ff);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+.ruler-target::before {
+  inset: 2px;
+  border-radius: 3px;
+  background: #f3f7ff;
+  transform: rotate(45deg);
+}
+.ruler-player {
+  animation-delay: 0.15s;
+}
+.ruler-player[data-playing='true']::before {
+  transform: scale(1.35);
+  box-shadow: 0 0 0 6px #ffffff2e;
+}
+.ruler-target[data-playing='true']::before {
+  transform: rotate(45deg) scale(1.35);
+  box-shadow: 0 0 0 6px #ffffff2e;
+}
+.ruler-label {
+  position: absolute;
+  left: 50%;
+  font-size: 0.6875rem;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+/* Alvo acima e palpite abaixo: os rótulos não se sobrepõem quando próximos. */
+.ruler-target .ruler-label {
+  bottom: calc(100% + 5px);
+  color: #f3f7ff;
+}
+.ruler-player .ruler-label {
+  top: calc(100% + 5px);
+  color: var(--attempt-accent, #ae58ff);
+}
+.ruler-scale {
+  display: flex;
+  justify-content: space-between;
+  margin: 30px -18px 0;
+  font-size: 0.6875rem;
+}
+@keyframes ruler-slide {
+  from {
+    left: 50%;
+    opacity: 0;
+  }
+}
+@keyframes ruler-gap-in {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}

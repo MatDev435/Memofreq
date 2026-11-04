@@ -334,6 +334,7 @@ export function App({
           ) : showingResult && completedRound ? (
             <RoundSummary
               round={completedRound}
+              range={game.session.definition.rules.range}
               next={
                 <button
                   ref={next}
