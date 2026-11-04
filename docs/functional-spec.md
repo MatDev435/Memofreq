@@ -197,3 +197,10 @@ Telas integradas à identidade existente, operando todas as funções do backend
 **Interrupções no multiplayer** (não alteram o single-player): antes de qualquer referência, ocultar a página ou perder o áudio pausa a contagem sem penalidade e exige um clique para recomeçar os três segundos; durante as referências, o round é perdido (`forfeit-round`), pois não há replay; durante o ajuste, o tom é silenciado e a tentativa fica suspensa sem penalidade, retomando na mesma frequência por um clique, sem repetir a referência. O jogador também pode desistir explicitamente de um round suspenso. Não há limite de tempo.
 
 `VITE_MULTIPLAYER_URL` define o backend em cada ambiente; sem ela o multiplayer aparece como indisponível. Registro completo em `multiplayer-report.md`.
+
+## Efeitos sonoros e animações — autorizados em 04/11/2026
+
+- Efeitos sonoros de interface (hover/foco, clique, voltar, contagem, revelação do round, resultado final, entrada e saída de participantes), ligados por padrão. O botão “Efeitos sonoros” no cabeçalho liga e desliga os efeitos, e a preferência fica no `localStorage` (`memofreq:ui-sounds`). Os tons do jogo não são afetados.
+- Silêncio durante a partida: nenhum efeito de interface toca na referência, no ajuste ou no envio do palpite. A única exceção são as batidas da contagem, percussivas e sem altura definida, que terminam pelo menos um segundo antes da referência. Os sons com nota só tocam após o palpite.
+- Animações decorativas: clique dos botões, “pop” da contagem, onda ativa apenas durante a referência, controle do tom ampliado ao arrastar, notas contando até o valor, cards de tentativa em sequência e barras do gráfico final em sequência. Todas respeitam `prefers-reduced-motion` e o botão “Animações visuais”.
+- Estado: implementado na branch `feat/ux-polish`, aguardando avaliação do usuário (pode ser descartado).

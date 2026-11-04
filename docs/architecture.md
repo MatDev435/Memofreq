@@ -255,3 +255,9 @@ O controlador guarda a etapa local (`preparing`, `blocked`, `countdown`, `refere
 Componentes existentes ganharam apenas props opcionais (`SessionHeader.title/exitAction`, `ModeSelector.disabled/description`, `HomeScreen.multiplayer`) e ícones novos; o DOM do single-player permanece igual. Estilos ficam em `multiplayer.css`, carregado depois de `results.css`, com os mesmos tokens e breakpoints.
 
 O Playwright sobe o Worker local (porta 8797) e um build de preview com `VITE_MULTIPLAYER_URL` apontando para ele; os cenários multiplayer usam vários contextos de navegador.
+
+## Efeitos de interface — 04/11/2026
+
+- `src/audio/UiSounds.ts` sintetiza os efeitos em um `AudioContext` próprio, criado no primeiro som, sem arquivos nem dependências. A engine dos tons do jogo não foi alterada.
+- `src/ui/feedback/` contém o provedor (delegação de `pointerover`/`focusin`/`click`/`change` no documento), a preferência persistida, o portão de silêncio (`QuietUi`/`useQuietUi`), `ResultCue` e `useCountUp`. O `App` silencia nas fases `countdown`, `references`, `attempt` e `attempt-result`; o `MultiplayerApp` silencia durante o round, exceto em pausa ou bloqueio.
+- Os testes E2E que medem contextos e osciladores da engine desligam os efeitos por `localStorage`; o comportamento dos efeitos é coberto em `src/ui/feedback/UiFeedback.test.tsx`.
