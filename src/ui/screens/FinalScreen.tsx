@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import type { Ref } from 'react';
+import { recordGame } from '../personalRecord';
 import { ResultCue } from '../feedback/UiFeedback';
 import { AnimatedNumber } from '../components/AnimatedNumber';
 import type { GameResult } from '../../domain/models';
@@ -22,6 +24,10 @@ export function FinalScreen({
   readonly onRestart: () => void;
   readonly onLeave: () => void;
 }) {
+  // Lido e gravado uma única vez por partida exibida.
+  const [best] = useState(() =>
+    recordGame(result.modality, result.gameId, result.score),
+  );
   return (
     <section
       className="final-result screen-enter"
@@ -58,6 +64,22 @@ export function FinalScreen({
               <small>/ {MAX_GAME_SCORE}</small>
               <ResultCue final ratio={result.score / MAX_GAME_SCORE} />
             </strong>
+          </p>
+          <p className="personal-record" data-new={best.isNew}>
+            {best.isNew ? (
+              <>
+                <Icon name="trophy" />
+                <strong>Novo recorde pessoal!</strong>
+              </>
+            ) : (
+              <>
+                <span>Seu recorde pessoal</span>
+                <strong>
+                  {formatNumber(best.record.score)}{' '}
+                  <small>/ {MAX_GAME_SCORE}</small>
+                </strong>
+              </>
+            )}
           </p>
           <div className="final-feedback">
             <span className="average-icon">

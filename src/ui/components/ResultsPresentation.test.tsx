@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 import { DEFAULT_RULES } from '../../domain/config';
 import type { GameResult, RoundResult } from '../../domain/models';
 import { RoundSummary } from './RoundSummary';
@@ -108,4 +108,41 @@ describe('Apresentação dos resultados por modalidade', () => {
     );
     expect(container.querySelector('[aria-live]')).toBeNull();
   });
+
+  it('mostra o recorde pessoal do modo abaixo da pontuação final', () => {
+    const finalResult = (gameId: string, score: number): GameResult => ({
+      gameId,
+      modality: 'hard',
+      rules: DEFAULT_RULES,
+      rounds: [0, 1, 2, 3, 4].map((index) => round(1, index)),
+      score,
+    });
+    const first = render(
+      <FinalScreen
+        result={finalResult('a', 40.125)}
+        titleRef={null}
+        busy={false}
+        onRestart={noop}
+        onLeave={noop}
+      />,
+    );
+    expect(screen.getByText('Novo recorde pessoal!')).toBeVisible();
+    first.unmount();
+    render(
+      <FinalScreen
+        result={finalResult('b', 12)}
+        titleRef={null}
+        busy={false}
+        onRestart={noop}
+        onLeave={noop}
+      />,
+    );
+    const record = screen.getByText('Seu recorde pessoal').parentElement;
+    expect(record).toHaveTextContent('40,13 / 50');
+    expect(record?.closest('[aria-live]')).toBeNull();
+  });
+});
+
+afterEach(() => {
+  window.localStorage.clear();
 });
