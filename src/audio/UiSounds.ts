@@ -34,9 +34,23 @@ export class UiSounds {
     private readonly createContext: ContextFactory = browserContext,
   ) {}
 
+  /**
+   * Libera o áudio; chamar dentro de um gesto do usuário. Os navegadores não
+   * permitem som antes da primeira interação com a página (hover não conta).
+   */
+  unlock(): void {
+    const ctx = this.ensure();
+    if (ctx?.state === 'suspended') void ctx.resume().catch(() => undefined);
+  }
+
   play(sound: UiSound): void {
-    const ctx = this.ready();
-    if (!ctx) return;
+    // Hover antes da liberação é descartado em vez de acumular até o clique.
+    this.whenRunning(sound !== 'hover', (ctx) => {
+      this.render(ctx, sound);
+    });
+  }
+
+  private render(ctx: AudioContext, sound: UiSound): void {
     const t = ctx.currentTime + 0.005;
     switch (sound) {
       case 'hover':
@@ -74,8 +88,12 @@ export class UiSounds {
 
   /** Som curto após a revelação de um round; `ratio` vai de 0 a 1. */
   playResult(ratio: number): void {
-    const ctx = this.ready();
-    if (!ctx) return;
+    this.whenRunning(true, (ctx) => {
+      this.renderResult(ctx, ratio);
+    });
+  }
+
+  private renderResult(ctx: AudioContext, ratio: number): void {
     const t = ctx.currentTime + 0.02;
     if (ratio >= 0.8) this.notes(ctx, t, [523.25, 659.25, 783.99], 0.08, 0.22);
     else if (ratio >= 0.5) this.notes(ctx, t, [523.25, 659.25], 0.1, 0.2);
@@ -84,8 +102,12 @@ export class UiSounds {
 
   /** Fanfarra curta do resultado final; `ratio` vai de 0 a 1. */
   playFinal(ratio: number): void {
-    const ctx = this.ready();
-    if (!ctx) return;
+    this.whenRunning(true, (ctx) => {
+      this.renderFinal(ctx, ratio);
+    });
+  }
+
+  private renderFinal(ctx: AudioContext, ratio: number): void {
     const t = ctx.currentTime + 0.05;
     if (ratio >= 0.8) {
       this.notes(ctx, t, [523.25, 659.25, 783.99], 0.11, 0.2);
@@ -106,7 +128,30 @@ export class UiSounds {
     if (ctx) void ctx.close().catch(() => undefined);
   }
 
-  private ready(): AudioContext | null {
+  private whenRunning(
+    defer: boolean,
+    render: (ctx: AudioContext) => void,
+  ): void {
+    const ctx = this.ensure();
+    if (!ctx) return;
+    if (ctx.state === 'running') {
+      render(ctx);
+      return;
+    }
+    const resumed = ctx.resume();
+    if (!defer) {
+      void resumed.catch(() => undefined);
+      return;
+    }
+    resumed.then(
+      () => {
+        if (this.context === ctx && ctx.state === 'running') render(ctx);
+      },
+      () => undefined,
+    );
+  }
+
+  private ensure(): AudioContext | null {
     if (this.unavailable) return null;
     if (!this.context) {
       const ctx = this.createContext();
@@ -120,8 +165,6 @@ export class UiSounds {
       this.context = ctx;
       this.output = output;
     }
-    if (this.context.state === 'suspended')
-      void this.context.resume().catch(() => undefined);
     return this.context;
   }
 

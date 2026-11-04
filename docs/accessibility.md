@@ -105,5 +105,6 @@ A validação automatizada da Fase 7 cobre axe, teclado, foco, movimento reduzid
 
 - O botão “Efeitos sonoros” (`aria-pressed`) fica ao lado de “Animações visuais”. Os efeitos não substituem nenhum anúncio e não usam regiões vivas.
 - O foco por teclado toca o mesmo som do hover, só quando `:focus-visible`. Hover por toque é ignorado.
+- Os navegadores só liberam áudio após a primeira interação com a página (clique, toque ou tecla); hover não conta. O áudio dos efeitos é liberado no primeiro `pointerdown` ou `keydown` em qualquer ponto da página, e hovers anteriores são descartados, sem acumular.
 - Durante a contagem até o valor, o número que muda fica `aria-hidden` e o valor final permanece em texto acessível. Sem animação, o valor é exibido direto.
 - A validação com NVDA continua com o usuário.

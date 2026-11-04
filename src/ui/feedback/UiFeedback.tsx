@@ -137,17 +137,25 @@ export function UiFeedbackProvider({
       if (element instanceof HTMLInputElement && element.type === 'radio')
         ui('click');
     };
+    // Primeira interação de qualquer tipo libera o áudio para os hovers seguintes.
+    const onGesture = () => {
+      if (enabled.current) sounds.unlock();
+    };
+    document.addEventListener('pointerdown', onGesture, true);
+    document.addEventListener('keydown', onGesture, true);
     document.addEventListener('pointerover', onPointerOver);
     document.addEventListener('focusin', onFocusIn);
     document.addEventListener('click', onClick, true);
     document.addEventListener('change', onChange);
     return () => {
+      document.removeEventListener('pointerdown', onGesture, true);
+      document.removeEventListener('keydown', onGesture, true);
       document.removeEventListener('pointerover', onPointerOver);
       document.removeEventListener('focusin', onFocusIn);
       document.removeEventListener('click', onClick, true);
       document.removeEventListener('change', onChange);
     };
-  }, [ui]);
+  }, [ui, sounds]);
 
   const toggleSounds = useCallback(() => {
     const next = !enabled.current;
