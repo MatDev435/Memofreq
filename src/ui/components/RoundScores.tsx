@@ -64,6 +64,7 @@ export function RoundChart({
               <rect
                 rx="2"
                 style={{
+                  animationDelay: `${String(index * 0.12 + 0.3)}s`,
                   fill: `url(#${id}-bar-${String(index)})`,
                   stroke: [
                     '#b16aff',

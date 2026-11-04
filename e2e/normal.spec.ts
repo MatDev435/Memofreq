@@ -14,6 +14,9 @@ declare global {
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
+    // As métricas medem só a engine do jogo; os efeitos de interface usam
+    // outro AudioContext e são cobertos pelos testes de unidade.
+    window.localStorage.setItem('memofreq:ui-sounds', 'off');
     window.gameAudioMetrics = { contexts: 0, sources: 0, liveSources: 0 };
     const Native = window.AudioContext;
     window.AudioContext = class extends Native {

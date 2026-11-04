@@ -1,7 +1,11 @@
 import type { AttemptResult as AttemptData } from '../../domain/models';
 import { formatHz, formatNumber } from '../format';
 import { ScoreRing } from './ScoreRing';
-import { WaveArt } from './WaveArt';
+import type { FrequencyRange } from '../../domain/config';
+import { FrequencyRuler } from './FrequencyRuler';
+import { ComparisonButton } from './ComparisonButton';
+import { useComparisonPart } from './useComparisonPart';
+import type { ComparisonControl } from './useComparisonPart';
 
 export function AttemptDetails({
   result,
@@ -40,10 +44,15 @@ export function AttemptDetails({
 export function AttemptResult({
   result,
   count = 1,
+  range,
+  comparison,
 }: {
   readonly result: AttemptData;
   readonly count?: number;
+  readonly range?: FrequencyRange | undefined;
+  readonly comparison?: ComparisonControl | undefined;
 }) {
+  const part = useComparisonPart(comparison?.playing ?? null);
   return (
     <section
       className={`round-attempt attempt-color-${String(result.attemptIndex)}`}
@@ -56,7 +65,21 @@ export function AttemptResult({
         Frequência {result.attemptIndex + 1} de {count}
       </h3>
       <AttemptDetails result={result} multiple={count > 1} />
-      <WaveArt variant="mini" />
+      <FrequencyRuler
+        targetHz={result.targetHz}
+        playerHz={result.playerHz}
+        range={range}
+        playing={part}
+      />
+      {comparison && (
+        <ComparisonButton
+          control={comparison}
+          part={part}
+          label={
+            count > 1 ? ` da frequência ${String(result.attemptIndex + 1)}` : ''
+          }
+        />
+      )}
     </section>
   );
 }

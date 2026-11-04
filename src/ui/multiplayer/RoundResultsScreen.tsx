@@ -6,6 +6,9 @@ import { GameProgress } from '../components/GameProgress';
 import { Icon } from '../components/Icon';
 import { WaveArt } from '../components/WaveArt';
 import { ReadyPanel } from './ReadyPanel';
+import type { ComparisonControl } from '../components/useComparisonPart';
+import { AnimatedNumber } from '../components/AnimatedNumber';
+import { ResultCue } from '../feedback/UiFeedback';
 
 /** Tabela comparativa de um round, com valores consolidados pelo servidor. */
 export function RoundTable({
@@ -85,6 +88,7 @@ export function RoundResultsScreen({
   headingRef,
   onReady,
   onKick,
+  comparison,
 }: {
   readonly room: RoomView;
   readonly me: string | null;
@@ -92,6 +96,8 @@ export function RoundResultsScreen({
   readonly headingRef: Ref<HTMLHeadingElement>;
   readonly onReady: () => void;
   readonly onKick: (id: string) => void;
+  readonly comparison?:
+    ((attemptIndex: number) => ComparisonControl) | undefined;
 }) {
   const results = room.match?.lastRound;
   if (!results) return null;
@@ -135,9 +141,10 @@ export function RoundResultsScreen({
                 ? 'Sua média no round:'
                 : 'Sua nota no round:'}{' '}
             <strong>
-              {formatNumber(mine?.score ?? 0)} <small>/ 10</small>
+              <AnimatedNumber value={mine?.score ?? 0} /> <small>/ 10</small>
             </strong>
           </h3>
+          <ResultCue key={results.roundIndex} ratio={(mine?.score ?? 0) / 10} />
           <WaveArt variant="mini" />
         </div>
       </div>
@@ -148,6 +155,8 @@ export function RoundResultsScreen({
               key={attempt.attemptIndex}
               result={attempt}
               count={count}
+              range={room.match?.rules.range}
+              comparison={comparison?.(attempt.attemptIndex)}
             />
           ))}
         </div>

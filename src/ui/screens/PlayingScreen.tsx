@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
+import { useUiFeedback } from '../feedback/uiFeedbackContext';
 import type { GameState } from '../../domain/models';
 import { GameProgress } from '../components/GameProgress';
 import { Icon } from '../components/Icon';
@@ -22,6 +24,12 @@ export function PlayingScreen({
   readonly controls: ReactNode;
   readonly paused: ReactNode;
 }) {
+  const { countdownTick } = useUiFeedback();
+  const tick = phase === 'countdown' && !busy ? countdown : null;
+  useEffect(() => {
+    // A contagem termina pelo menos um segundo antes da referência.
+    if (tick !== null) countdownTick(tick === 1);
+  }, [tick, countdownTick]);
   const title = busy
     ? 'Preparando…'
     : phase === 'countdown'
@@ -63,12 +71,11 @@ export function PlayingScreen({
         <>
           <div className="playing-wave" aria-hidden="true">
             <WaveArt variant="mesh" className="playing-mesh" />
-            <WaveArt
-              variant="signal"
-              active={phase === 'attempt' || phase === 'references'}
-            />
+            <WaveArt variant="signal" active={phase === 'references'} />
             {phase === 'countdown' && (
-              <div className="countdown-orb">{countdown ?? 3}</div>
+              <div className="countdown-orb" key={countdown ?? 3}>
+                {countdown ?? 3}
+              </div>
             )}
           </div>
           {controls}

@@ -25,6 +25,8 @@ const paths = {
   plus: 'M5 12h14m-7-7v14',
   check: 'm5 12 4 4L19 6',
   ear: 'M7 9a5 5 0 0 1 10 0c0 5-5 4-5 9a3 3 0 0 1-6 0m4-8a2 2 0 0 1 4 0c0 2-3 2-3 5',
+  sparkle:
+    'M12 3v4m0 10v4M3 12h4m10 0h4M6 6l2.5 2.5m7 7L18 18M6 18l2.5-2.5m7-7L18 6',
   motion: 'M5 5v14m5-10v6m5-12v18m5-13v8',
   bars: 'M5 14v7m7-14v14m7-20v20',
   chevron: 'm9 5 7 7-7 7',

@@ -1,6 +1,7 @@
 import type { ReactNode, Ref } from 'react';
 import { Brand } from './Brand';
 import { Icon } from './Icon';
+import { SoundToggle } from './SoundToggle';
 import type { IconName } from './Icon';
 
 /** Ação de saída personalizada, usada pelas telas multiplayer. */
@@ -48,6 +49,7 @@ export function SessionHeader({
       </h2>
       <div className="session-header-controls">
         {audio}
+        <SoundToggle />
         <button
           type="button"
           className="motion-toggle"

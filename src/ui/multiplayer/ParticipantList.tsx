@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PlayerView } from '../../multiplayer/protocol';
 import { Icon } from '../components/Icon';
+import { useUiFeedback } from '../feedback/uiFeedbackContext';
 
 export interface ParticipantStatus {
   readonly label: string;
@@ -92,6 +93,13 @@ export function ParticipantList({
   readonly canKick?: boolean;
   readonly onKick?: (id: string) => void;
 }) {
+  const { cue } = useUiFeedback();
+  const previous = useRef(players.length);
+  useEffect(() => {
+    if (players.length > previous.current) cue('join');
+    else if (players.length < previous.current) cue('leave');
+    previous.current = players.length;
+  }, [players.length, cue]);
   return (
     <ul className="participant-list" aria-label={label}>
       {players.map((player) => {

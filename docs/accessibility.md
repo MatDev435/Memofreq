@@ -100,3 +100,14 @@ A validação automatizada da Fase 7 cobre axe, teclado, foco, movimento reduzid
 - Prontidão usa `aria-disabled` para manter o foco no botão. Remover participante exige confirmação; o foco vai para “Confirmar remoção de …” e volta a “Remover …” ao cancelar.
 - Listas de participantes, prontidão, progresso e classificação têm nomes acessíveis; empates e “Você” são texto. Tabelas de resultados têm legenda e cabeçalhos; quando rolam horizontalmente, são regiões focáveis.
 - Automação: axe sem violações nas telas multiplayer e reflow a 320 px com texto a 200%. A fala real com NVDA não foi verificada pelo agente; ver o roteiro em `manual-testing.md`.
+
+## Efeitos sonoros e animações — 04/11/2026
+
+- O botão “Efeitos sonoros” (`aria-pressed`) fica ao lado de “Animações visuais”. Os efeitos não substituem nenhum anúncio e não usam regiões vivas.
+- O foco por teclado toca o mesmo som do hover, só quando `:focus-visible`. Hover por toque é ignorado.
+- Os navegadores só liberam áudio após a primeira interação com a página (clique, toque ou tecla); hover não conta. O áudio dos efeitos é liberado no primeiro `pointerdown` ou `keydown` em qualquer ponto da página, e hovers anteriores são descartados, sem acumular.
+- Durante a contagem até o valor, o número que muda fica `aria-hidden` e o valor final permanece em texto acessível. Sem animação, o valor é exibido direto.
+- A validação com NVDA continua com o usuário.
+- O botão de efeitos passou a se chamar “Efeitos sonoros e vibração”.
+- A régua alvo × palpite é `aria-hidden`, porque os valores continuam na lista de detalhes. O botão “Ouvir alvo e palpite” (e “Parar escuta”) recebe o número da frequência quando há várias tentativas, nunca valores em Hz. O texto “Tocando o alvo…/seu palpite…” é só visual.
+- O recorde pessoal é texto estático na tela final, fora de regiões vivas.

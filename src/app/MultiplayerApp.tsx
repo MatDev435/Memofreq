@@ -21,6 +21,7 @@ import { RoundPausedCard } from '../ui/multiplayer/RoundPausedCard';
 import { RoundResultsScreen } from '../ui/multiplayer/RoundResultsScreen';
 import { WaitingScreen } from '../ui/multiplayer/WaitingScreen';
 import { PlayingScreen } from '../ui/screens/PlayingScreen';
+import { useQuietUi } from '../ui/feedback/uiFeedbackContext';
 
 /** Etapa equivalente da tela de jogo individual, reaproveitada aqui. */
 function playingPhase(stage: RoundPlay['stage']): GameState['phase'] {
@@ -145,6 +146,7 @@ export function MultiplayerApp({
   );
 
   let content;
+  let quietUi = false;
   if (status === 'ended' && snapshot.endReason) {
     content = (
       <ExitScreen
@@ -199,6 +201,17 @@ export function MultiplayerApp({
         headingRef={headingRef}
         onReady={controller.ready}
         onKick={controller.kick}
+        comparison={(attemptIndex) => ({
+          playing:
+            snapshot.comparison?.attemptIndex === attemptIndex &&
+            snapshot.comparison.roundIndex === match?.lastRound?.roundIndex
+              ? snapshot.comparison.token
+              : null,
+          onPlay: () => {
+            controller.playComparison(attemptIndex);
+          },
+          onStop: controller.stopComparison,
+        })}
       />
     );
   } else if (room.phase === 'final') {
@@ -224,6 +237,7 @@ export function MultiplayerApp({
     );
   } else if (match) {
     const tonePlay = play.stage === 'attempt' || play.stage === 'paused';
+    quietUi = play.stage !== 'paused' && play.stage !== 'blocked';
     content = (
       <PlayingScreen
         phase={playingPhase(play.stage)}
@@ -254,6 +268,8 @@ export function MultiplayerApp({
       />
     );
   }
+
+  useQuietUi(quietUi);
 
   return (
     <>

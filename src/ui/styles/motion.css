@@ -1,0 +1,134 @@
+/*
+ * Microinterações e animações de revelação. Todas são decorativas: o
+ * conteúdo e o que a tecnologia assistiva lê não dependem delas, e as regras
+ * de `prefers-reduced-motion` e de `[data-motion='paused']` em global.css as
+ * desligam.
+ */
+
+/* Botões: leve "afundar" no clique. */
+button:active:not(:disabled) {
+  transform: translateY(1px) scale(0.97);
+  transition-duration: 0.06s;
+}
+
+/* Cards de modo: realce ao passar o mouse. */
+.mode-section label {
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease;
+}
+.mode-section label:hover {
+  transform: translateY(-2px);
+}
+
+/* Onda do jogo: reage só enquanto a referência toca; parada no ajuste. */
+.playing-wave > .wave-signal .wave-motion {
+  animation-play-state: paused;
+  transition: opacity 0.4s ease;
+  opacity: 0.6;
+}
+.playing-wave > .wave-signal.is-active .wave-motion {
+  animation: signal-pulse 0.9s ease-in-out infinite alternate;
+  animation-play-state: running;
+  opacity: 1;
+}
+@keyframes signal-pulse {
+  from {
+    transform: scaleY(0.7);
+  }
+  to {
+    transform: scaleY(1.18);
+  }
+}
+
+/* Contagem: cada número entra com um pequeno "pop". */
+.countdown-orb {
+  animation: countdown-pop 0.45s cubic-bezier(0.2, 0.9, 0.3, 1.4) both;
+}
+@keyframes countdown-pop {
+  from {
+    transform: scale(0.6);
+    opacity: 0;
+    box-shadow: 0 0 0 #804cfb00;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1);
+    box-shadow: 0 0 50px #804cfb44;
+  }
+}
+
+/* Slider de tom: o controle cresce ao ser pego. */
+.tone-control input[type='range']::-webkit-slider-thumb {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.tone-control input[type='range']:active::-webkit-slider-thumb {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 8px #a374ff33;
+}
+.tone-control input[type='range']::-moz-range-thumb {
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+.tone-control input[type='range']:active::-moz-range-thumb {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 8px #a374ff33;
+}
+
+/* Revelação: cards de tentativa entram um após o outro (Extreme). */
+.attempt-cards > * {
+  animation: reveal-up 0.45s ease-out both;
+}
+.attempt-cards > :nth-child(2) {
+  animation-delay: 0.15s;
+}
+.attempt-cards > :nth-child(3) {
+  animation-delay: 0.3s;
+}
+.round-average,
+.final-total-card {
+  animation: reveal-pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+}
+.round-feedback,
+.round-actions,
+.final-chart-card {
+  animation: reveal-up 0.45s ease-out 0.35s both;
+}
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes reveal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Número que conta até a nota: largura estável enquanto muda. */
+.count-up {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Gráfico final: barras crescem em sequência (atraso definido no componente). */
+
+/* Participantes entram com fade no lobby. */
+.participant {
+  animation: reveal-up 0.35s ease-out both;
+}

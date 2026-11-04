@@ -1,5 +1,5 @@
-import { render, screen, within } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_RULES } from '../../domain/config';
 import type { GameResult, RoundResult } from '../../domain/models';
 import { RoundSummary } from './RoundSummary';
@@ -24,6 +24,46 @@ function round(count: number, roundIndex = 0): RoundResult {
 const noop = () => undefined;
 
 describe('Apresentação dos resultados por modalidade', () => {
+  it('oferece a escuta comparativa por tentativa sem anunciar valores', () => {
+    const onPlay = vi.fn();
+    const onStop = vi.fn();
+    const { rerender } = render(
+      <RoundSummary
+        round={round(2)}
+        comparison={(attemptIndex) => ({
+          playing: null,
+          onPlay: () => {
+            onPlay(attemptIndex);
+          },
+          onStop,
+        })}
+      />,
+    );
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Ouvir alvo e palpite da frequência 2',
+      }),
+    );
+    expect(onPlay).toHaveBeenCalledWith(1);
+    rerender(
+      <RoundSummary
+        round={round(2)}
+        comparison={(attemptIndex) => ({
+          playing: attemptIndex === 1 ? 7 : null,
+          onPlay: noop,
+          onStop,
+        })}
+      />,
+    );
+    const stop = screen.getByRole('button', {
+      name: 'Parar escuta da frequência 2',
+    });
+    expect(stop).not.toHaveAccessibleName(/Hz|\d{3}/);
+    fireEvent.click(stop);
+    expect(onStop).toHaveBeenCalledTimes(1);
+    expect(stop.closest('[aria-live]')).toBeNull();
+  });
+
   it.each([1, 2, 3])(
     'revela %i frequências juntas e preserva a nota consolidada do round',
     (count) => {
@@ -108,4 +148,41 @@ describe('Apresentação dos resultados por modalidade', () => {
     );
     expect(container.querySelector('[aria-live]')).toBeNull();
   });
+
+  it('mostra o recorde pessoal do modo abaixo da pontuação final', () => {
+    const finalResult = (gameId: string, score: number): GameResult => ({
+      gameId,
+      modality: 'hard',
+      rules: DEFAULT_RULES,
+      rounds: [0, 1, 2, 3, 4].map((index) => round(1, index)),
+      score,
+    });
+    const first = render(
+      <FinalScreen
+        result={finalResult('a', 40.125)}
+        titleRef={null}
+        busy={false}
+        onRestart={noop}
+        onLeave={noop}
+      />,
+    );
+    expect(screen.getByText('Novo recorde pessoal!')).toBeVisible();
+    first.unmount();
+    render(
+      <FinalScreen
+        result={finalResult('b', 12)}
+        titleRef={null}
+        busy={false}
+        onRestart={noop}
+        onLeave={noop}
+      />,
+    );
+    const record = screen.getByText('Seu recorde pessoal').parentElement;
+    expect(record).toHaveTextContent('40,13 / 50');
+    expect(record?.closest('[aria-live]')).toBeNull();
+  });
+});
+
+afterEach(() => {
+  window.localStorage.clear();
 });

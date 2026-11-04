@@ -22,6 +22,8 @@ import type {
 import { RoomConnection } from '../multiplayer/RoomConnection';
 import type { ConnectionOptions } from '../multiplayer/RoomConnection';
 import type { AudioInterruption, AudioPlayback, AudioPort } from './audioPort';
+import { COMPARISON_GAP_SECONDS, comparisonTones } from './comparison';
+import type { ComparisonState } from './comparison';
 
 /**
  * Execução local do round vigente. O servidor define alvos, posições
@@ -71,6 +73,8 @@ export interface MultiplayerSnapshot {
   /** Prontidão enviada e ainda não refletida pelo servidor. */
   readonly readyKey: string | null;
   readonly pageVisible: boolean;
+  /** Escuta comparativa em andamento na tela de resultados do round. */
+  readonly comparison: ComparisonState | null;
 }
 
 export interface MultiplayerControllerOptions {
@@ -129,8 +133,10 @@ export class MultiplayerController {
   private audioVersion = 0;
   private playback: {
     readonly handle: AudioPlayback;
-    readonly kind: 'reference' | 'attempt';
+    readonly kind: 'reference' | 'attempt' | 'comparison';
   } | null = null;
+  /** Invalida escutas comparativas pendentes ou em andamento. */
+  private comparisonOp = 0;
   private silence: Promise<void> = Promise.resolve();
   private timer: ReturnType<typeof setTimeout> | null = null;
   private active = false;
@@ -153,6 +159,7 @@ export class MultiplayerController {
       execution: 0,
       readyKey: null,
       pageVisible: options.isPageVisible(),
+      comparison: null,
     });
   }
 
@@ -396,8 +403,84 @@ export class MultiplayerController {
     const visible = this.options.isPageVisible();
     if (visible === this.snapshot.pageVisible) return;
     this.update({ pageVisible: visible });
-    if (!visible) this.interrupt();
+    if (visible) return;
+    this.cancelComparison();
+    this.interrupt();
   };
+
+  /** Toca o alvo e depois o próprio palpite de uma tentativa do round. */
+  readonly playComparison = (attemptIndex: number): void => {
+    const results = this.snapshot.room?.match?.lastRound;
+    const mine = results?.players.find(
+      (player) => player.playerId === this.snapshot.playerId,
+    );
+    const attempt =
+      mine?.status === 'completed' ? mine.attempts[attemptIndex] : undefined;
+    if (
+      !this.active ||
+      this.snapshot.room?.phase !== 'round-results' ||
+      !results ||
+      !attempt ||
+      !this.visible()
+    )
+      return;
+    this.cancelComparison();
+    const operation = this.comparisonOp;
+    let audio: AudioPort;
+    let enabled: Promise<void>;
+    try {
+      audio = this.getAudio();
+      enabled = audio.enable();
+    } catch {
+      return;
+    }
+    void Promise.all([enabled, this.silence]).then(
+      () => {
+        if (
+          operation !== this.comparisonOp ||
+          !this.active ||
+          !this.visible() ||
+          this.snapshot.room?.phase !== 'round-results' ||
+          this.snapshot.room.match?.lastRound?.roundIndex !== results.roundIndex
+        )
+          return;
+        let handle: AudioPlayback;
+        try {
+          handle = audio.playSequence(
+            comparisonTones(attempt.targetHz, attempt.playerHz),
+            COMPARISON_GAP_SECONDS,
+          );
+        } catch {
+          return;
+        }
+        this.playback = { handle, kind: 'comparison' };
+        this.update({
+          comparison: {
+            roundIndex: results.roundIndex,
+            attemptIndex,
+            token: operation,
+          },
+        });
+        void handle.finished.then(() => {
+          if (this.playback?.handle.id === handle.id) this.playback = null;
+          if (operation === this.comparisonOp && this.snapshot.comparison)
+            this.update({ comparison: null });
+        });
+      },
+      () => undefined,
+    );
+  };
+
+  readonly stopComparison = (): void => {
+    this.cancelComparison();
+  };
+
+  /** Interrompe na hora a escuta comparativa, pendente ou em andamento. */
+  private cancelComparison(): void {
+    this.comparisonOp += 1;
+    if (this.playback?.kind === 'comparison') void this.quiet();
+    if (this.snapshot.comparison !== null) this.update({ comparison: null });
+  }
 
   private resumeBlocked(roundIndex: number): void {
     const enabled = this.tryEnable();
@@ -518,6 +601,7 @@ export class MultiplayerController {
   private reset(
     patch: Pick<MultiplayerSnapshot, 'status' | 'endReason' | 'formError'>,
   ): void {
+    this.cancelComparison();
     this.update({
       ...patch,
       playerId: null,
@@ -554,6 +638,9 @@ export class MultiplayerController {
           : null,
       notice: phaseChanged ? null : this.snapshot.notice,
     });
+    // Um novo round (ou qualquer outra etapa) cancela a escuta na hora,
+    // antes de preparar a contagem da próxima referência.
+    if (phaseChanged) this.cancelComparison();
     this.syncPlay(room);
     if (changes.length > 0) this.announce(changes.join(' '));
   }

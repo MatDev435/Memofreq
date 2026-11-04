@@ -67,3 +67,9 @@
 - O cliente não calcula notas, médias ou ranking; mantém a política de interrupção multiplayer documentada: sem penalidade antes da referência e durante o ajuste (tentativa suspensa), round perdido durante a referência.
 - `VITE_MULTIPLAYER_URL` é a única configuração do frontend multiplayer; nunca coloque segredos em variáveis `VITE_`. `.env.local` não é versionado.
 - Mudanças de interface multiplayer exigem `npm run check` e `npm run test:e2e`, que sobe o Worker local e usa vários navegadores.
+
+## Efeitos sonoros e animações — autorizados em 04/11/2026
+
+- Branch `feat/ux-polish`, sujeita a descarte após avaliação do usuário. Regras em `docs/functional-spec.md`.
+- Nenhum efeito de interface durante referência, ajuste ou envio do palpite; a contagem percussiva é a única exceção e termina antes da referência.
+- Também autorizados em 04/11/2026, na mesma branch: vibração, régua alvo × palpite (single e multiplayer), recorde pessoal por modo só no `localStorage` (apenas na tela final do single-player) e escuta comparativa após o resultado. A escuta é a única repetição de referência permitida, nunca antes do palpite, e é cancelada na hora quando o próximo round começa.

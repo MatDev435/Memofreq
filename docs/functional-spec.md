@@ -197,3 +197,17 @@ Telas integradas à identidade existente, operando todas as funções do backend
 **Interrupções no multiplayer** (não alteram o single-player): antes de qualquer referência, ocultar a página ou perder o áudio pausa a contagem sem penalidade e exige um clique para recomeçar os três segundos; durante as referências, o round é perdido (`forfeit-round`), pois não há replay; durante o ajuste, o tom é silenciado e a tentativa fica suspensa sem penalidade, retomando na mesma frequência por um clique, sem repetir a referência. O jogador também pode desistir explicitamente de um round suspenso. Não há limite de tempo.
 
 `VITE_MULTIPLAYER_URL` define o backend em cada ambiente; sem ela o multiplayer aparece como indisponível. Registro completo em `multiplayer-report.md`.
+
+## Efeitos sonoros e animações — autorizados em 04/11/2026
+
+- Efeitos sonoros de interface (hover/foco, clique, voltar, contagem, revelação do round, resultado final, entrada e saída de participantes), ligados por padrão. O botão “Efeitos sonoros” no cabeçalho liga e desliga os efeitos, e a preferência fica no `localStorage` (`memofreq:ui-sounds`). Os tons do jogo não são afetados.
+- Silêncio durante a partida: nenhum efeito de interface toca na referência, no ajuste ou no envio do palpite. A única exceção são as batidas da contagem, percussivas e sem altura definida, que terminam pelo menos um segundo antes da referência. Os sons com nota só tocam após o palpite.
+- Animações decorativas: clique dos botões, “pop” da contagem, onda ativa apenas durante a referência, controle do tom ampliado ao arrastar, notas contando até o valor, cards de tentativa em sequência e barras do gráfico final em sequência. Todas respeitam `prefers-reduced-motion` e o botão “Animações visuais”.
+- Vibração curta (onde houver suporte, como no Android) na contagem, na revelação do round e no resultado final, controlada pelo mesmo botão, agora chamado “Efeitos sonoros e vibração”.
+- Estado: implementado na branch `feat/ux-polish`, aguardando avaliação do usuário (pode ser descartado).
+
+## Régua, recorde e escuta comparativa — autorizados em 04/11/2026
+
+- **Régua alvo × palpite:** cada card de tentativa nos resultados do round, no single-player e no multiplayer, mostra a faixa em escala logarítmica, com o alvo (losango, rótulo acima) e o palpite (círculo, rótulo abaixo). Os marcadores deslizam até a posição e o trecho entre eles se preenche. É apenas visual (`aria-hidden`), porque os mesmos valores estão na lista de detalhes.
+- **Recorde pessoal:** só a melhor pontuação de cada modo (Normal, Hard, Extreme 2, Extreme 3), guardada no `localStorage` deste navegador (`memofreq:record:<modo>`), sem histórico nem servidor. Aparece apenas na tela final do single-player, abaixo da pontuação de 0 a 50: “Seu recorde pessoal” ou, quando a partida o supera, “Novo recorde pessoal!”. Um empate não substitui o recorde anterior.
+- **Ouvir alvo e palpite:** nos resultados do round (single-player e multiplayer), cada tentativa tem um botão que toca o alvo e, depois, o próprio palpite, com o mesmo timbre do jogo (1,5 s cada, 0,6 s de intervalo). É a única repetição permitida de uma referência, e só depois de registrado o palpite. A escuta é cancelada na hora ao avançar, quando o próximo round começa no servidor, ao ocultar a página, ao sair e ao trocar de tela; uma escuta ainda pendente não começa depois disso. Os nomes acessíveis não trazem valores, e não há anúncio vivo.
