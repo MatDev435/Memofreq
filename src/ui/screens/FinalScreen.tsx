@@ -1,4 +1,6 @@
 import type { Ref } from 'react';
+import { ResultCue } from '../feedback/UiFeedback';
+import { AnimatedNumber } from '../components/AnimatedNumber';
 import type { GameResult } from '../../domain/models';
 import { MAX_GAME_SCORE } from '../../domain/config';
 import { formatHz, formatNumber } from '../format';
@@ -52,7 +54,9 @@ export function FinalScreen({
           <p className="total-score">
             <span>Pontuação final</span>
             <strong>
-              {formatNumber(result.score)} <small>/ {MAX_GAME_SCORE}</small>
+              <AnimatedNumber value={result.score} />{' '}
+              <small>/ {MAX_GAME_SCORE}</small>
+              <ResultCue final ratio={result.score / MAX_GAME_SCORE} />
             </strong>
           </p>
           <div className="final-feedback">

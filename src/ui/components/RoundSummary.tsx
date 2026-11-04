@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+import { ResultCue } from '../feedback/UiFeedback';
+import { AnimatedNumber } from './AnimatedNumber';
 import type { RoundResult } from '../../domain/models';
 import { formatNumber } from '../format';
 import { AttemptResult } from './AttemptResult';
@@ -45,9 +47,10 @@ export function RoundSummary({
           <h3>
             {scoreLabel}:{' '}
             <strong>
-              {formatNumber(round.score)} <small>/ 10</small>
+              <AnimatedNumber value={round.score} /> <small>/ 10</small>
             </strong>
           </h3>
+          <ResultCue key={round.roundIndex} ratio={round.score / 10} />
           <WaveArt variant="mini" />
         </div>
       </div>

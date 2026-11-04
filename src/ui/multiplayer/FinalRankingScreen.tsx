@@ -1,4 +1,6 @@
 import type { Ref } from 'react';
+import { ResultCue } from '../feedback/UiFeedback';
+import { AnimatedNumber } from '../components/AnimatedNumber';
 import { MAX_GAME_SCORE } from '../../domain/config';
 import type { RoomView } from '../../multiplayer/protocol';
 import { formatHz, formatNumber } from '../format';
@@ -60,7 +62,10 @@ export function FinalRankingScreen({
           <p className="total-score">
             <span>Sua pontuação</span>
             <strong>
-              {formatNumber(mine?.totalScore ?? 0)}{' '}
+              <AnimatedNumber value={mine?.totalScore ?? 0} />{' '}
+              {mine && (
+                <ResultCue final ratio={mine.totalScore / MAX_GAME_SCORE} />
+              )}
               <small>/ {MAX_GAME_SCORE}</small>
             </strong>
           </p>

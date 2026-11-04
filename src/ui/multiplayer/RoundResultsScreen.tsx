@@ -6,6 +6,8 @@ import { GameProgress } from '../components/GameProgress';
 import { Icon } from '../components/Icon';
 import { WaveArt } from '../components/WaveArt';
 import { ReadyPanel } from './ReadyPanel';
+import { AnimatedNumber } from '../components/AnimatedNumber';
+import { ResultCue } from '../feedback/UiFeedback';
 
 /** Tabela comparativa de um round, com valores consolidados pelo servidor. */
 export function RoundTable({
@@ -135,9 +137,10 @@ export function RoundResultsScreen({
                 ? 'Sua média no round:'
                 : 'Sua nota no round:'}{' '}
             <strong>
-              {formatNumber(mine?.score ?? 0)} <small>/ 10</small>
+              <AnimatedNumber value={mine?.score ?? 0} /> <small>/ 10</small>
             </strong>
           </h3>
+          <ResultCue key={results.roundIndex} ratio={(mine?.score ?? 0) / 10} />
           <WaveArt variant="mini" />
         </div>
       </div>

@@ -20,6 +20,9 @@ declare global {
 
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => {
+    // As métricas medem só a engine do jogo; os efeitos de interface usam
+    // outro AudioContext e são cobertos pelos testes de unidade.
+    window.localStorage.setItem('memofreq:ui-sounds', 'off');
     window.phaseFiveAudio = { contexts: [], voices: [] };
     const Native = window.AudioContext;
     let partialIndex = 0;
