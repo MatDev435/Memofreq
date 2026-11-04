@@ -268,4 +268,3 @@ O Playwright sobe o Worker local (porta 8797) e um build de preview com `VITE_MU
 - O snapshot expõe `comparison` (`roundIndex`, `attemptIndex`, `token`); `useComparisonPart` deriva, por tempo, qual marcador da régua destacar.
 - `src/ui/personalRecord.ts` lê e grava o recorde por modalidade e é idempotente por `gameId`, o que protege contra renderizações repetidas.
 - `src/ui/feedback/haptics.ts` encapsula `navigator.vibrate`.
-
